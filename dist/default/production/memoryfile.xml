@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <executable name="dist/default/production/OMXRealTime.X.production.elf">
+    <memory name="data">
+      <units>bytes</units>
+      <length>32768</length>
+      <used>11450</used>
+      <free>21318</free>
+    </memory>
+    <memory name="program">
+      <units>bytes</units>
+      <length>1056000</length>
+      <used>31089</used>
+      <free>1024911</free>
+    </memory>
+  </executable>
+</project>
