@@ -133,8 +133,8 @@ void UART1_Initialize (void)
    U1MODE = (0x8008 & ~(1<<15));  // disabling UARTEN bit   
    // UTXISEL0 TX_ONE_CHAR; UTXINV disabled; OERR NO_ERROR_cleared; URXISEL RX_ONE_CHAR; UTXBRK COMPLETED; UTXEN disabled; ADDEN disabled; 
    U1STA = 0x0000;
-   // BaudRate = 9600; Frequency = 4000000 Hz; U1BRG 103; 
-   U1BRG = 0x0067;
+   // BaudRate = 115200; Frequency = 4000000 Hz; U1BRG 8; 
+   U1BRG = 0x0008;
    // ADMADDR 0; ADMMASK 0; 
    U1ADMD = 0x0000;
 
@@ -318,7 +318,6 @@ void UART1_Write( const uint8_t byte)
 unsigned int UART1_WriteBuffer( const uint8_t *buffer , const unsigned int bufLen )
 {
     unsigned int numBytesWritten = 0 ;
-    uint8_t aux = 0;
 
     while ( numBytesWritten < ( bufLen ))
     {
@@ -328,8 +327,7 @@ unsigned int UART1_WriteBuffer( const uint8_t *buffer , const unsigned int bufLe
         }
         else
         {
-            aux = buffer[numBytesWritten++];
-            UART1_Write ( aux ) ;
+            UART1_Write (buffer[numBytesWritten++] ) ;
         }
     }
 //    flushBufferTx();
