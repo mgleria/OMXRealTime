@@ -28,6 +28,7 @@
 #include "typedef.h"
 
 #include "funciones/shell.h"
+#include "sistema/ext_rtcc.h"
 
 /**********************************************************************************************/
 /*	texto del modelo de equipo	*/
@@ -64,6 +65,8 @@ void vTaskSensorADC( void *pvParameters );
 
 void vTaskShell( void *pvParameters );
 
+void vTaskRTC( void *pvParameters ); 
+
 //static void vReceiverTask( void *pvParameters );
 
 //static void vSenderTask( void *pvParameters );
@@ -81,6 +84,7 @@ static QueueHandle_t xLCDQueue;
 //xQueueShell = xQueueCreate(1, MAX_RESP_LENGHT);
  
 TaskHandle_t xShellHandle;
+TaskHandle_t xRTCTaskHandle;
 
 static const char *pcSensor = "Pot";
 static char cStringBuffer[ mainMAX_STRING_LENGTH ];
@@ -92,24 +96,31 @@ int main( void )
     SYSTEM_Initialize();
     vLedInitialise();
     
-     xTaskCreate(    vTaskShell,
-                    "Shell",
-                    2000,
+    xTaskCreate(    vTaskRTC,
+                    "RTC",
+                    DEFAULT_STACK_SIZE,
                     NULL,
-                    2,
-                    &xShellHandle);
+                    3,
+                    &xRTCTaskHandle);
     
-    xTaskCreate(    vTaskSensorADC, /* Pointer to the function that implements the task. */
-                    "Sensor", /* Text name for the task. This is to facilitate debugging only. */
-                    DEFAULT_STACK_SIZE, /* Stack depth - small microcontrollers will use much less stack than this. */
-                    (void*)pcSensor, /* Pass the text to be printed into the task using the task parameter. */
-                    1, /* This task will run at priority 1. */
-                    NULL ); /* The task handle is not used in this example. */
+//    xTaskCreate(    vTaskShell,
+//                    "Shell",
+//                    2000,
+//                    NULL,
+//                    2,
+//                    &xShellHandle);
+//    
+//    xTaskCreate(    vTaskSensorADC, /* Pointer to the function that implements the task. */
+//                    "Sensor", /* Text name for the task. This is to facilitate debugging only. */
+//                    DEFAULT_STACK_SIZE, /* Stack depth - small microcontrollers will use much less stack than this. */
+//                    (void*)pcSensor, /* Pass the text to be printed into the task using the task parameter. */
+//                    1, /* This task will run at priority 1. */
+//                    NULL ); /* The task handle is not used in this example. */
     
     
     /* Start the task that will control the LCD.  This returns the handle
 	to the queue used to write text out to the task. */
-	xLCDQueue = xStartLCDTask();
+//	xLCDQueue = xStartLCDTask();
 
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
@@ -164,6 +175,26 @@ void vTaskSensorADC( void *pvParameters ){
 		xQueueSend( xLCDQueue, &xMessage, portMAX_DELAY );
      
         vLedToggleLED(wichLED);
+    }
+}
+
+void vTaskRTC( void *pvParameters ){
+     // Seccion de inicializacion
+//    uint8_t dataToWrite = 0;
+//    uint8_t dataReceived = 0;
+    rtc_init();
+    
+    TickType_t xDelayMs;
+    auto rtcc_t t;
+    
+    xDelayMs = xMainMsToTicks(1000);
+    
+
+    // Cuerpo de la tarea
+    for( ;; ){
+        vTaskDelay(xDelayMs);
+        
+        get_rtcc_time(&t);
     }
 }
 
@@ -252,3 +283,135 @@ void flushComando(uint8_t *comando)
     }
 }
 
+
+
+void ejemploI2C (void){
+    #define MCHP24AA512_RETRY_MAX       100  // define the retry count
+    #define MCHP24AA512_ADDRESS         0x50 // slave device address
+    #define MCHP24AA512_DEVICE_TIMEOUT  50   // define slave timeout 
+
+
+    uint8_t MCHP24AA512_Read(
+                                    uint16_t address,
+                                    uint8_t *pData,
+                                    uint16_t nCount)
+    {
+        I2C1_MESSAGE_STATUS status;
+        uint8_t     writeBuffer[3];
+        uint16_t    retryTimeOut, slaveTimeOut;
+        uint16_t    counter;
+        uint8_t     *pD;
+
+        pD = pData;
+
+        for (counter = 0; counter < nCount; counter++)
+        {
+
+            // build the write buffer first
+            // starting address of the EEPROM memory
+            writeBuffer[0] = (address >> 8);                // high address
+            writeBuffer[1] = (uint8_t)(address);            // low low address
+
+            // Now it is possible that the slave device will be slow.
+            // As a work around on these slaves, the application can
+            // retry sending the transaction
+            retryTimeOut = 0;
+            slaveTimeOut = 0;
+
+            while(status != I2C1_MESSAGE_FAIL)
+            {
+                // write one byte to EEPROM (2 is the count of bytes to write)
+                I2C1_MasterWrite(    writeBuffer,
+                                        2,
+                                        MCHP24AA512_ADDRESS,
+                                        &status);
+
+                // wait for the message to be sent or status has changed.
+                while(status == I2C1_MESSAGE_PENDING)
+                {
+                    // add some delay here
+
+                    // timeout checking
+                    // check for max retry and skip this byte
+                    if (slaveTimeOut == MCHP24AA512_DEVICE_TIMEOUT)
+                        return (0);
+                    else
+                        slaveTimeOut++;
+                }
+
+                if (status == I2C1_MESSAGE_COMPLETE)
+                    break;
+
+                // if status is  I2C1_MESSAGE_ADDRESS_NO_ACK,
+                //               or I2C1_DATA_NO_ACK,
+                // The device may be busy and needs more time for the last
+                // write so we can retry writing the data, this is why we
+                // use a while loop here
+
+                // check for max retry and skip this byte
+                if (retryTimeOut == MCHP24AA512_RETRY_MAX)
+                    break;
+                else
+                    retryTimeOut++;
+            }
+
+            if (status == I2C1_MESSAGE_COMPLETE)
+            {
+
+                // this portion will read the byte from the memory location.
+                retryTimeOut = 0;
+                slaveTimeOut = 0;
+
+                while(status != I2C1_MESSAGE_FAIL)
+                {
+                    // write one byte to EEPROM (2 is the count of bytes to write)
+                    I2C1_MasterRead(     pD,
+                                            1,
+                                            MCHP24AA512_ADDRESS,
+                                            &status);
+
+                    // wait for the message to be sent or status has changed.
+                    while(status == I2C1_MESSAGE_PENDING)
+                    {
+                        // add some delay here
+
+                        // timeout checking
+                        // check for max retry and skip this byte
+                        if (slaveTimeOut == MCHP24AA512_DEVICE_TIMEOUT)
+                            return (0);
+                        else
+                            slaveTimeOut++;
+                    }
+
+                    if (status == I2C1_MESSAGE_COMPLETE)
+                        break;
+
+                    // if status is  I2C1_MESSAGE_ADDRESS_NO_ACK,
+                    //               or I2C1_DATA_NO_ACK,
+                    // The device may be busy and needs more time for the last
+                    // write so we can retry writing the data, this is why we
+                    // use a while loop here
+
+                    // check for max retry and skip this byte
+                    if (retryTimeOut == MCHP24AA512_RETRY_MAX)
+                        break;
+                    else
+                        retryTimeOut++;
+                }
+            }
+
+            // exit if the last transaction failed
+            if (status == I2C1_MESSAGE_FAIL)
+            {
+                return(0);
+                break;
+            }
+
+            pD++;
+            address++;
+
+        }
+        return(1);
+
+    }
+}

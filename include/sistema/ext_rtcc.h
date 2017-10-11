@@ -2,6 +2,7 @@
 #define	RTCC_H
 
 //#include	"HardwareProfile.h"
+#include "typedef.h"
 
 /**********************************************************************************************/
 /*	Variables y estructuras para el RTCC	*/
