@@ -74,7 +74,7 @@
   @Description
     This type enumeration specifies the different types of status
     that an i2c request will have. For every submission of an i2c
-    transaction, the status of thatat an i2c req transaction is available.
+    transaction, the status of that transaction is available.
     Based on the status, new transactions can be requested to the
     driver or a recovery can be performed to resend the transaction.
 

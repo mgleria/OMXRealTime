@@ -65,7 +65,7 @@ void vTaskSensorADC( void *pvParameters );
 
 void vTaskShell( void *pvParameters );
 
-void vTaskRTC( void *pvParameters ); 
+void vTaskI2C( void *pvParameters ); 
 
 //static void vReceiverTask( void *pvParameters );
 
@@ -84,7 +84,7 @@ static QueueHandle_t xLCDQueue;
 //xQueueShell = xQueueCreate(1, MAX_RESP_LENGHT);
  
 TaskHandle_t xShellHandle;
-TaskHandle_t xRTCTaskHandle;
+TaskHandle_t xI2CTaskHandle;
 
 static const char *pcSensor = "Pot";
 static char cStringBuffer[ mainMAX_STRING_LENGTH ];
@@ -96,12 +96,47 @@ int main( void )
     SYSTEM_Initialize();
     vLedInitialise();
     
-    xTaskCreate(    vTaskRTC,
-                    "RTC",
-                    DEFAULT_STACK_SIZE,
-                    NULL,
-                    3,
-                    &xRTCTaskHandle);
+    #define     SMS_RESET_FLAG          0x0020
+    #define     BYTES_A_LEER            1
+
+    uint8_t     contador;
+
+    uint16_t    address, i;
+    uint8_t     *pData;
+    uint8_t     readBuffer[BYTES_A_LEER] = {9,9,9,9,9};
+    uint16_t    nCount;
+    uint8_t     respuesta; 
+    TickType_t  xDelayMs;
+   
+    address = SMS_RESET_FLAG;
+    pData = readBuffer;
+    nCount = BYTES_A_LEER;
+    
+    contador = 0;    
+    
+    while(1){
+//        respuesta = MCHP24AA512_Read(address, pData, nCount);
+        MCHP24AA512_Init();
+        contador++; 
+        for(i=0;i<65000;i++){
+            for(i=0;i<65000;i++);
+        }
+        vLedSetLED(0,0); //Apaga el LED0 (D3)
+        vLedSetLED(1,0); //Apaga el LED1 (D4)
+        vLedSetLED(2,0); //Apaga el LED2 (D5)
+        vLedSetLED(3,0); //Apaga el LED3 (D6)
+        
+        for(i=0;i<65000;i++){
+            for(i=0;i<65000;i++);
+        }
+    }
+    
+//    xTaskCreate(    vTaskI2C,
+//                    "I2C",
+//                    DEFAULT_STACK_SIZE,
+//                    NULL,
+//                    3,
+//                    &xI2CTaskHandle);
     
 //    xTaskCreate(    vTaskShell,
 //                    "Shell",
@@ -123,7 +158,7 @@ int main( void )
 //	xLCDQueue = xStartLCDTask();
 
 	/* Finally start the scheduler. */
-	vTaskStartScheduler();
+//	vTaskStartScheduler();
 
 	/* Will only reach here if there is insufficient heap available to start
 	the scheduler. */
@@ -178,14 +213,27 @@ void vTaskSensorADC( void *pvParameters ){
     }
 }
 
-void vTaskRTC( void *pvParameters ){
-     // Seccion de inicializacion
+void vTaskI2C( void *pvParameters ){
+// Seccion de inicializacion
 //    uint8_t dataToWrite = 0;
 //    uint8_t dataReceived = 0;
-    rtc_init();
+    #define     SMS_RESET_FLAG          0x0020
+    #define     BYTES_A_LEER            5
+
+    uint8_t     contador;
+
+    uint16_t    address;
+    uint8_t     *pData;
+    uint8_t     readBuffer[BYTES_A_LEER] = { 0 };
+    uint16_t    nCount;
+    uint8_t     respuesta; 
+    TickType_t  xDelayMs;
+   
+    address = SMS_RESET_FLAG;
+    pData = readBuffer;
+    nCount = BYTES_A_LEER;
     
-    TickType_t xDelayMs;
-    auto rtcc_t t;
+    contador = 0;
     
     xDelayMs = xMainMsToTicks(1000);
     
@@ -194,7 +242,14 @@ void vTaskRTC( void *pvParameters ){
     for( ;; ){
         vTaskDelay(xDelayMs);
         
-        get_rtcc_time(&t);
+        /*uint8_t MCHP24AA512_Read(
+                                uint16_t address,
+                                uint8_t *pData,
+                                uint16_t nCount)*/
+        
+        respuesta = MCHP24AA512_Read(address, pData, nCount);
+        
+        contador++;
     }
 }
 

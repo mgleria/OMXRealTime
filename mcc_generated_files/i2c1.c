@@ -150,7 +150,7 @@ typedef enum
 
 
 #ifndef I2C1_CONFIG_TR_QUEUE_LENGTH
-        #define I2C1_CONFIG_TR_QUEUE_LENGTH 1
+        #define I2C1_CONFIG_TR_QUEUE_LENGTH 100
 #endif
 
 #define I2C1_TRANSMIT_REG                       I2C1TRN                 // Defines the transmit register used to send data.
@@ -205,8 +205,8 @@ void I2C1_Initialize(void)
     // initialize the hardware
     // Baud Rate Generator Value: I2CBRG 18;   
     I2C1BRG = 0x0012;
-    // ACKEN disabled; STRICT disabled; STREN disabled; GCEN disabled; SMEN disabled; DISSLW disabled; I2CSIDL disabled; ACKDT Sends ACK; SCLREL Holds; RSEN disabled; A10M 7 Bit; PEN disabled; RCEN disabled; SEN disabled; I2CEN enabled; 
-    I2C1CONL = 0x8200;
+    // ACKEN enabled; STRICT disabled; STREN disabled; GCEN disabled; SMEN disabled; DISSLW disabled; I2CSIDL disabled; ACKDT Sends ACK; SCLREL Holds; RSEN disabled; A10M 7 Bit; PEN disabled; RCEN disabled; SEN disabled; I2CEN enabled; 
+    I2C1CONL = 0x8210;
     // BCL disabled; D_nA disabled; R_nW disabled; P disabled; S disabled; I2COV disabled; IWCOL disabled; 
     I2C1STAT = 0x0000;
 

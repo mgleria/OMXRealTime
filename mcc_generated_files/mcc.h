@@ -49,10 +49,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "uart1.h"
+#include "i2c1.h"
 #include "tmr2.h"
 #include "interrupt_manager.h"
 #include "traps.h"
-#include "i2c1.h"
 
 #define _XTAL_FREQ  8000000UL
 

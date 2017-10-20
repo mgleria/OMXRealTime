@@ -95,6 +95,7 @@
       </logicalFolder>
       <logicalFolder name="sistema" displayName="sistema" projectFiles="true">
         <itemPath>Source/sistema/ext_rtcc.c</itemPath>
+        <itemPath>Source/sistema/eeprom.c</itemPath>
       </logicalFolder>
       <itemPath>Source/main.c</itemPath>
     </logicalFolder>
