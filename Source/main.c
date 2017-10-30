@@ -121,7 +121,9 @@ int main( void )
         
         for(i=0;i<BYTES_A_LEER;i++) readBuffer[i] = INITIAL_VALUE;
                  
-        respuesta = MCHP24AA512_Read(address, readBuffer, BYTES_A_LEER);
+//        respuesta = MCHP24AA512_Read_1(address, readBuffer, BYTES_A_LEER);
+        
+        respuesta = MCHP24AA512_Read_2(address, readBuffer, BYTES_A_LEER);
         
         contador++;
         
@@ -243,7 +245,7 @@ void vTaskI2C( void *pvParameters ){
                                 uint8_t *pData,
                                 uint16_t nCount)*/
         
-        respuesta = MCHP24AA512_Read(address, pData, nCount);
+        respuesta = MCHP24AA512_Read_1(address, pData, nCount);
         
         contador++;
     }
@@ -331,138 +333,5 @@ void flushComando(uint8_t *comando)
     int i;
     for (i = 0; i < MAX_COMMAND_LENGHT ; i++){
         comando[i] = 0;
-    }
-}
-
-
-
-void ejemploI2C (void){
-    #define MCHP24AA512_RETRY_MAX       100  // define the retry count
-    #define MCHP24AA512_ADDRESS         0x50 // slave device address
-    #define MCHP24AA512_DEVICE_TIMEOUT  50   // define slave timeout 
-
-
-    uint8_t MCHP24AA512_Read(
-                                    uint16_t address,
-                                    uint8_t *pData,
-                                    uint16_t nCount)
-    {
-        I2C1_MESSAGE_STATUS status;
-        uint8_t     writeBuffer[3];
-        uint16_t    retryTimeOut, slaveTimeOut;
-        uint16_t    counter;
-        uint8_t     *pD;
-
-        pD = pData;
-
-        for (counter = 0; counter < nCount; counter++)
-        {
-
-            // build the write buffer first
-            // starting address of the EEPROM memory
-            writeBuffer[0] = (address >> 8);                // high address
-            writeBuffer[1] = (uint8_t)(address);            // low low address
-
-            // Now it is possible that the slave device will be slow.
-            // As a work around on these slaves, the application can
-            // retry sending the transaction
-            retryTimeOut = 0;
-            slaveTimeOut = 0;
-
-            while(status != I2C1_MESSAGE_FAIL)
-            {
-                // write one byte to EEPROM (2 is the count of bytes to write)
-                I2C1_MasterWrite(    writeBuffer,
-                                        2,
-                                        MCHP24AA512_ADDRESS,
-                                        &status);
-
-                // wait for the message to be sent or status has changed.
-                while(status == I2C1_MESSAGE_PENDING)
-                {
-                    // add some delay here
-
-                    // timeout checking
-                    // check for max retry and skip this byte
-                    if (slaveTimeOut == MCHP24AA512_DEVICE_TIMEOUT)
-                        return (0);
-                    else
-                        slaveTimeOut++;
-                }
-
-                if (status == I2C1_MESSAGE_COMPLETE)
-                    break;
-
-                // if status is  I2C1_MESSAGE_ADDRESS_NO_ACK,
-                //               or I2C1_DATA_NO_ACK,
-                // The device may be busy and needs more time for the last
-                // write so we can retry writing the data, this is why we
-                // use a while loop here
-
-                // check for max retry and skip this byte
-                if (retryTimeOut == MCHP24AA512_RETRY_MAX)
-                    break;
-                else
-                    retryTimeOut++;
-            }
-
-            if (status == I2C1_MESSAGE_COMPLETE)
-            {
-
-                // this portion will read the byte from the memory location.
-                retryTimeOut = 0;
-                slaveTimeOut = 0;
-
-                while(status != I2C1_MESSAGE_FAIL)
-                {
-                    // write one byte to EEPROM (2 is the count of bytes to write)
-                    I2C1_MasterRead(     pD,
-                                            1,
-                                            MCHP24AA512_ADDRESS,
-                                            &status);
-
-                    // wait for the message to be sent or status has changed.
-                    while(status == I2C1_MESSAGE_PENDING)
-                    {
-                        // add some delay here
-
-                        // timeout checking
-                        // check for max retry and skip this byte
-                        if (slaveTimeOut == MCHP24AA512_DEVICE_TIMEOUT)
-                            return (0);
-                        else
-                            slaveTimeOut++;
-                    }
-
-                    if (status == I2C1_MESSAGE_COMPLETE)
-                        break;
-
-                    // if status is  I2C1_MESSAGE_ADDRESS_NO_ACK,
-                    //               or I2C1_DATA_NO_ACK,
-                    // The device may be busy and needs more time for the last
-                    // write so we can retry writing the data, this is why we
-                    // use a while loop here
-
-                    // check for max retry and skip this byte
-                    if (retryTimeOut == MCHP24AA512_RETRY_MAX)
-                        break;
-                    else
-                        retryTimeOut++;
-                }
-            }
-
-            // exit if the last transaction failed
-            if (status == I2C1_MESSAGE_FAIL)
-            {
-                return(0);
-                break;
-            }
-
-            pD++;
-            address++;
-
-        }
-        return(1);
-
     }
 }
