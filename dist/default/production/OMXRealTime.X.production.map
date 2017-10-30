@@ -201,12 +201,12 @@ Program Memory  [Origin = 0x100, Length = 0xabe00]
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x100              0x1ff2          0x2feb  (12267)
-.const                      0x20f2               0x28c           0x3d2  (978)
-.text                       0x237e              0x2de4          0x44d6  (17622)
-.dinit                      0x5162               0x142           0x1e3  (483)
-.text                       0x52a4               0x7b8           0xb94  (2964)
+.const                      0x20f2               0x29c           0x3ea  (1002)
+.text                       0x238e              0x2fc0          0x47a0  (18336)
+.dinit                      0x534e               0x142           0x1e3  (483)
+.text                       0x5490               0x6de           0xa4d  (2637)
 
-                 Total program memory used (bytes):         0x860a  (34314) 3%
+                 Total program memory used (bytes):         0x87a5  (34725) 3%
 
 
 Ivt Memory  [Origin = 0x4, Length = 0xfc]
@@ -286,8 +286,8 @@ External Symbols in Program Memory (by address):
 
                   0x000100                  __resetPRI
                   0x00013c                  __psv_init
-                  0x000152                  __data_init
                   0x000152                  __data_init_da
+                  0x000152                  __data_init
                   0x000220                  __T1Interrupt
                   0x000258                  __OscillatorFail
                   0x000260                  __StackError
@@ -316,8 +316,8 @@ External Symbols in Program Memory (by address):
                   0x000aee                  _strchr
                   0x000b0c                  __Vacopy
                   0x000b10                  sprintf_s.DAeo:_prout
-                  0x000b1e                  __sprintf_0
                   0x000b1e                  __sprintf_s
+                  0x000b1e                  __sprintf_0
                   0x000b3c                  ___Printf_s
                   0x000ca0                  ___Putfld_s
                   0x000cfe                  _memchr
@@ -330,11 +330,11 @@ External Symbols in Program Memory (by address):
                   0x0015f0                  __LDscale
                   0x0016e6                  __Genld
                   0x00194a                  _div
-                  0x001960                  ___ltdf2
                   0x001960                  ___ledf2
                   0x001960                  ___eqdf2
-                  0x00196a                  ___gedf2
+                  0x001960                  ___ltdf2
                   0x00196a                  ___gtdf2
+                  0x00196a                  ___gedf2
                   0x001974                  ___divdf3
                   0x001a28                  ___divsi3
                   0x001a46                  __dpack
@@ -348,9 +348,9 @@ External Symbols in Program Memory (by address):
                   0x001b98                  ___muldf3
                   0x001c84                  ___subdf3
                   0x001c88                  ___umodsi3
-                  0x001c8e                  ___mulp32peds3
-                  0x001c8e                  ___mulsi3
                   0x001c8e                  ___mulp32eds3
+                  0x001c8e                  ___mulsi3
+                  0x001c8e                  ___mulp32peds3
                   0x001ce6                  ___udivmoddi3
                   0x001dcc                  ___udivdi3
                   0x001dda                  ___umoddi3
@@ -366,211 +366,213 @@ External Symbols in Program Memory (by address):
                   0x0020f2                  __commands_
                   0x002316                  _model
                   0x00231c                  _version
-                  0x00237e                  _xTaskCreate
-                  0x00252a                  _vTaskDelayUntil
-                  0x0025a6                  _vTaskDelay
-                  0x0025d0                  _vTaskPrioritySet
-                  0x002698                  _vTaskSuspend
-                  0x00272e                  _vTaskResume
-                  0x00278c                  _xTaskResumeFromISR
-                  0x0027f6                  _vTaskStartScheduler
-                  0x00282c                  _vTaskEndScheduler
-                  0x002844                  _vTaskSuspendAll
-                  0x002850                  _xTaskResumeAll
-                  0x0028fa                  _xTaskGetTickCount
-                  0x00290a                  _xTaskGetTickCountFromISR
-                  0x00291a                  _uxTaskGetNumberOfTasks
-                  0x002922                  _pcTaskGetName
-                  0x00293c                  _xTaskIncrementTick
-                  0x002a1a                  _vTaskSwitchContext
-                  0x002a9e                  _vTaskPlaceOnEventList
-                  0x002ab8                  _vTaskPlaceOnUnorderedEventList
-                  0x002ade                  _xTaskRemoveFromEventList
-                  0x002b4c                  _xTaskRemoveFromUnorderedEventList
-                  0x002bb0                  _vTaskSetTimeOutState
-                  0x002bc4                  _xTaskCheckForTimeOut
-                  0x002c30                  _vTaskMissedYield
-                  0x002c3a                  build/default/production/Source/freeRTOS/tasks.o:_prvIdleTask
-                  0x002cb0                  _uxTaskResetEventItemValue
-                  0x002cc8                  _ulTaskNotifyTake
-                  0x002d34                  _xTaskNotifyWait
-                  0x002df0                  _xTaskGenericNotify
-                  0x002ed8                  _xTaskGenericNotifyFromISR
-                  0x002fe0                  _vTaskNotifyGiveFromISR
-                  0x00306a                  _xTaskNotifyStateClear
-                  0x0030fa                  _xQueueGenericReset
-                  0x003182                  _xQueueGenericCreate
-                  0x0031fc                  _xQueueGenericSend
-                  0x0032da                  _xQueueGenericSendFromISR
-                  0x00334c                  _xQueueGiveFromISR
-                  0x0033b8                  _xQueueGenericReceive
-                  0x0034be                  _xQueueReceiveFromISR
-                  0x00352e                  _xQueuePeekFromISR
-                  0x003566                  _uxQueueMessagesWaiting
-                  0x00357a                  _uxQueueSpacesAvailable
-                  0x003598                  _uxQueueMessagesWaitingFromISR
-                  0x0035a8                  _vQueueDelete
-                  0x003732                  _xQueueIsQueueEmptyFromISR
-                  0x003772                  _xQueueIsQueueFullFromISR
-                  0x003792                  _xQueueCRSend
-                  0x00383c                  _xQueueCRReceive
-                  0x003916                  _xQueueCRSendFromISR
-                  0x003958                  _xQueueCRReceiveFromISR
-                  0x0039d8                  _processCmdLine
-                  0x003dbc                  _strlength
-                  0x003dde                  _atox
-                  0x003e76                  _LCD_Initialize
-                  0x003f88                  _LCD_PutString
-                  0x003fb4                  _LCD_PutChar
-                  0x00405e                  _LCD_ClearScreen
-                  0x00409c                  _LCD_ChangeRow
-                  0x004260                  _LCD_CursorEnable
-                  0x0042a0                  _xEventGroupCreate
-                  0x0042be                  _xEventGroupSync
-                  0x004376                  _xEventGroupWaitBits
-                  0x004452                  _xEventGroupClearBits
-                  0x00447a                  _xEventGroupGetBitsFromISR
-                  0x004492                  _xEventGroupSetBits
-                  0x00455c                  _vEventGroupDelete
-                  0x004586                  _vEventGroupSetBitsCallback
-                  0x00459a                  _vEventGroupClearBitsCallback
-                  0x0045e6                  _xCoRoutineCreate
-                  0x00467c                  _vCoRoutineAddToDelayedList
-                  0x0047c6                  _vCoRoutineSchedule
-                  0x004866                  _xCoRoutineRemoveFromEventList
-                  0x00489e                  _main
-                  0x0048de                  _vTaskSensorADC
-                  0x004948                  _vTaskI2C
-                  0x00497a                  _vTaskShell
-                  0x0049d2                  _vApplicationStackOverflowHook
-                  0x0049e8                  _vApplicationIdleHook
-                  0x0049f0                  _xMainMsToTicks
-                  0x004a1e                  _flushComando
-                  0x004b2c                  _ejemploI2C
-                  0x004b32                  _UART1_Initialize
-                  0x004b7a                  _UART1_Read
-                  0x004bb0                  _UART1_ReadBuffer
-                  0x004be8                  _UART1_Write
-                  0x004c1e                  _UART1_WriteBuffer
-                  0x004c50                  _UART1_TransferStatusGet
-                  0x004c8c                  _UART1_Peek
-                  0x004cb4                  _UART1_ReceiveBufferSizeGet
-                  0x004ce2                  _UART1_TransmitBufferSizeGet
-                  0x004d12                  _UART1_ReceiveBufferIsEmpty
-                  0x004d2a                  _UART1_TransmitBufferIsFull
-                  0x004d42                  _UART1_StatusGet
-                  0x004d4a                  _flushBufferTx
-                  0x004d68                  _flushBufferRx
-                  0x004d86                  _rtc_init
-                  0x004da4                  _read_rtcc_byte
-                  0x004dee                  _write_rtcc_byte
-                  0x004e2e                  _get_rtcc_time
-                  0x004e5a                  _get_rtcc_date
-                  0x004e8c                  _get_rtcc_datetime
-                  0x004e9c                  _set_rtcc_time
-                  0x004ec8                  _set_rtcc_date
-                  0x004efc                  _set_rtcc_datetime
-                  0x004f0c                  _getTimeDate
-                  0x004f1c                  _read_rtcc_array
-                  0x004f4e                  _write_rtcc_array
-                  0x004f80                  _I2C1_Initialize
-                  0x004fb6                  _I2C1_ErrorCountGet
-                  0x005000                  _I2C1_MasterWrite
-                  0x005032                  _I2C1_MasterRead
-                  0x005064                  _I2C1_MasterTRBInsert
-                  0x0050dc                  _I2C1_MasterReadTRBBuild
-                  0x00510c                  _I2C1_MasterWriteTRBBuild
-                  0x005130                  _I2C1_MasterQueueIsEmpty
-                  0x00514a                  _I2C1_MasterQueueIsFull
-                  0x0052a4                  _pxPortInitialiseStack
-                  0x00533e                  _xPortStartScheduler
-                  0x00536e                  _vPortEndScheduler
-                  0x00539c                  _vPortEnterCritical
-                  0x0053b6                  _vPortExitCritical
-                  0x0053d2                  _vListInitialise
-                  0x005404                  _vListInitialiseItem
-                  0x005412                  _vListInsertEnd
-                  0x00544e                  _vListInsert
-                  0x0054b2                  _uxListRemove
-                  0x0054fa                  _ADC_ReadPercentage
-                  0x005530                  _ADC_Read10bit
-                  0x005584                  _ADC_ChannelEnable
-                  0x0055a0                  _ADC_SetConfiguration
-                  0x0055e4                  _MCHP24AA512_Read
-                  0x0056cc                  _PIN_MANAGER_Initialize
-                  0x00577a                  _TMR2_Initialize
-                  0x005794                  _TMR2_Period16BitSet
-                  0x0057a6                  _TMR2_Period16BitGet
-                  0x0057ae                  _TMR2_Counter16BitSet
-                  0x0057c0                  _TMR2_Counter16BitGet
-                  0x0057d2                  _TMR2_Start
-                  0x0057e2                  _TMR2_Stop
-                  0x0057ec                  _TMR2_GetElapsedThenClear
-                  0x005804                  _TMR2_SoftwareCounterGet
-                  0x005810                  _TMR2_SoftwareCounterClear
-                  0x00581c                  _xStartLCDTask
-                  0x005870                  build/default/production/Source/perifericos/lcd.o:_vLCDTask
-                  0x00589c                  _pvPortMalloc
-                  0x0058f2                  _vPortFree
-                  0x0058fa                  _vPortInitialiseBlocks
-                  0x005902                  _xPortGetFreeHeapSize
-                  0x00590e                  _vLedInitialise
-                  0x005918                  _vLedSetLED
-                  0x005948                  _vLedToggleLED
-                  0x005974                  _vPortYield
-                  0x0059c8                  _INTERRUPT_Initialize
-                  0x005a0a                  _SYSTEM_Initialize
-                  0x005a1c                  _OSCILLATOR_Initialize
+                  0x00238e                  _xTaskCreate
+                  0x00253a                  _vTaskDelayUntil
+                  0x0025b6                  _vTaskDelay
+                  0x0025e0                  _vTaskPrioritySet
+                  0x0026a8                  _vTaskSuspend
+                  0x00273e                  _vTaskResume
+                  0x00279c                  _xTaskResumeFromISR
+                  0x002806                  _vTaskStartScheduler
+                  0x00283c                  _vTaskEndScheduler
+                  0x002854                  _vTaskSuspendAll
+                  0x002860                  _xTaskResumeAll
+                  0x00290a                  _xTaskGetTickCount
+                  0x00291a                  _xTaskGetTickCountFromISR
+                  0x00292a                  _uxTaskGetNumberOfTasks
+                  0x002932                  _pcTaskGetName
+                  0x00294c                  _xTaskIncrementTick
+                  0x002a2a                  _vTaskSwitchContext
+                  0x002aae                  _vTaskPlaceOnEventList
+                  0x002ac8                  _vTaskPlaceOnUnorderedEventList
+                  0x002aee                  _xTaskRemoveFromEventList
+                  0x002b5c                  _xTaskRemoveFromUnorderedEventList
+                  0x002bc0                  _vTaskSetTimeOutState
+                  0x002bd4                  _xTaskCheckForTimeOut
+                  0x002c40                  _vTaskMissedYield
+                  0x002c4a                  build/default/production/Source/freeRTOS/tasks.o:_prvIdleTask
+                  0x002cc0                  _uxTaskResetEventItemValue
+                  0x002cd8                  _ulTaskNotifyTake
+                  0x002d44                  _xTaskNotifyWait
+                  0x002e00                  _xTaskGenericNotify
+                  0x002ee8                  _xTaskGenericNotifyFromISR
+                  0x002ff0                  _vTaskNotifyGiveFromISR
+                  0x00307a                  _xTaskNotifyStateClear
+                  0x00310a                  _xQueueGenericReset
+                  0x003192                  _xQueueGenericCreate
+                  0x00320c                  _xQueueGenericSend
+                  0x0032ea                  _xQueueGenericSendFromISR
+                  0x00335c                  _xQueueGiveFromISR
+                  0x0033c8                  _xQueueGenericReceive
+                  0x0034ce                  _xQueueReceiveFromISR
+                  0x00353e                  _xQueuePeekFromISR
+                  0x003576                  _uxQueueMessagesWaiting
+                  0x00358a                  _uxQueueSpacesAvailable
+                  0x0035a8                  _uxQueueMessagesWaitingFromISR
+                  0x0035b8                  _vQueueDelete
+                  0x003742                  _xQueueIsQueueEmptyFromISR
+                  0x003782                  _xQueueIsQueueFullFromISR
+                  0x0037a2                  _xQueueCRSend
+                  0x00384c                  _xQueueCRReceive
+                  0x003926                  _xQueueCRSendFromISR
+                  0x003968                  _xQueueCRReceiveFromISR
+                  0x0039e8                  _processCmdLine
+                  0x003dcc                  _strlength
+                  0x003dee                  _atox
+                  0x003e86                  _LCD_Initialize
+                  0x003f98                  _LCD_PutString
+                  0x003fc4                  _LCD_PutChar
+                  0x00406e                  _LCD_ClearScreen
+                  0x0040ac                  _LCD_ChangeRow
+                  0x004270                  _LCD_CursorEnable
+                  0x0042b0                  _xEventGroupCreate
+                  0x0042ce                  _xEventGroupSync
+                  0x004386                  _xEventGroupWaitBits
+                  0x004462                  _xEventGroupClearBits
+                  0x00448a                  _xEventGroupGetBitsFromISR
+                  0x0044a2                  _xEventGroupSetBits
+                  0x00456c                  _vEventGroupDelete
+                  0x004596                  _vEventGroupSetBitsCallback
+                  0x0045aa                  _vEventGroupClearBitsCallback
+                  0x0045f6                  _main
+                  0x004672                  _vTaskSensorADC
+                  0x0046dc                  _vTaskI2C
+                  0x00470e                  _vTaskShell
+                  0x004766                  _vApplicationStackOverflowHook
+                  0x00477c                  _vApplicationIdleHook
+                  0x004784                  _xMainMsToTicks
+                  0x0047b2                  _flushComando
+                  0x0048c0                  _ejemploI2C
+                  0x0048c6                  _xCoRoutineCreate
+                  0x00495c                  _vCoRoutineAddToDelayedList
+                  0x004aa6                  _vCoRoutineSchedule
+                  0x004b46                  _xCoRoutineRemoveFromEventList
+                  0x004b7e                  _UART1_Initialize
+                  0x004bc6                  _UART1_Read
+                  0x004bfc                  _UART1_ReadBuffer
+                  0x004c34                  _UART1_Write
+                  0x004c6a                  _UART1_WriteBuffer
+                  0x004c9c                  _UART1_TransferStatusGet
+                  0x004cd8                  _UART1_Peek
+                  0x004d00                  _UART1_ReceiveBufferSizeGet
+                  0x004d2e                  _UART1_TransmitBufferSizeGet
+                  0x004d5e                  _UART1_ReceiveBufferIsEmpty
+                  0x004d76                  _UART1_TransmitBufferIsFull
+                  0x004d8e                  _UART1_StatusGet
+                  0x004d96                  _flushBufferTx
+                  0x004db4                  _flushBufferRx
+                  0x004dd2                  _rtc_init
+                  0x004df0                  _read_rtcc_byte
+                  0x004e3a                  _write_rtcc_byte
+                  0x004e7a                  _get_rtcc_time
+                  0x004ea6                  _get_rtcc_date
+                  0x004ed8                  _get_rtcc_datetime
+                  0x004ee8                  _set_rtcc_time
+                  0x004f14                  _set_rtcc_date
+                  0x004f48                  _set_rtcc_datetime
+                  0x004f58                  _getTimeDate
+                  0x004f68                  _read_rtcc_array
+                  0x004f9a                  _write_rtcc_array
+                  0x004fcc                  _I2C1_Initialize
+                  0x005002                  _I2C1_ErrorCountGet
+                  0x00504c                  _I2C1_MasterWrite
+                  0x00507e                  _I2C1_MasterRead
+                  0x0050b0                  _I2C1_MasterTRBInsert
+                  0x005128                  _I2C1_MasterReadTRBBuild
+                  0x005158                  _I2C1_MasterWriteTRBBuild
+                  0x00517c                  _I2C1_MasterQueueIsEmpty
+                  0x005196                  _I2C1_MasterQueueIsFull
+                  0x0051ae                  _MCHP24AA512_Read
+                  0x00529e                  _MCHP24AA512_Init_I2C1
+                  0x005490                  _pxPortInitialiseStack
+                  0x00552a                  _xPortStartScheduler
+                  0x00555a                  _vPortEndScheduler
+                  0x005588                  _vPortEnterCritical
+                  0x0055a2                  _vPortExitCritical
+                  0x0055be                  _vListInitialise
+                  0x0055f0                  _vListInitialiseItem
+                  0x0055fe                  _vListInsertEnd
+                  0x00563a                  _vListInsert
+                  0x00569e                  _uxListRemove
+                  0x0056e6                  _ADC_ReadPercentage
+                  0x00571c                  _ADC_Read10bit
+                  0x005770                  _ADC_ChannelEnable
+                  0x00578c                  _ADC_SetConfiguration
+                  0x0057d0                  _PIN_MANAGER_Initialize
+                  0x005884                  _TMR2_Initialize
+                  0x00589e                  _TMR2_Period16BitSet
+                  0x0058b0                  _TMR2_Period16BitGet
+                  0x0058b8                  _TMR2_Counter16BitSet
+                  0x0058ca                  _TMR2_Counter16BitGet
+                  0x0058dc                  _TMR2_Start
+                  0x0058ec                  _TMR2_Stop
+                  0x0058f6                  _TMR2_GetElapsedThenClear
+                  0x00590e                  _TMR2_SoftwareCounterGet
+                  0x00591a                  _TMR2_SoftwareCounterClear
+                  0x005926                  _xStartLCDTask
+                  0x00597a                  build/default/production/Source/perifericos/lcd.o:_vLCDTask
+                  0x0059a6                  _pvPortMalloc
+                  0x0059fc                  _vPortFree
+                  0x005a04                  _vPortInitialiseBlocks
+                  0x005a0c                  _xPortGetFreeHeapSize
+                  0x005a18                  _vLedInitialise
+                  0x005a22                  _vLedSetLED
+                  0x005a5a                  _vLedToggleLED
+                  0x005a86                  _vPortYield
+                  0x005ada                  _INTERRUPT_Initialize
+                  0x005b1c                  _SYSTEM_Initialize
+                  0x005b2e                  _OSCILLATOR_Initialize
                   0x0abf00                  __FSEC.sec
 
 External Symbols in Program Memory (by name):
 
-                  0x005584                  _ADC_ChannelEnable
-                  0x005530                  _ADC_Read10bit
-                  0x0054fa                  _ADC_ReadPercentage
-                  0x0055a0                  _ADC_SetConfiguration
-                  0x004fb6                  _I2C1_ErrorCountGet
-                  0x004f80                  _I2C1_Initialize
-                  0x005130                  _I2C1_MasterQueueIsEmpty
-                  0x00514a                  _I2C1_MasterQueueIsFull
-                  0x005032                  _I2C1_MasterRead
-                  0x0050dc                  _I2C1_MasterReadTRBBuild
-                  0x005064                  _I2C1_MasterTRBInsert
-                  0x005000                  _I2C1_MasterWrite
-                  0x00510c                  _I2C1_MasterWriteTRBBuild
-                  0x0059c8                  _INTERRUPT_Initialize
-                  0x00409c                  _LCD_ChangeRow
-                  0x00405e                  _LCD_ClearScreen
-                  0x004260                  _LCD_CursorEnable
-                  0x003e76                  _LCD_Initialize
-                  0x003fb4                  _LCD_PutChar
-                  0x003f88                  _LCD_PutString
-                  0x0055e4                  _MCHP24AA512_Read
-                  0x005a1c                  _OSCILLATOR_Initialize
-                  0x0056cc                  _PIN_MANAGER_Initialize
-                  0x005a0a                  _SYSTEM_Initialize
-                  0x0057c0                  _TMR2_Counter16BitGet
-                  0x0057ae                  _TMR2_Counter16BitSet
-                  0x0057ec                  _TMR2_GetElapsedThenClear
-                  0x00577a                  _TMR2_Initialize
-                  0x0057a6                  _TMR2_Period16BitGet
-                  0x005794                  _TMR2_Period16BitSet
-                  0x005810                  _TMR2_SoftwareCounterClear
-                  0x005804                  _TMR2_SoftwareCounterGet
-                  0x0057d2                  _TMR2_Start
-                  0x0057e2                  _TMR2_Stop
-                  0x004b32                  _UART1_Initialize
-                  0x004c8c                  _UART1_Peek
-                  0x004b7a                  _UART1_Read
-                  0x004bb0                  _UART1_ReadBuffer
-                  0x004d12                  _UART1_ReceiveBufferIsEmpty
-                  0x004cb4                  _UART1_ReceiveBufferSizeGet
-                  0x004d42                  _UART1_StatusGet
-                  0x004c50                  _UART1_TransferStatusGet
-                  0x004d2a                  _UART1_TransmitBufferIsFull
-                  0x004ce2                  _UART1_TransmitBufferSizeGet
-                  0x004be8                  _UART1_Write
-                  0x004c1e                  _UART1_WriteBuffer
+                  0x005770                  _ADC_ChannelEnable
+                  0x00571c                  _ADC_Read10bit
+                  0x0056e6                  _ADC_ReadPercentage
+                  0x00578c                  _ADC_SetConfiguration
+                  0x005002                  _I2C1_ErrorCountGet
+                  0x004fcc                  _I2C1_Initialize
+                  0x00517c                  _I2C1_MasterQueueIsEmpty
+                  0x005196                  _I2C1_MasterQueueIsFull
+                  0x00507e                  _I2C1_MasterRead
+                  0x005128                  _I2C1_MasterReadTRBBuild
+                  0x0050b0                  _I2C1_MasterTRBInsert
+                  0x00504c                  _I2C1_MasterWrite
+                  0x005158                  _I2C1_MasterWriteTRBBuild
+                  0x005ada                  _INTERRUPT_Initialize
+                  0x0040ac                  _LCD_ChangeRow
+                  0x00406e                  _LCD_ClearScreen
+                  0x004270                  _LCD_CursorEnable
+                  0x003e86                  _LCD_Initialize
+                  0x003fc4                  _LCD_PutChar
+                  0x003f98                  _LCD_PutString
+                  0x00529e                  _MCHP24AA512_Init_I2C1
+                  0x0051ae                  _MCHP24AA512_Read
+                  0x005b2e                  _OSCILLATOR_Initialize
+                  0x0057d0                  _PIN_MANAGER_Initialize
+                  0x005b1c                  _SYSTEM_Initialize
+                  0x0058ca                  _TMR2_Counter16BitGet
+                  0x0058b8                  _TMR2_Counter16BitSet
+                  0x0058f6                  _TMR2_GetElapsedThenClear
+                  0x005884                  _TMR2_Initialize
+                  0x0058b0                  _TMR2_Period16BitGet
+                  0x00589e                  _TMR2_Period16BitSet
+                  0x00591a                  _TMR2_SoftwareCounterClear
+                  0x00590e                  _TMR2_SoftwareCounterGet
+                  0x0058dc                  _TMR2_Start
+                  0x0058ec                  _TMR2_Stop
+                  0x004b7e                  _UART1_Initialize
+                  0x004cd8                  _UART1_Peek
+                  0x004bc6                  _UART1_Read
+                  0x004bfc                  _UART1_ReadBuffer
+                  0x004d5e                  _UART1_ReceiveBufferIsEmpty
+                  0x004d00                  _UART1_ReceiveBufferSizeGet
+                  0x004d8e                  _UART1_StatusGet
+                  0x004c9c                  _UART1_TransferStatusGet
+                  0x004d76                  _UART1_TransmitBufferIsFull
+                  0x004d2e                  _UART1_TransmitBufferSizeGet
+                  0x004c34                  _UART1_Write
+                  0x004c6a                  _UART1_WriteBuffer
                   0x00026a                  __AddressError
                   0x0005c4                  __DefaultInterrupt
                   0x001558                  __Dnorm
@@ -637,130 +639,130 @@ External Symbols in Program Memory (by name):
                   0x000100                  __resetPRI
                   0x000b1e                  __sprintf_0
                   0x000b1e                  __sprintf_s
-                  0x003dde                  _atox
+                  0x003dee                  _atox
                   0x00194a                  _div
-                  0x004b2c                  _ejemploI2C
-                  0x004d68                  _flushBufferRx
-                  0x004d4a                  _flushBufferTx
-                  0x004a1e                  _flushComando
-                  0x004f0c                  _getTimeDate
-                  0x004e5a                  _get_rtcc_date
-                  0x004e8c                  _get_rtcc_datetime
-                  0x004e2e                  _get_rtcc_time
+                  0x0048c0                  _ejemploI2C
+                  0x004db4                  _flushBufferRx
+                  0x004d96                  _flushBufferTx
+                  0x0047b2                  _flushComando
+                  0x004f58                  _getTimeDate
+                  0x004ea6                  _get_rtcc_date
+                  0x004ed8                  _get_rtcc_datetime
+                  0x004e7a                  _get_rtcc_time
                   0x0005ea                  _isxdigit
                   0x00152e                  _ldiv
-                  0x00489e                  _main
+                  0x0045f6                  _main
                   0x000cfe                  _memchr
                   0x000606                  _memcmp
                   0x000622                  _memcpy
                   0x000630                  _memset
                   0x002316                  _model
-                  0x002922                  _pcTaskGetName
-                  0x0039d8                  _processCmdLine
-                  0x00589c                  _pvPortMalloc
-                  0x0052a4                  _pxPortInitialiseStack
-                  0x004f1c                  _read_rtcc_array
-                  0x004da4                  _read_rtcc_byte
-                  0x004d86                  _rtc_init
-                  0x004ec8                  _set_rtcc_date
-                  0x004efc                  _set_rtcc_datetime
-                  0x004e9c                  _set_rtcc_time
+                  0x002932                  _pcTaskGetName
+                  0x0039e8                  _processCmdLine
+                  0x0059a6                  _pvPortMalloc
+                  0x005490                  _pxPortInitialiseStack
+                  0x004f68                  _read_rtcc_array
+                  0x004df0                  _read_rtcc_byte
+                  0x004dd2                  _rtc_init
+                  0x004f14                  _set_rtcc_date
+                  0x004f48                  _set_rtcc_datetime
+                  0x004ee8                  _set_rtcc_time
                   0x0006a2                  _sprintf
                   0x00063e                  _strcat
                   0x000aee                  _strchr
                   0x000652                  _strcpy
                   0x00065e                  _strlen
-                  0x003dbc                  _strlength
+                  0x003dcc                  _strlength
                   0x00066a                  _strstr
-                  0x002cc8                  _ulTaskNotifyTake
-                  0x0054b2                  _uxListRemove
-                  0x003566                  _uxQueueMessagesWaiting
-                  0x003598                  _uxQueueMessagesWaitingFromISR
-                  0x00357a                  _uxQueueSpacesAvailable
-                  0x00291a                  _uxTaskGetNumberOfTasks
-                  0x002cb0                  _uxTaskResetEventItemValue
-                  0x0049e8                  _vApplicationIdleHook
-                  0x0049d2                  _vApplicationStackOverflowHook
-                  0x00467c                  _vCoRoutineAddToDelayedList
-                  0x0047c6                  _vCoRoutineSchedule
-                  0x00459a                  _vEventGroupClearBitsCallback
-                  0x00455c                  _vEventGroupDelete
-                  0x004586                  _vEventGroupSetBitsCallback
-                  0x00590e                  _vLedInitialise
-                  0x005918                  _vLedSetLED
-                  0x005948                  _vLedToggleLED
-                  0x0053d2                  _vListInitialise
-                  0x005404                  _vListInitialiseItem
-                  0x00544e                  _vListInsert
-                  0x005412                  _vListInsertEnd
-                  0x00536e                  _vPortEndScheduler
-                  0x00539c                  _vPortEnterCritical
-                  0x0053b6                  _vPortExitCritical
-                  0x0058f2                  _vPortFree
-                  0x0058fa                  _vPortInitialiseBlocks
-                  0x005974                  _vPortYield
-                  0x0035a8                  _vQueueDelete
-                  0x0025a6                  _vTaskDelay
-                  0x00252a                  _vTaskDelayUntil
-                  0x00282c                  _vTaskEndScheduler
-                  0x004948                  _vTaskI2C
-                  0x002c30                  _vTaskMissedYield
-                  0x002fe0                  _vTaskNotifyGiveFromISR
-                  0x002a9e                  _vTaskPlaceOnEventList
-                  0x002ab8                  _vTaskPlaceOnUnorderedEventList
-                  0x0025d0                  _vTaskPrioritySet
-                  0x00272e                  _vTaskResume
-                  0x0048de                  _vTaskSensorADC
-                  0x002bb0                  _vTaskSetTimeOutState
-                  0x00497a                  _vTaskShell
-                  0x0027f6                  _vTaskStartScheduler
-                  0x002698                  _vTaskSuspend
-                  0x002844                  _vTaskSuspendAll
-                  0x002a1a                  _vTaskSwitchContext
+                  0x002cd8                  _ulTaskNotifyTake
+                  0x00569e                  _uxListRemove
+                  0x003576                  _uxQueueMessagesWaiting
+                  0x0035a8                  _uxQueueMessagesWaitingFromISR
+                  0x00358a                  _uxQueueSpacesAvailable
+                  0x00292a                  _uxTaskGetNumberOfTasks
+                  0x002cc0                  _uxTaskResetEventItemValue
+                  0x00477c                  _vApplicationIdleHook
+                  0x004766                  _vApplicationStackOverflowHook
+                  0x00495c                  _vCoRoutineAddToDelayedList
+                  0x004aa6                  _vCoRoutineSchedule
+                  0x0045aa                  _vEventGroupClearBitsCallback
+                  0x00456c                  _vEventGroupDelete
+                  0x004596                  _vEventGroupSetBitsCallback
+                  0x005a18                  _vLedInitialise
+                  0x005a22                  _vLedSetLED
+                  0x005a5a                  _vLedToggleLED
+                  0x0055be                  _vListInitialise
+                  0x0055f0                  _vListInitialiseItem
+                  0x00563a                  _vListInsert
+                  0x0055fe                  _vListInsertEnd
+                  0x00555a                  _vPortEndScheduler
+                  0x005588                  _vPortEnterCritical
+                  0x0055a2                  _vPortExitCritical
+                  0x0059fc                  _vPortFree
+                  0x005a04                  _vPortInitialiseBlocks
+                  0x005a86                  _vPortYield
+                  0x0035b8                  _vQueueDelete
+                  0x0025b6                  _vTaskDelay
+                  0x00253a                  _vTaskDelayUntil
+                  0x00283c                  _vTaskEndScheduler
+                  0x0046dc                  _vTaskI2C
+                  0x002c40                  _vTaskMissedYield
+                  0x002ff0                  _vTaskNotifyGiveFromISR
+                  0x002aae                  _vTaskPlaceOnEventList
+                  0x002ac8                  _vTaskPlaceOnUnorderedEventList
+                  0x0025e0                  _vTaskPrioritySet
+                  0x00273e                  _vTaskResume
+                  0x004672                  _vTaskSensorADC
+                  0x002bc0                  _vTaskSetTimeOutState
+                  0x00470e                  _vTaskShell
+                  0x002806                  _vTaskStartScheduler
+                  0x0026a8                  _vTaskSuspend
+                  0x002854                  _vTaskSuspendAll
+                  0x002a2a                  _vTaskSwitchContext
                   0x00231c                  _version
-                  0x004f4e                  _write_rtcc_array
-                  0x004dee                  _write_rtcc_byte
-                  0x0045e6                  _xCoRoutineCreate
-                  0x004866                  _xCoRoutineRemoveFromEventList
-                  0x004452                  _xEventGroupClearBits
-                  0x0042a0                  _xEventGroupCreate
-                  0x00447a                  _xEventGroupGetBitsFromISR
-                  0x004492                  _xEventGroupSetBits
-                  0x0042be                  _xEventGroupSync
-                  0x004376                  _xEventGroupWaitBits
-                  0x0049f0                  _xMainMsToTicks
-                  0x005902                  _xPortGetFreeHeapSize
-                  0x00533e                  _xPortStartScheduler
-                  0x00383c                  _xQueueCRReceive
-                  0x003958                  _xQueueCRReceiveFromISR
-                  0x003792                  _xQueueCRSend
-                  0x003916                  _xQueueCRSendFromISR
-                  0x003182                  _xQueueGenericCreate
-                  0x0033b8                  _xQueueGenericReceive
-                  0x0030fa                  _xQueueGenericReset
-                  0x0031fc                  _xQueueGenericSend
-                  0x0032da                  _xQueueGenericSendFromISR
-                  0x00334c                  _xQueueGiveFromISR
-                  0x003732                  _xQueueIsQueueEmptyFromISR
-                  0x003772                  _xQueueIsQueueFullFromISR
-                  0x00352e                  _xQueuePeekFromISR
-                  0x0034be                  _xQueueReceiveFromISR
-                  0x00581c                  _xStartLCDTask
-                  0x002bc4                  _xTaskCheckForTimeOut
-                  0x00237e                  _xTaskCreate
-                  0x002df0                  _xTaskGenericNotify
-                  0x002ed8                  _xTaskGenericNotifyFromISR
-                  0x0028fa                  _xTaskGetTickCount
-                  0x00290a                  _xTaskGetTickCountFromISR
-                  0x00293c                  _xTaskIncrementTick
-                  0x00306a                  _xTaskNotifyStateClear
-                  0x002d34                  _xTaskNotifyWait
-                  0x002ade                  _xTaskRemoveFromEventList
-                  0x002b4c                  _xTaskRemoveFromUnorderedEventList
-                  0x002850                  _xTaskResumeAll
-                  0x00278c                  _xTaskResumeFromISR
-                  0x002c3a                  build/default/production/Source/freeRTOS/tasks.o:_prvIdleTask
-                  0x005870                  build/default/production/Source/perifericos/lcd.o:_vLCDTask
+                  0x004f9a                  _write_rtcc_array
+                  0x004e3a                  _write_rtcc_byte
+                  0x0048c6                  _xCoRoutineCreate
+                  0x004b46                  _xCoRoutineRemoveFromEventList
+                  0x004462                  _xEventGroupClearBits
+                  0x0042b0                  _xEventGroupCreate
+                  0x00448a                  _xEventGroupGetBitsFromISR
+                  0x0044a2                  _xEventGroupSetBits
+                  0x0042ce                  _xEventGroupSync
+                  0x004386                  _xEventGroupWaitBits
+                  0x004784                  _xMainMsToTicks
+                  0x005a0c                  _xPortGetFreeHeapSize
+                  0x00552a                  _xPortStartScheduler
+                  0x00384c                  _xQueueCRReceive
+                  0x003968                  _xQueueCRReceiveFromISR
+                  0x0037a2                  _xQueueCRSend
+                  0x003926                  _xQueueCRSendFromISR
+                  0x003192                  _xQueueGenericCreate
+                  0x0033c8                  _xQueueGenericReceive
+                  0x00310a                  _xQueueGenericReset
+                  0x00320c                  _xQueueGenericSend
+                  0x0032ea                  _xQueueGenericSendFromISR
+                  0x00335c                  _xQueueGiveFromISR
+                  0x003742                  _xQueueIsQueueEmptyFromISR
+                  0x003782                  _xQueueIsQueueFullFromISR
+                  0x00353e                  _xQueuePeekFromISR
+                  0x0034ce                  _xQueueReceiveFromISR
+                  0x005926                  _xStartLCDTask
+                  0x002bd4                  _xTaskCheckForTimeOut
+                  0x00238e                  _xTaskCreate
+                  0x002e00                  _xTaskGenericNotify
+                  0x002ee8                  _xTaskGenericNotifyFromISR
+                  0x00290a                  _xTaskGetTickCount
+                  0x00291a                  _xTaskGetTickCountFromISR
+                  0x00294c                  _xTaskIncrementTick
+                  0x00307a                  _xTaskNotifyStateClear
+                  0x002d44                  _xTaskNotifyWait
+                  0x002aee                  _xTaskRemoveFromEventList
+                  0x002b5c                  _xTaskRemoveFromUnorderedEventList
+                  0x002860                  _xTaskResumeAll
+                  0x00279c                  _xTaskResumeFromISR
+                  0x002c4a                  build/default/production/Source/freeRTOS/tasks.o:_prvIdleTask
+                  0x00597a                  build/default/production/Source/perifericos/lcd.o:_vLCDTask
                   0x000694                  sprintf.DA_eo:_prout
                   0x000b10                  sprintf_s.DAeo:_prout
 
@@ -1055,7 +1057,7 @@ __FDEVOPT1
 .comment
  *(.comment)
 
-.debug_info       0x000000       0xca8a
+.debug_info       0x000000       0xcba3
  *(.debug_info)
  .debug_info      0x000000        0x2ac build/default/production/Source/freeRTOS/Portable/MemMang/heap_1.o
  .debug_info      0x0002ac        0xc5e build/default/production/Source/freeRTOS/Portable/port.o
@@ -1077,13 +1079,13 @@ __FDEVOPT1
  .debug_info      0x009a9f        0x9d1 build/default/production/Source/perifericos/adc.o
  .debug_info      0x00a470        0x320 build/default/production/Source/perifericos/lcd.o
  .debug_info      0x00a790        0xc86 build/default/production/Source/perifericos/lcd_driver.o
- .debug_info      0x00b416        0x21f build/default/production/Source/perifericos/led.o
- .debug_info      0x00b635        0x717 build/default/production/Source/sistema/ext_rtcc.o
- .debug_info      0x00bd4c        0x2eb build/default/production/Source/sistema/eeprom.o
- .debug_info      0x00c037        0xa53 build/default/production/Source/main.o
+ .debug_info      0x00b416        0x23d build/default/production/Source/perifericos/led.o
+ .debug_info      0x00b653        0x717 build/default/production/Source/sistema/ext_rtcc.o
+ .debug_info      0x00bd6a        0x3ba build/default/production/Source/sistema/eeprom.o
+ .debug_info      0x00c124        0xa7f build/default/production/Source/main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000       0x1ce4
+.debug_abbrev     0x000000       0x1d40
  *(.debug_abbrev)
  .debug_abbrev    0x000000         0xc8 build/default/production/Source/freeRTOS/Portable/MemMang/heap_1.o
  .debug_abbrev    0x0000c8        0x1e3 build/default/production/Source/freeRTOS/Portable/port.o
@@ -1107,10 +1109,10 @@ __FDEVOPT1
  .debug_abbrev    0x0016b5        0x177 build/default/production/Source/perifericos/lcd_driver.o
  .debug_abbrev    0x00182c         0x81 build/default/production/Source/perifericos/led.o
  .debug_abbrev    0x0018ad        0x177 build/default/production/Source/sistema/ext_rtcc.o
- .debug_abbrev    0x001a24         0x92 build/default/production/Source/sistema/eeprom.o
- .debug_abbrev    0x001ab6        0x22e build/default/production/Source/main.o
+ .debug_abbrev    0x001a24         0xcc build/default/production/Source/sistema/eeprom.o
+ .debug_abbrev    0x001af0        0x250 build/default/production/Source/main.o
 
-.debug_line       0x000000       0x218a
+.debug_line       0x000000       0x21c8
  *(.debug_line)
  .debug_line      0x000000         0xdb build/default/production/Source/freeRTOS/Portable/MemMang/heap_1.o
  .debug_line      0x0000db        0x17e build/default/production/Source/freeRTOS/Portable/port.o
@@ -1132,12 +1134,12 @@ __FDEVOPT1
  .debug_line      0x001868        0x152 build/default/production/Source/perifericos/adc.o
  .debug_line      0x0019ba        0x108 build/default/production/Source/perifericos/lcd.o
  .debug_line      0x001ac2        0x1bb build/default/production/Source/perifericos/lcd_driver.o
- .debug_line      0x001c7d         0xb9 build/default/production/Source/perifericos/led.o
- .debug_line      0x001d36        0x14d build/default/production/Source/sistema/ext_rtcc.o
- .debug_line      0x001e83         0xf8 build/default/production/Source/sistema/eeprom.o
- .debug_line      0x001f7b        0x20f build/default/production/Source/main.o
+ .debug_line      0x001c7d         0xbb build/default/production/Source/perifericos/led.o
+ .debug_line      0x001d38        0x14d build/default/production/Source/sistema/ext_rtcc.o
+ .debug_line      0x001e85        0x12e build/default/production/Source/sistema/eeprom.o
+ .debug_line      0x001fb3        0x215 build/default/production/Source/main.o
 
-.debug_frame      0x000000       0x1864
+.debug_frame      0x000000       0x1880
  *(.debug_frame)
  .debug_frame     0x000000         0x84 build/default/production/Source/freeRTOS/Portable/MemMang/heap_1.o
  .debug_frame     0x000084        0x100 build/default/production/Source/freeRTOS/Portable/port.o
@@ -1159,10 +1161,10 @@ __FDEVOPT1
  .debug_frame     0x0013a6        0x182 build/default/production/Source/perifericos/lcd_driver.o
  .debug_frame     0x001528         0x68 build/default/production/Source/perifericos/led.o
  .debug_frame     0x001590        0x164 build/default/production/Source/sistema/ext_rtcc.o
- .debug_frame     0x0016f4         0x30 build/default/production/Source/sistema/eeprom.o
- .debug_frame     0x001724        0x140 build/default/production/Source/main.o
+ .debug_frame     0x0016f4         0x4c build/default/production/Source/sistema/eeprom.o
+ .debug_frame     0x001740        0x140 build/default/production/Source/main.o
 
-.debug_str        0x000000        0x6a6
+.debug_str        0x000000        0x6bf
  *(.debug_str)
  .debug_str       0x000000         0x37 build/default/production/Source/freeRTOS/Portable/port.o
  .debug_str       0x000037         0x50 build/default/production/Source/freeRTOS/croutine.o
@@ -1183,7 +1185,8 @@ __FDEVOPT1
  .debug_str       0x0005cf         0x39 build/default/production/Source/perifericos/lcd_driver.o
  .debug_str       0x000608          0x9 build/default/production/Source/perifericos/led.o
  .debug_str       0x000611         0x2b build/default/production/Source/sistema/ext_rtcc.o
- .debug_str       0x00063c         0x6a build/default/production/Source/main.o
+ .debug_str       0x00063c         0x19 build/default/production/Source/sistema/eeprom.o
+ .debug_str       0x000655         0x6a build/default/production/Source/main.o
 
 .debug_loc
  *(.debug_loc)
@@ -1192,7 +1195,7 @@ __FDEVOPT1
  *(.debug_macinfo)
 
 .debug_pubnames
-                  0x000000       0x10d5
+                  0x000000       0x10ef
  *(.debug_pubnames)
  .debug_pubnames
                   0x000000         0x64 build/default/production/Source/freeRTOS/Portable/MemMang/heap_1.o
@@ -1235,9 +1238,9 @@ __FDEVOPT1
  .debug_pubnames
                   0x000ebe         0xfe build/default/production/Source/sistema/ext_rtcc.o
  .debug_pubnames
-                  0x000fbc         0x27 build/default/production/Source/sistema/eeprom.o
+                  0x000fbc         0x41 build/default/production/Source/sistema/eeprom.o
  .debug_pubnames
-                  0x000fe3         0xf2 build/default/production/Source/main.o
+                  0x000ffd         0xf2 build/default/production/Source/main.o
 
 .debug_ranges
  *(.debug_ranges)
@@ -3699,7 +3702,7 @@ epmp_cs1            0x20000          0x4
  .ivt._MI2C1Interrupt
                   0x000036          0x2 build/default/production/mcc_generated_files/i2c1.o
 
-.const              0xa0f2        0x28c load address 0x0020f2  
+.const              0xa0f2        0x29c load address 0x0020f2  
  .const             0xa0f2        0x224 build/default/production/Source/funciones/shell.o
                     0xa0f2                  __commands_
  .const             0xa316         0x22 build/default/production/Source/main.o
@@ -3707,192 +3710,194 @@ epmp_cs1            0x20000          0x4
                     0xa31c                  _version
  .const             0xa338         0x20 build/default/production/Source/freeRTOS/Portable/port.o
  .const             0xa358         0x1a build/default/production/Source/freeRTOS/tasks.o
- .const             0xa372          0xc build/default/production/Source/perifericos/lcd.o
+ .const             0xa372         0x10 build/default/production/Source/sistema/eeprom.o
+ .const             0xa382          0xc build/default/production/Source/perifericos/lcd.o
 
-.text             0x00237e       0x2de4
- .text            0x00237e        0xd7c build/default/production/Source/freeRTOS/tasks.o
-                  0x00237e                  _xTaskCreate
-                  0x00252a                  _vTaskDelayUntil
-                  0x0025a6                  _vTaskDelay
-                  0x0025d0                  _vTaskPrioritySet
-                  0x002698                  _vTaskSuspend
-                  0x00272e                  _vTaskResume
-                  0x00278c                  _xTaskResumeFromISR
-                  0x0027f6                  _vTaskStartScheduler
-                  0x00282c                  _vTaskEndScheduler
-                  0x002844                  _vTaskSuspendAll
-                  0x002850                  _xTaskResumeAll
-                  0x0028fa                  _xTaskGetTickCount
-                  0x00290a                  _xTaskGetTickCountFromISR
-                  0x00291a                  _uxTaskGetNumberOfTasks
-                  0x002922                  _pcTaskGetName
-                  0x00293c                  _xTaskIncrementTick
-                  0x002a1a                  _vTaskSwitchContext
-                  0x002a9e                  _vTaskPlaceOnEventList
-                  0x002ab8                  _vTaskPlaceOnUnorderedEventList
-                  0x002ade                  _xTaskRemoveFromEventList
-                  0x002b4c                  _xTaskRemoveFromUnorderedEventList
-                  0x002bb0                  _vTaskSetTimeOutState
-                  0x002bc4                  _xTaskCheckForTimeOut
-                  0x002c30                  _vTaskMissedYield
-                  0x002c3a                  build/default/production/Source/freeRTOS/tasks.o:_prvIdleTask
-                  0x002cb0                  _uxTaskResetEventItemValue
-                  0x002cc8                  _ulTaskNotifyTake
-                  0x002d34                  _xTaskNotifyWait
-                  0x002df0                  _xTaskGenericNotify
-                  0x002ed8                  _xTaskGenericNotifyFromISR
-                  0x002fe0                  _vTaskNotifyGiveFromISR
-                  0x00306a                  _xTaskNotifyStateClear
- .text            0x0030fa        0x8de build/default/production/Source/freeRTOS/queue.o
-                  0x0030fa                  _xQueueGenericReset
-                  0x003182                  _xQueueGenericCreate
-                  0x0031fc                  _xQueueGenericSend
-                  0x0032da                  _xQueueGenericSendFromISR
-                  0x00334c                  _xQueueGiveFromISR
-                  0x0033b8                  _xQueueGenericReceive
-                  0x0034be                  _xQueueReceiveFromISR
-                  0x00352e                  _xQueuePeekFromISR
-                  0x003566                  _uxQueueMessagesWaiting
-                  0x00357a                  _uxQueueSpacesAvailable
-                  0x003598                  _uxQueueMessagesWaitingFromISR
-                  0x0035a8                  _vQueueDelete
-                  0x003732                  _xQueueIsQueueEmptyFromISR
-                  0x003772                  _xQueueIsQueueFullFromISR
-                  0x003792                  _xQueueCRSend
-                  0x00383c                  _xQueueCRReceive
-                  0x003916                  _xQueueCRSendFromISR
-                  0x003958                  _xQueueCRReceiveFromISR
- .text            0x0039d8        0x49e build/default/production/Source/funciones/shell.o
-                  0x0039d8                  _processCmdLine
-                  0x003dbc                  _strlength
-                  0x003dde                  _atox
- .text            0x003e76        0x42a build/default/production/Source/perifericos/lcd_driver.o
-                  0x003e76                  _LCD_Initialize
-                  0x003f88                  _LCD_PutString
-                  0x003fb4                  _LCD_PutChar
-                  0x00405e                  _LCD_ClearScreen
-                  0x00409c                  _LCD_ChangeRow
-                  0x004260                  _LCD_CursorEnable
- .text            0x0042a0        0x346 build/default/production/Source/freeRTOS/event_groups.o
-                  0x0042a0                  _xEventGroupCreate
-                  0x0042be                  _xEventGroupSync
-                  0x004376                  _xEventGroupWaitBits
-                  0x004452                  _xEventGroupClearBits
-                  0x00447a                  _xEventGroupGetBitsFromISR
-                  0x004492                  _xEventGroupSetBits
-                  0x00455c                  _vEventGroupDelete
-                  0x004586                  _vEventGroupSetBitsCallback
-                  0x00459a                  _vEventGroupClearBitsCallback
- .text            0x0045e6        0x2b8 build/default/production/Source/freeRTOS/croutine.o
-                  0x0045e6                  _xCoRoutineCreate
-                  0x00467c                  _vCoRoutineAddToDelayedList
-                  0x0047c6                  _vCoRoutineSchedule
-                  0x004866                  _xCoRoutineRemoveFromEventList
- .text            0x00489e        0x294 build/default/production/Source/main.o
-                  0x00489e                  _main
-                  0x0048de                  _vTaskSensorADC
-                  0x004948                  _vTaskI2C
-                  0x00497a                  _vTaskShell
-                  0x0049d2                  _vApplicationStackOverflowHook
-                  0x0049e8                  _vApplicationIdleHook
-                  0x0049f0                  _xMainMsToTicks
-                  0x004a1e                  _flushComando
-                  0x004b2c                  _ejemploI2C
- .text            0x004b32        0x254 build/default/production/mcc_generated_files/uart1.o
-                  0x004b32                  _UART1_Initialize
-                  0x004b7a                  _UART1_Read
-                  0x004bb0                  _UART1_ReadBuffer
-                  0x004be8                  _UART1_Write
-                  0x004c1e                  _UART1_WriteBuffer
-                  0x004c50                  _UART1_TransferStatusGet
-                  0x004c8c                  _UART1_Peek
-                  0x004cb4                  _UART1_ReceiveBufferSizeGet
-                  0x004ce2                  _UART1_TransmitBufferSizeGet
-                  0x004d12                  _UART1_ReceiveBufferIsEmpty
-                  0x004d2a                  _UART1_TransmitBufferIsFull
-                  0x004d42                  _UART1_StatusGet
-                  0x004d4a                  _flushBufferTx
-                  0x004d68                  _flushBufferRx
- .text            0x004d86        0x1fa build/default/production/Source/sistema/ext_rtcc.o
-                  0x004d86                  _rtc_init
-                  0x004da4                  _read_rtcc_byte
-                  0x004dee                  _write_rtcc_byte
-                  0x004e2e                  _get_rtcc_time
-                  0x004e5a                  _get_rtcc_date
-                  0x004e8c                  _get_rtcc_datetime
-                  0x004e9c                  _set_rtcc_time
-                  0x004ec8                  _set_rtcc_date
-                  0x004efc                  _set_rtcc_datetime
-                  0x004f0c                  _getTimeDate
-                  0x004f1c                  _read_rtcc_array
-                  0x004f4e                  _write_rtcc_array
- .text            0x004f80        0x1e2 build/default/production/mcc_generated_files/i2c1.o
-                  0x004f80                  _I2C1_Initialize
-                  0x004fb6                  _I2C1_ErrorCountGet
-                  0x005000                  _I2C1_MasterWrite
-                  0x005032                  _I2C1_MasterRead
-                  0x005064                  _I2C1_MasterTRBInsert
-                  0x0050dc                  _I2C1_MasterReadTRBBuild
-                  0x00510c                  _I2C1_MasterWriteTRBBuild
-                  0x005130                  _I2C1_MasterQueueIsEmpty
-                  0x00514a                  _I2C1_MasterQueueIsFull
+.text             0x00238e       0x2fc0
+ .text            0x00238e        0xd7c build/default/production/Source/freeRTOS/tasks.o
+                  0x00238e                  _xTaskCreate
+                  0x00253a                  _vTaskDelayUntil
+                  0x0025b6                  _vTaskDelay
+                  0x0025e0                  _vTaskPrioritySet
+                  0x0026a8                  _vTaskSuspend
+                  0x00273e                  _vTaskResume
+                  0x00279c                  _xTaskResumeFromISR
+                  0x002806                  _vTaskStartScheduler
+                  0x00283c                  _vTaskEndScheduler
+                  0x002854                  _vTaskSuspendAll
+                  0x002860                  _xTaskResumeAll
+                  0x00290a                  _xTaskGetTickCount
+                  0x00291a                  _xTaskGetTickCountFromISR
+                  0x00292a                  _uxTaskGetNumberOfTasks
+                  0x002932                  _pcTaskGetName
+                  0x00294c                  _xTaskIncrementTick
+                  0x002a2a                  _vTaskSwitchContext
+                  0x002aae                  _vTaskPlaceOnEventList
+                  0x002ac8                  _vTaskPlaceOnUnorderedEventList
+                  0x002aee                  _xTaskRemoveFromEventList
+                  0x002b5c                  _xTaskRemoveFromUnorderedEventList
+                  0x002bc0                  _vTaskSetTimeOutState
+                  0x002bd4                  _xTaskCheckForTimeOut
+                  0x002c40                  _vTaskMissedYield
+                  0x002c4a                  build/default/production/Source/freeRTOS/tasks.o:_prvIdleTask
+                  0x002cc0                  _uxTaskResetEventItemValue
+                  0x002cd8                  _ulTaskNotifyTake
+                  0x002d44                  _xTaskNotifyWait
+                  0x002e00                  _xTaskGenericNotify
+                  0x002ee8                  _xTaskGenericNotifyFromISR
+                  0x002ff0                  _vTaskNotifyGiveFromISR
+                  0x00307a                  _xTaskNotifyStateClear
+ .text            0x00310a        0x8de build/default/production/Source/freeRTOS/queue.o
+                  0x00310a                  _xQueueGenericReset
+                  0x003192                  _xQueueGenericCreate
+                  0x00320c                  _xQueueGenericSend
+                  0x0032ea                  _xQueueGenericSendFromISR
+                  0x00335c                  _xQueueGiveFromISR
+                  0x0033c8                  _xQueueGenericReceive
+                  0x0034ce                  _xQueueReceiveFromISR
+                  0x00353e                  _xQueuePeekFromISR
+                  0x003576                  _uxQueueMessagesWaiting
+                  0x00358a                  _uxQueueSpacesAvailable
+                  0x0035a8                  _uxQueueMessagesWaitingFromISR
+                  0x0035b8                  _vQueueDelete
+                  0x003742                  _xQueueIsQueueEmptyFromISR
+                  0x003782                  _xQueueIsQueueFullFromISR
+                  0x0037a2                  _xQueueCRSend
+                  0x00384c                  _xQueueCRReceive
+                  0x003926                  _xQueueCRSendFromISR
+                  0x003968                  _xQueueCRReceiveFromISR
+ .text            0x0039e8        0x49e build/default/production/Source/funciones/shell.o
+                  0x0039e8                  _processCmdLine
+                  0x003dcc                  _strlength
+                  0x003dee                  _atox
+ .text            0x003e86        0x42a build/default/production/Source/perifericos/lcd_driver.o
+                  0x003e86                  _LCD_Initialize
+                  0x003f98                  _LCD_PutString
+                  0x003fc4                  _LCD_PutChar
+                  0x00406e                  _LCD_ClearScreen
+                  0x0040ac                  _LCD_ChangeRow
+                  0x004270                  _LCD_CursorEnable
+ .text            0x0042b0        0x346 build/default/production/Source/freeRTOS/event_groups.o
+                  0x0042b0                  _xEventGroupCreate
+                  0x0042ce                  _xEventGroupSync
+                  0x004386                  _xEventGroupWaitBits
+                  0x004462                  _xEventGroupClearBits
+                  0x00448a                  _xEventGroupGetBitsFromISR
+                  0x0044a2                  _xEventGroupSetBits
+                  0x00456c                  _vEventGroupDelete
+                  0x004596                  _vEventGroupSetBitsCallback
+                  0x0045aa                  _vEventGroupClearBitsCallback
+ .text            0x0045f6        0x2d0 build/default/production/Source/main.o
+                  0x0045f6                  _main
+                  0x004672                  _vTaskSensorADC
+                  0x0046dc                  _vTaskI2C
+                  0x00470e                  _vTaskShell
+                  0x004766                  _vApplicationStackOverflowHook
+                  0x00477c                  _vApplicationIdleHook
+                  0x004784                  _xMainMsToTicks
+                  0x0047b2                  _flushComando
+                  0x0048c0                  _ejemploI2C
+ .text            0x0048c6        0x2b8 build/default/production/Source/freeRTOS/croutine.o
+                  0x0048c6                  _xCoRoutineCreate
+                  0x00495c                  _vCoRoutineAddToDelayedList
+                  0x004aa6                  _vCoRoutineSchedule
+                  0x004b46                  _xCoRoutineRemoveFromEventList
+ .text            0x004b7e        0x254 build/default/production/mcc_generated_files/uart1.o
+                  0x004b7e                  _UART1_Initialize
+                  0x004bc6                  _UART1_Read
+                  0x004bfc                  _UART1_ReadBuffer
+                  0x004c34                  _UART1_Write
+                  0x004c6a                  _UART1_WriteBuffer
+                  0x004c9c                  _UART1_TransferStatusGet
+                  0x004cd8                  _UART1_Peek
+                  0x004d00                  _UART1_ReceiveBufferSizeGet
+                  0x004d2e                  _UART1_TransmitBufferSizeGet
+                  0x004d5e                  _UART1_ReceiveBufferIsEmpty
+                  0x004d76                  _UART1_TransmitBufferIsFull
+                  0x004d8e                  _UART1_StatusGet
+                  0x004d96                  _flushBufferTx
+                  0x004db4                  _flushBufferRx
+ .text            0x004dd2        0x1fa build/default/production/Source/sistema/ext_rtcc.o
+                  0x004dd2                  _rtc_init
+                  0x004df0                  _read_rtcc_byte
+                  0x004e3a                  _write_rtcc_byte
+                  0x004e7a                  _get_rtcc_time
+                  0x004ea6                  _get_rtcc_date
+                  0x004ed8                  _get_rtcc_datetime
+                  0x004ee8                  _set_rtcc_time
+                  0x004f14                  _set_rtcc_date
+                  0x004f48                  _set_rtcc_datetime
+                  0x004f58                  _getTimeDate
+                  0x004f68                  _read_rtcc_array
+                  0x004f9a                  _write_rtcc_array
+ .text            0x004fcc        0x1e2 build/default/production/mcc_generated_files/i2c1.o
+                  0x004fcc                  _I2C1_Initialize
+                  0x005002                  _I2C1_ErrorCountGet
+                  0x00504c                  _I2C1_MasterWrite
+                  0x00507e                  _I2C1_MasterRead
+                  0x0050b0                  _I2C1_MasterTRBInsert
+                  0x005128                  _I2C1_MasterReadTRBBuild
+                  0x005158                  _I2C1_MasterWriteTRBBuild
+                  0x00517c                  _I2C1_MasterQueueIsEmpty
+                  0x005196                  _I2C1_MasterQueueIsFull
+ .text            0x0051ae        0x1a0 build/default/production/Source/sistema/eeprom.o
+                  0x0051ae                  _MCHP24AA512_Read
+                  0x00529e                  _MCHP24AA512_Init_I2C1
 
-.dinit            0x005162        0x142
- .dinit           0x005162        0x142 data_init
+.dinit            0x00534e        0x142
+ .dinit           0x00534e        0x142 data_init
 
-.text             0x0052a4        0x7b8
- .text            0x0052a4        0x12e build/default/production/Source/freeRTOS/Portable/port.o
-                  0x0052a4                  _pxPortInitialiseStack
-                  0x00533e                  _xPortStartScheduler
-                  0x00536e                  _vPortEndScheduler
-                  0x005374                  _vApplicationSetupTickTimerInterrupt
-                  0x00539c                  _vPortEnterCritical
-                  0x0053b6                  _vPortExitCritical
- .text            0x0053d2        0x128 build/default/production/Source/freeRTOS/list.o
-                  0x0053d2                  _vListInitialise
-                  0x005404                  _vListInitialiseItem
-                  0x005412                  _vListInsertEnd
-                  0x00544e                  _vListInsert
-                  0x0054b2                  _uxListRemove
- .text            0x0054fa         0xea build/default/production/Source/perifericos/adc.o
-                  0x0054fa                  _ADC_ReadPercentage
-                  0x005530                  _ADC_Read10bit
-                  0x005584                  _ADC_ChannelEnable
-                  0x0055a0                  _ADC_SetConfiguration
- .text            0x0055e4         0xe8 build/default/production/Source/sistema/eeprom.o
-                  0x0055e4                  _MCHP24AA512_Read
- .text            0x0056cc         0xae build/default/production/mcc_generated_files/pin_manager.o
-                  0x0056cc                  _PIN_MANAGER_Initialize
- .text            0x00577a         0xa2 build/default/production/mcc_generated_files/tmr2.o
-                  0x00577a                  _TMR2_Initialize
-                  0x005794                  _TMR2_Period16BitSet
-                  0x0057a6                  _TMR2_Period16BitGet
-                  0x0057ae                  _TMR2_Counter16BitSet
-                  0x0057c0                  _TMR2_Counter16BitGet
-                  0x0057c8                  _TMR2_CallBack
-                  0x0057d2                  _TMR2_Start
-                  0x0057e2                  _TMR2_Stop
-                  0x0057ec                  _TMR2_GetElapsedThenClear
-                  0x005804                  _TMR2_SoftwareCounterGet
-                  0x005810                  _TMR2_SoftwareCounterClear
- .text            0x00581c         0x80 build/default/production/Source/perifericos/lcd.o
-                  0x00581c                  _xStartLCDTask
-                  0x005870                  build/default/production/Source/perifericos/lcd.o:_vLCDTask
- .text            0x00589c         0x72 build/default/production/Source/freeRTOS/Portable/MemMang/heap_1.o
-                  0x00589c                  _pvPortMalloc
-                  0x0058f2                  _vPortFree
-                  0x0058fa                  _vPortInitialiseBlocks
-                  0x005902                  _xPortGetFreeHeapSize
- .text            0x00590e         0x66 build/default/production/Source/perifericos/led.o
-                  0x00590e                  _vLedInitialise
-                  0x005918                  _vLedSetLED
-                  0x005948                  _vLedToggleLED
- .text            0x005974         0x54 build/default/production/Source/freeRTOS/Portable/portasm_PIC24.o
-                  0x005974                  _vPortYield
- .text            0x0059c8         0x42 build/default/production/mcc_generated_files/interrupt_manager.o
-                  0x0059c8                  _INTERRUPT_Initialize
- .text            0x005a0a         0x3c build/default/production/mcc_generated_files/mcc.o
-                  0x005a0a                  _SYSTEM_Initialize
-                  0x005a1c                  _OSCILLATOR_Initialize
- .text            0x005a46         0x16 build/default/production/mcc_generated_files/traps.o
-                  0x005a46                  _TRAPS_halt_on_error
+.text             0x005490        0x6de
+ .text            0x005490        0x12e build/default/production/Source/freeRTOS/Portable/port.o
+                  0x005490                  _pxPortInitialiseStack
+                  0x00552a                  _xPortStartScheduler
+                  0x00555a                  _vPortEndScheduler
+                  0x005560                  _vApplicationSetupTickTimerInterrupt
+                  0x005588                  _vPortEnterCritical
+                  0x0055a2                  _vPortExitCritical
+ .text            0x0055be        0x128 build/default/production/Source/freeRTOS/list.o
+                  0x0055be                  _vListInitialise
+                  0x0055f0                  _vListInitialiseItem
+                  0x0055fe                  _vListInsertEnd
+                  0x00563a                  _vListInsert
+                  0x00569e                  _uxListRemove
+ .text            0x0056e6         0xea build/default/production/Source/perifericos/adc.o
+                  0x0056e6                  _ADC_ReadPercentage
+                  0x00571c                  _ADC_Read10bit
+                  0x005770                  _ADC_ChannelEnable
+                  0x00578c                  _ADC_SetConfiguration
+ .text            0x0057d0         0xb4 build/default/production/mcc_generated_files/pin_manager.o
+                  0x0057d0                  _PIN_MANAGER_Initialize
+ .text            0x005884         0xa2 build/default/production/mcc_generated_files/tmr2.o
+                  0x005884                  _TMR2_Initialize
+                  0x00589e                  _TMR2_Period16BitSet
+                  0x0058b0                  _TMR2_Period16BitGet
+                  0x0058b8                  _TMR2_Counter16BitSet
+                  0x0058ca                  _TMR2_Counter16BitGet
+                  0x0058d2                  _TMR2_CallBack
+                  0x0058dc                  _TMR2_Start
+                  0x0058ec                  _TMR2_Stop
+                  0x0058f6                  _TMR2_GetElapsedThenClear
+                  0x00590e                  _TMR2_SoftwareCounterGet
+                  0x00591a                  _TMR2_SoftwareCounterClear
+ .text            0x005926         0x80 build/default/production/Source/perifericos/lcd.o
+                  0x005926                  _xStartLCDTask
+                  0x00597a                  build/default/production/Source/perifericos/lcd.o:_vLCDTask
+ .text            0x0059a6         0x72 build/default/production/Source/freeRTOS/Portable/MemMang/heap_1.o
+                  0x0059a6                  _pvPortMalloc
+                  0x0059fc                  _vPortFree
+                  0x005a04                  _vPortInitialiseBlocks
+                  0x005a0c                  _xPortGetFreeHeapSize
+ .text            0x005a18         0x6e build/default/production/Source/perifericos/led.o
+                  0x005a18                  _vLedInitialise
+                  0x005a22                  _vLedSetLED
+                  0x005a5a                  _vLedToggleLED
+ .text            0x005a86         0x54 build/default/production/Source/freeRTOS/Portable/portasm_PIC24.o
+                  0x005a86                  _vPortYield
+ .text            0x005ada         0x42 build/default/production/mcc_generated_files/interrupt_manager.o
+                  0x005ada                  _INTERRUPT_Initialize
+ .text            0x005b1c         0x3c build/default/production/mcc_generated_files/mcc.o
+                  0x005b1c                  _SYSTEM_Initialize
+                  0x005b2e                  _OSCILLATOR_Initialize
+ .text            0x005b58         0x16 build/default/production/mcc_generated_files/traps.o
+                  0x005b58                  _TRAPS_halt_on_error

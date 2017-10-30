@@ -23,6 +23,7 @@
 #include "perifericos/led.h"
 #include "tmr2.h"
 #include "uart1.h"
+#include "i2c1.h"
 
 #include "mcc.h"
 #include "typedef.h"
@@ -94,41 +95,36 @@ static char cStringBuffer[ mainMAX_STRING_LENGTH ];
 int main( void )
 {
     SYSTEM_Initialize();
-    vLedInitialise();
+//    vLedInitialise();
     
-    #define     SMS_RESET_FLAG          0x0020
-    #define     BYTES_A_LEER            1
+    #define     MEMORY_ADDRESS          0x0010
+    #define     BYTES_A_LEER            16
+    #define     INITIAL_VALUE           9
 
     uint8_t     contador;
 
     uint16_t    address, i;
-    uint8_t     *pData;
-    uint8_t     readBuffer[BYTES_A_LEER] = {9,9,9,9,9};
-    uint16_t    nCount;
+    uint8_t     readBuffer[BYTES_A_LEER];
     uint8_t     respuesta; 
     TickType_t  xDelayMs;
    
-    address = SMS_RESET_FLAG;
-    pData = readBuffer;
-    nCount = BYTES_A_LEER;
+    address = MEMORY_ADDRESS;
     
-    contador = 0;    
+    respuesta, contador = 0;
+    
+
+    MCHP24AA512_Init_I2C1();
     
     while(1){
-//        respuesta = MCHP24AA512_Read(address, pData, nCount);
-        MCHP24AA512_Init();
-        contador++; 
-        for(i=0;i<65000;i++){
-            for(i=0;i<65000;i++);
-        }
-        vLedSetLED(0,0); //Apaga el LED0 (D3)
-        vLedSetLED(1,0); //Apaga el LED1 (D4)
-        vLedSetLED(2,0); //Apaga el LED2 (D5)
-        vLedSetLED(3,0); //Apaga el LED3 (D6)
+//Este delay sirve para ver bien la forma de onda en el osciloscopio
+        for(i=0;i<65000;i++);
         
-        for(i=0;i<65000;i++){
-            for(i=0;i<65000;i++);
-        }
+        for(i=0;i<BYTES_A_LEER;i++) readBuffer[i] = INITIAL_VALUE;
+                 
+        respuesta = MCHP24AA512_Read(address, readBuffer, BYTES_A_LEER);
+        
+        contador++;
+        
     }
     
 //    xTaskCreate(    vTaskI2C,
@@ -217,7 +213,7 @@ void vTaskI2C( void *pvParameters ){
 // Seccion de inicializacion
 //    uint8_t dataToWrite = 0;
 //    uint8_t dataReceived = 0;
-    #define     SMS_RESET_FLAG          0x0020
+    #define     MEMORY_ADDRESS          0x0020
     #define     BYTES_A_LEER            5
 
     uint8_t     contador;
@@ -229,7 +225,7 @@ void vTaskI2C( void *pvParameters ){
     uint8_t     respuesta; 
     TickType_t  xDelayMs;
    
-    address = SMS_RESET_FLAG;
+    address = MEMORY_ADDRESS;
     pData = readBuffer;
     nCount = BYTES_A_LEER;
     

@@ -59,7 +59,7 @@ void PIN_MANAGER_Initialize(void)
     /****************************************************************************
      * Setting the Output Latch SFR(s)
      ***************************************************************************/
-    LATA = 0x0000;
+    LATA = 0x0080;
     LATB = 0x0000;
     LATC = 0x0000;
     LATD = 0x0000;
@@ -88,7 +88,7 @@ void PIN_MANAGER_Initialize(void)
     IOCPDE = 0x0000;
     IOCPDF = 0x0000;
     IOCPDG = 0x0000;
-    IOCPUA = 0x0000;
+    IOCPUA = 0x0040;
     IOCPUB = 0x0000;
     IOCPUC = 0x0000;
     IOCPUD = 0x0000;
@@ -99,7 +99,7 @@ void PIN_MANAGER_Initialize(void)
     /****************************************************************************
      * Setting the Open Drain SFR(s)
      ***************************************************************************/
-    ODCA = 0x0000;
+    ODCA = 0x0040;
     ODCB = 0x0000;
     ODCC = 0x0000;
     ODCD = 0x0000;
@@ -110,7 +110,7 @@ void PIN_MANAGER_Initialize(void)
     /****************************************************************************
      * Setting the Analog/Digital Configuration SFR(s)
      ***************************************************************************/
-    ANSA = 0x06C0;
+    ANSA = 0x0600;
     ANSB = 0xFF3F;
     ANSC = 0x6010;
     ANSD = 0x00C0;
