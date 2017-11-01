@@ -24,6 +24,7 @@
         </logicalFolder>
         <logicalFolder name="funciones" displayName="funciones" projectFiles="true">
           <itemPath>include/funciones/shell.h</itemPath>
+          <itemPath>include/funciones/eeprom.h</itemPath>
         </logicalFolder>
         <logicalFolder name="perifericos" displayName="perifericos" projectFiles="true">
           <itemPath>include/perifericos/adc.h</itemPath>

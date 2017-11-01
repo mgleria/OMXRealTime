@@ -30,6 +30,7 @@
 
 #include "funciones/shell.h"
 #include "sistema/ext_rtcc.h"
+#include "funciones/eeprom.h"
 
 /**********************************************************************************************/
 /*	texto del modelo de equipo	*/
@@ -97,33 +98,48 @@ int main( void )
     SYSTEM_Initialize();
 //    vLedInitialise();
     
-    #define     MEMORY_ADDRESS          0x0010
+    #define     MEMORY_ADDRESS          0x0000
     #define     BYTES_A_LEER            16
     #define     INITIAL_VALUE           9
 
     uint8_t     contador;
 
     uint16_t    address, i;
-    uint8_t     readBuffer[BYTES_A_LEER];
-    uint8_t     respuesta; 
+    uint8_t     readBuffer[BYTES_A_LEER], readByte, writeByte;
+    uint8_t     respuesta1, respuesta2, respuesta3, respuesta4; 
     TickType_t  xDelayMs;
+    
+    uint8_t         sourceData[16] = {  0xB0, 0xB1, 0xB2, 0xB3, 
+                                        0xB4, 0xB5, 0xB6, 0xB7, 
+                                        0xB8, 0xB9, 0xBB, 0xBB, 
+                                        0xBC, 0xBD, 0xBE, 0xBF }; 
    
     address = MEMORY_ADDRESS;
     
-    respuesta, contador = 0;
+    readByte = 0;
+    writeByte = 76;
+    
+    respuesta1,respuesta2, respuesta3, respuesta4, contador = 0;
     
 
-    MCHP24AA512_Init_I2C1();
+    respuesta1 = MCHP_24LCxxx_Init_I2C1(_24LC512_0);
+    respuesta2 = MCHP_24LCxxx_Init_I2C1(_24LC512_1);
+//    respuesta1 = MCHP_24LCxxx_Write(address, sourceData, BYTES_A_LEER);
     
     while(1){
 //Este delay sirve para ver bien la forma de onda en el osciloscopio
         for(i=0;i<65000;i++);
         
         for(i=0;i<BYTES_A_LEER;i++) readBuffer[i] = INITIAL_VALUE;
-                 
-//        respuesta = MCHP24AA512_Read_1(address, readBuffer, BYTES_A_LEER);
         
-        respuesta = MCHP24AA512_Read_2(address, readBuffer, BYTES_A_LEER);
+        MCHP_24LCxxx_Write_byte(_24LC512_0,address+20,&writeByte);
+        
+        for (i = 0; i < 65000; i++);
+        
+        respuesta3 = MCHP_24LCxxx_Read_byte(_24LC512_0, address+20, &readByte);
+        
+        respuesta4 = MCHP_24LCxxx_Read_array(_24LC512_1, address, readBuffer,15);
+        
         
         contador++;
         
@@ -245,7 +261,7 @@ void vTaskI2C( void *pvParameters ){
                                 uint8_t *pData,
                                 uint16_t nCount)*/
         
-        respuesta = MCHP24AA512_Read_1(address, pData, nCount);
+//        respuesta = MCHP_24LCxxx_Read_1(address, pData, nCount);
         
         contador++;
     }
