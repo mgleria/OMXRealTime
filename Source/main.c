@@ -7,6 +7,8 @@
 
 
 #include "xc.h"
+#define FCY 8000000UL
+#include <libpic30.h>
 
 /* Standard includes. */
 #include <stdio.h>
@@ -29,8 +31,8 @@
 #include "typedef.h"
 
 #include "funciones/shell.h"
-#include "sistema/ext_rtcc.h"
 #include "funciones/eeprom.h"
+#include "funciones/rtcc.h"
 
 /**********************************************************************************************/
 /*	texto del modelo de equipo	*/
@@ -99,7 +101,7 @@ int main( void )
 //    vLedInitialise();
     
     #define     MEMORY_ADDRESS          0x0000
-    #define     BYTES_A_LEER            16
+    #define     BYTES_A_LEER            8
     #define     INITIAL_VALUE           9
 
     uint8_t     contador;
@@ -109,11 +111,23 @@ int main( void )
     uint8_t     respuesta1, respuesta2, respuesta3, respuesta4; 
     TickType_t  xDelayMs;
     
+    rtcc_t time;
+    rtcc_t time_readed;
+    
+    time.anio      = 0x17; //2017 en formato de dos dígitos
+    time.mes       = 0x11; //Noviembre
+    time.dia       = 0x09; //09
+    time.dow       = 0x05; //jueves (domingo=1)
+    time.hora      = 0x18; //18hs
+    time.minutos   = 0x28; //28min
+    time.segundos  = 0x00; //CH bit(7) disable = clock running
+    
+    
     uint8_t         sourceData[16] = {  0xB0, 0xB1, 0xB2, 0xB3, 
                                         0xB4, 0xB5, 0xB6, 0xB7, 
                                         0xB8, 0xB9, 0xBB, 0xBB, 
                                         0xBC, 0xBD, 0xBE, 0xBF }; 
-   
+    
     address = MEMORY_ADDRESS;
     
     readByte = 0;
@@ -121,26 +135,35 @@ int main( void )
     
     respuesta1,respuesta2, respuesta3, respuesta4, contador = 0;
     
+    for(i=0;i<BYTES_A_LEER;i++) readBuffer[i] = INITIAL_VALUE;
+    
 
-    respuesta1 = MCHP_24LCxxx_Init_I2C1(_24LC512_0);
-    respuesta2 = MCHP_24LCxxx_Init_I2C1(_24LC512_1);
+//    respuesta1 = MCHP_24LCxxx_Init_I2C1(_24LC512_0);
+//    respuesta2 = MCHP_24LCxxx_Init_I2C1(_24LC512_1);
 //    respuesta1 = MCHP_24LCxxx_Write(address, sourceData, BYTES_A_LEER);
+//        respuesta2 = write_rtcc_array_2(0, sourceData, BYTES_A_LEER);
+    
+//    rtc_init();
+//    set_rtcc_datetime(&time);
+        
+
     
     while(1){
 //Este delay sirve para ver bien la forma de onda en el osciloscopio
-        for(i=0;i<65000;i++);
+//        for(i=0;i<65000;i++);
         
-        for(i=0;i<BYTES_A_LEER;i++) readBuffer[i] = INITIAL_VALUE;
-        
-        MCHP_24LCxxx_Write_byte(_24LC512_0,address+20,&writeByte);
-        
-        for (i = 0; i < 65000; i++);
-        
-        respuesta3 = MCHP_24LCxxx_Read_byte(_24LC512_0, address+20, &readByte);
-        
-        respuesta4 = MCHP_24LCxxx_Read_array(_24LC512_1, address, readBuffer,15);
+//        __delay_ms(10);
         
         
+//        respuesta2 = MCHP_24LCxxx_Write_byte(_24LC512_0,address+20,&writeByte);
+
+        for (i=0;i<10000;i++);
+        
+//        respuesta3 = read_rtcc_array_2( 0, readBuffer, BYTES_A_LEER );
+        get_rtcc_datetime(&time_readed);
+        
+//        respuesta4 = MCHP_24LCxxx_Read_array(_24LC512_1, address, readBuffer,15);
+                
         contador++;
         
     }

@@ -3,7 +3,7 @@
 #define	WR_MEMORY_H
 
 //#include	"HardwareProfile.h"
-#include	"funciones/24LCxxx.h"
+//#include	"funciones/24LCxxx.h"
 
 /**********************************************************************************************/
 /*	Definicion de direcciones de memoria eeprom externa	*/
@@ -94,8 +94,8 @@ void	resetSamplesPtr( void );
 void	setDeviceSensorEnables( uint8*	p );
 
 /*	macros */
-#define	read_int_eeprom_byte( address )			Read_b_eep( address )
-#define	write_int_eeprom_byte( address, data )	Write_b_eep( address, data )
+//#define	read_int_eeprom_byte( address )			Read_b_eep( address )
+//#define	write_int_eeprom_byte( address, data )	Write_b_eep( address, data )
 
 
 #endif

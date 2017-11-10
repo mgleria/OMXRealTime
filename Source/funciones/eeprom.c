@@ -1,9 +1,10 @@
 /*
- * Notas a revisar/corregir:
+ * Notas para revisar/corregir:
  * 1. La función MCHP_24LCxxx_Read_array() retorna siempre '2' cuando debería retornar '4'. El '2' significa
  * que saltó el TIMEOUT (500) asignado, pero de igual manera los datos son leídos correctamente.
  * El dato curioso es que para 15 datos o menos, esto no ocurre. Para 16 datos o más si ocurre. 
- * Debe ser una demora en el chip por algún cambio de página o similar.
+ * Debe ser una demora en el chip por algún cambio de página o similar. Aparentemente no es relativo a la posición
+ * inicial de lectura.
  * 2. Según las pruebas que se realizaron, entre una operación de escritura y otra de lectura debe existir un delay.
  * No se estableció de cuanto debería ser. 
  * 3. Hay que definir los valores de retorno en el archivo de encabezado para utilizar siempre el mismo criterio.

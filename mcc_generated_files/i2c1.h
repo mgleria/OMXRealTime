@@ -79,6 +79,9 @@
     driver or a recovery can be performed to resend the transaction.
 
  */
+        
+#define SLAVE_I2C_GENERIC_RETRY_MAX         500
+#define SLAVE_I2C_GENERIC_DEVICE_TIMEOUT    500
 
 typedef enum
 {

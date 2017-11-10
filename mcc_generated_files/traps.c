@@ -114,6 +114,7 @@ void ERROR_HANDLER_NORETURN _AddressError(void)
 {
     INTCON1bits.ADDRERR = 0;  //Clear the trap flag
     TRAPS_halt_on_error(TRAPS_ADDRESS_ERR);
+
 }
 /** Math Error Trap Vector**/
 void ERROR_HANDLER_NORETURN _MathError(void)

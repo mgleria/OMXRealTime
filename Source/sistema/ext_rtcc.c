@@ -1,6 +1,6 @@
 
-#include	"sistema/ext_rtcc.h"
-#include "i2c1.h"
+#include    "sistema/ext_rtcc.h"
+#include    "i2c1.h"
 //#include	"sensores/shtxx.h"
 
 /**********************************************************************************************/
@@ -9,16 +9,12 @@ rtcc_t tiempo;					///<	Estructura con la fecha y hora del sistema.
 
 static	uint8_t State = 0;
 static	uint16_t StartTime = 0;
-static	uint16_t address = (0xD0 / 2);	/* //Dirección del dispositivo 0b1101000x. 
-                                        * El bit 'x' indica escritura (0) o lectura (1) */
-//static	uint8_t length = 1;
-//static	uint8_t command = 0,	data = 0;
 
 
-/**********************************************************************************************/
-/*	funciones prototipo locales	- no deben ser accesibles desde otro archivo	*/
-char	read_rtcc_byte( uint8 address );
-void	write_rtcc_byte( uint8 address, char data );
+///**********************************************************************************************/
+///*	funciones prototipo locales	- no deben ser accesibles desde otro archivo	*/
+//char	read_rtcc_byte( uint8_t address );
+//void	write_rtcc_byte( uint8_t address, char data );
 
 /**********************************************************************************************/
 ////        rtc_init()     Inicializa el ds1307 habilita salida de 4khzchar ////
@@ -30,7 +26,7 @@ void	write_rtcc_byte( uint8 address, char data );
  */
 void rtc_init()
 {
-	auto char data;
+	uint8_t data;
 	data = read_rtcc_byte(0);
 	data = data & 0x7F;
 	write_rtcc_byte(0, data);
@@ -44,78 +40,107 @@ void rtc_init()
 /**********************************************************************************************/
 /**
  * \brief
+ * Lee un arreglo desde el dispositivo RTCC
+ * @param address
+ * @param array
+ * @param size
+ */
+void	read_rtcc_array( uint8_t address, char* array, uint8_t size )
+{
+	while( size-- )
+		*array++ = read_rtcc_byte( address++ );
+}
+
+/**********************************************************************************************/
+/**
+ * \brief
+ * Escribe un arreglo en el dispositivo RTCC
+ * @param address
+ * @param array
+ * @param size
+ */
+uint8_t	write_rtcc_array( uint8_t address, uint8_t* array, uint8_t size )
+{
+	//BUFFER_RTCC_SIZE debe ser mayor que size ya que writeBuffer[0] es la word Address
+    
+    uint8_t         writeBuffer[BUFFER_RTCC_SIZE];
+    uint16_t        timeOut, slaveTimeOut;
+    int i;
+
+    I2C1_MESSAGE_STATUS status = I2C1_MESSAGE_PENDING;
+
+    // building writeBuffer
+    // starting address of the RTCC memory
+    writeBuffer[0] = address;               
+    // data to be written
+    for(i=0;i<size;i++) writeBuffer[i+1]=array[i];
+
+    // Now it is possible that the slave device will be slow.
+    // As a work around on these slaves, the application can
+    // retry sending the transaction
+    timeOut = 0;
+    slaveTimeOut = 0;
+    
+    if((BUFFER_RTCC_SIZE-size)<0) return 0;
+    
+    size++;
+
+    while(status != I2C1_MESSAGE_FAIL)
+    {
+        // write one byte to EEPROM (3 is the number of bytes to write)
+        I2C1_MasterWrite(   writeBuffer,
+                            size,
+                            RTCC_ADDRESS,
+                            &status);
+
+        // wait for the message to be sent or status has changed.
+        while(status == I2C1_MESSAGE_PENDING)
+        {
+            // add some delay here
+
+            // timeout checking
+            // check for max retry and skip this byte
+            if (slaveTimeOut == SLAVE_I2C_GENERIC_DEVICE_TIMEOUT){
+                break;
+            }
+                
+            else
+                slaveTimeOut++;
+        } 
+        if ((slaveTimeOut == SLAVE_I2C_GENERIC_DEVICE_TIMEOUT) || 
+            (status == I2C1_MESSAGE_COMPLETE))
+            break;
+
+        // if status is  I2C1_MESSAGE_ADDRESS_NO_ACK,
+        //               or I2C1_DATA_NO_ACK,
+        // The device may be busy and needs more time for the last
+        // write so we can retry writing the data, this is why we
+        // use a while loop here
+
+        // check for max retry and skip this byte
+        if (timeOut == SLAVE_I2C_GENERIC_RETRY_MAX){
+            break;
+        }
+        else
+            timeOut++;
+    }
+    
+    if(status == I2C1_MESSAGE_COMPLETE)
+        return 1;
+    else
+        return 0;
+}
+
+/**********************************************************************************************/
+/**
+ * \brief
  * Lee un byte desde el dispositivo RTCC
  * @param address
  * @return
  */
-char read_rtcc_byte( uint8 address )
+uint8_t read_rtcc_byte( uint8_t address )
 {    
-    
-    static	I2C1_MESSAGE_STATUS I2C_Wflag;
-    
-    
-    //Dirección del dispositivo 0b1101000x. El bit 'x' indica escritura (0) o lectura (1)
-	auto char device = 0xD0; 
-	#define	WRITE(byte)		(byte &= 0xFE)
-	#define	READ(byte)		(byte |= 0x01)
-
-    
-
-    I2C1_MESSAGE_STATUS status;
-//    uint8_t     *pData;
-    uint16_t    device16;
-    uint8_t     receivedData;
-//    uint8_t     writeBuffer[2];
-    
-//    writeBuffer[0] = 
-    
-    
-    device16 = WRITE(device);
-//    pData = &address;
-/*void I2C1_MasterWrite(
-                                uint8_t *pdata,
-                                uint8_t length,
-                                uint16_t address,
-                                I2C1_MESSAGE_STATUS *pstatus);*/    
-    
-    I2C1_MasterWrite(   &address,
-                        1,
-                        device16,
-                        &status);
-    
-    if (I2C_Wflag == I2C1_MESSAGE_FAIL){
-        while (1)		// Something wrong
-            vLedSetLED(1,1); //Enciende el LED1 (D4)
-    }
-    
-    while (status != I2C1_MESSAGE_COMPLETE); //Espera que termine
-    
-    device16 = READ(device);
-    
-    /*void I2C1_MasterRead(
-                                uint8_t *pdata,
-                                uint8_t length,
-                                uint16_t address,
-                                I2C1_MESSAGE_STATUS *pstatus);*/
-    
-    I2C1_MasterRead(    &receivedData,
-                        1,
-                        device16,
-                        &status);
-    
-    return (char)status;    
-    
-    
-//	IdleI2C();									// ensure module is idle
-//	StartI2C();									// initiate START condition
-//	i2c_write_byte( WRITE(device) );
-//	i2c_write_byte( address );
-//	RestartI2C();
-//	i2c_write_byte( READ(device) );
-//	return	i2c_read_byte( NOACK );
-
-	#undef	WRITE(byte)
-	#undef	READ(byte)	
+   return 0; 
 }
 
 /**********************************************************************************************/
@@ -125,41 +150,9 @@ char read_rtcc_byte( uint8 address )
  * @param address
  * @param data
  */
-void	write_rtcc_byte( uint8 address, char data )
+uint8_t write_rtcc_byte( uint8_t address, char data )
 {
-	#define	WRITE(byte)		(byte &= 0xFE)
-    static	uint8_t writeBuffer[2];
-    static	I2C1_MESSAGE_STATUS I2C_Wflag;
-    auto char device = 0xD0;
-		
-    
-    uint16_t device16 = WRITE(device);
-    
-    // build the write buffer first
-    // starting address of the EEPROM memory
-    writeBuffer[0] = address;                
-    writeBuffer[1] = (uint8)data;                       
-            
-    /* Start a I2C Write */
-    I2C1_MasterWrite(   writeBuffer,
-                        2,
-                        device16, 
-                        &I2C_Wflag);
-        
-    if (I2C_Wflag == I2C1_MESSAGE_FAIL)
-        while (1)		// Something wrong
-            vLedSetLED(2,1); //Enciende el LED2 (D5)
-    while (I2C_Wflag != I2C1_MESSAGE_COMPLETE); //Espera que termine
-
-//	IdleI2C();									// ensure module is idle
-//	StartI2C();									// initiate START condition
-//	i2c_write_byte( WRITE(device) );
-//	i2c_write_byte( address );
-//	i2c_write_byte( data );
-//	IdleI2C();									// ensure module is idle
-//	StopI2C();									// send STOP condition
-
-	#undef	WRITE(byte)
+	return 0;
 }
 
 /**********************************************************************************************/
@@ -241,37 +234,8 @@ void	set_rtcc_datetime( rtcc_t* rtcc )
  * @param add
  * @return
  */
-uint8	getTimeDate( const uint8 add )
+uint8_t	getTimeDate( const uint8_t add )
 {
-	return	(uint8)read_rtcc_byte(add&7) & 0x7F;
+	return	(uint8_t)read_rtcc_byte(add&7) & 0x7F;
 }
-
-/**********************************************************************************************/
-/**
- * \brief
- * Lee un arreglo desde el dispositivo RTCC
- * @param address
- * @param array
- * @param size
- */
-void	read_rtcc_array( uint8 address, char* array, uint8 size )
-{
-	while( size-- )
-		*array++ = read_rtcc_byte( address++ );
-}
-
-/**********************************************************************************************/
-/**
- * \brief
- * Escribe un arreglo en el dispositivo RTCC
- * @param address
- * @param array
- * @param size
- */
-void	write_rtcc_array( uint8 address, char* array, uint8 size )
-{
-	while( size-- )
-		write_rtcc_byte( address++, *array++ );
-}
-
 /**********************************************************************************************/

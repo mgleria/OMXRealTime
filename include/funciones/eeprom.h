@@ -21,9 +21,6 @@
 #define  _24LC512_5					0x55		//	01010101
 #define  _24LC512_6					0x56		//	01010110
 #define  _24LC512_7					0x57		//	01010111
- 
-#define SLAVE_I2C_GENERIC_RETRY_MAX         500
-#define SLAVE_I2C_GENERIC_DEVICE_TIMEOUT    500
 
 #define BUFFER_SIZE                         18      //2 más de la cantidad de datos que pretendo transmitir
 

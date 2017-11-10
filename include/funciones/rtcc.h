@@ -1,8 +1,17 @@
-#ifndef	RTCC_H
+/* 
+ * File:   rtcc.h
+ * Author: Tincho
+ *
+ * Created on 3 de noviembre de 2017, 17:42
+ */
+
+#ifndef RTCC_H
 #define	RTCC_H
 
-//#include	"HardwareProfile.h"
-#include "typedef.h"
+#include "i2c1.h"
+//Para función delay
+#define FCY 8000000UL
+#include <libpic30.h>
 
 /**********************************************************************************************/
 /*	Variables y estructuras para el RTCC	*/
@@ -24,32 +33,12 @@ typedef struct {
 	RTCC_YEAR	anio;
 } rtcc_t;
 
-//extern rtcc_t tiempo;
-
 /**********************************************************************************************/
-/*	Funciones prototipo accesibles externamente */
-
-void	rtc_init();
-
-uint8	getTimeDate( uint8 );
-
-void	get_rtcc_time( rtcc_t* rtcc );
-void	get_rtcc_date( rtcc_t* rtcc );
-void	get_rtcc_datetime(rtcc_t* rtcc);
-
-void	set_rtcc_time( rtcc_t *rtcc );
-void	set_rtcc_date( rtcc_t *rtcc );
-void	set_rtcc_datetime( rtcc_t* rtcc );
-
-void	read_rtcc_array( uint8 address, char* array, uint8 size );
-uint8	write_rtcc_array( uint8 address, uint8* array, uint8 size );
-
-uint8 read_rtcc_byte( uint8 address );
-uint8 write_rtcc_byte( uint8 address, char data );
-/**********************************************************************************************/
-#define RTCC_ADDRESS            0x0068    //01101000 Justificada a derecha porque el driver i2c1 se encarga 
+#define RTCC_ADDRESS            0x0068  //01101000 Justificada a derecha porque el driver i2c1 se encarga 
                                         //de desplazarla luego y añadirle el bit de dirección R/W
-#define BUFFER_RTCC_SIZE        10
+
+#define SLAVE_I2C_RTCC_TIMEOUT  500
+#define BUFFER_RTCC_SIZE        16
 /**********************************************************************************************/
 #define	SAMPLES_READ_ADDRESS	0x10
 #define	SAMPLES_WRITE_ADDRESS	0x12
@@ -66,4 +55,21 @@ uint8 write_rtcc_byte( uint8 address, char data );
 #define	_MON_					0x05
 #define	_YEAR_					0x06
 
-#endif
+/**********************************************************************************************/
+
+uint8_t	read_rtcc_byte( uint8_t address, uint8_t* data);
+uint8_t	write_rtcc_byte( uint8_t address, uint8_t* data);
+
+uint8_t	read_rtcc_array_2( uint8_t address, uint8_t* array, uint8_t size );
+uint8_t	write_rtcc_array_2( uint8_t address, uint8_t* array, uint8_t size );
+
+void    rtc_init();
+void    get_rtcc_datetime( rtcc_t *rtcc );
+void	set_rtcc_datetime( rtcc_t* rtcc );
+
+
+
+
+
+#endif	/* RTCC_H */
+

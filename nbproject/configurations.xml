@@ -25,6 +25,7 @@
         <logicalFolder name="funciones" displayName="funciones" projectFiles="true">
           <itemPath>include/funciones/shell.h</itemPath>
           <itemPath>include/funciones/eeprom.h</itemPath>
+          <itemPath>include/funciones/rtcc.h</itemPath>
         </logicalFolder>
         <logicalFolder name="perifericos" displayName="perifericos" projectFiles="true">
           <itemPath>include/perifericos/adc.h</itemPath>
@@ -76,6 +77,8 @@
       </logicalFolder>
       <logicalFolder name="funciones" displayName="funciones" projectFiles="true">
         <itemPath>Source/funciones/shell.c</itemPath>
+        <itemPath>Source/funciones/rtcc.c</itemPath>
+        <itemPath>Source/funciones/eeprom.c</itemPath>
       </logicalFolder>
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
@@ -95,8 +98,6 @@
         <itemPath>Source/perifericos/led.c</itemPath>
       </logicalFolder>
       <logicalFolder name="sistema" displayName="sistema" projectFiles="true">
-        <itemPath>Source/sistema/ext_rtcc.c</itemPath>
-        <itemPath>Source/sistema/eeprom.c</itemPath>
       </logicalFolder>
       <itemPath>Source/main.c</itemPath>
     </logicalFolder>
@@ -109,6 +110,7 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>.</Elem>
+    <Elem>../../Users/Tincho/Downloads/stack-error-traps-for-easy-debugging</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
