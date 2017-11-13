@@ -1,9 +1,10 @@
 
 /*	application includes	*/
+#include    "typedef.h"
 #include	"funciones/memory.h"
 #include	"funciones/rtcc.h"
 #include    "funciones/eeprom.h"
-#include    "typedef.h"
+
 
 
 /*	standard includes	*/
@@ -87,9 +88,9 @@ char	getSample( muestra_t *muestra, char sample )
     auto uint8 memNumber = 0;  
     
 	//	actualiza los valores desde la RAM del RTCC
-	read_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
-	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (char*)&samplesWrite, sizeof(samplesWrite) );
-	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
+	read_rtcc_array( SAMPLES_READ_ADDRESS, (uint8_t*)&samplesRead, sizeof(samplesRead) );
+	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (uint8_t*)&samplesWrite, sizeof(samplesWrite) );
+	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (uint8_t*)&samplesTotal, sizeof(samplesTotal) );
 
     // actualiza el nùmero de memoria donde debe leer
     memNumber = (uint8)(samplesRead / SAMPLES_BLOCK_SIZE);
@@ -176,12 +177,12 @@ uint8 putSample( muestra_t* muestra )
         
 		MCHP_24LCxxx_Read_array(memDevice, write_address,readed,sizeof(readed));
 //        s = i2cbus_read( memDevice, write_address, readed, sizeof(readed) );
-	}while( strncmp( (char*)muestra,(char*)s, sizeof(muestra_t) ) && ((intentos++) < MAX_ATTEMPS) );
+	}while( strncmp( (char*)muestra,(char*)readed, sizeof(muestra_t) ) && ((intentos++) < MAX_ATTEMPS) );
 
 	/*	si se superan los intentos retorna un false	*/
 	if( intentos >= MAX_ATTEMPS )
 		return false;
-#undef	MAX_ATTEMPS
+    #undef	MAX_ATTEMPS
 
 	/*	si el puntero de escritura llega a la maxima direccion de almacenamiento	*/
 	if( (++samplesWrite) >= MAX_SAMPLES )
@@ -337,7 +338,7 @@ void	setDeviceSensorEnables( uint8* p )
 	sensor[0] = *(p + 0);	//	digito 1
 	sensor[1] = *(p + 1);	//	digito 2
 //	auto uint8 data = xtoi( sensor );
-    uint8 data = (uint8)strtol(sensor,&end,16);
+    uint8 data = (uint8)strtol(sensor,&end,16); //No existe xtoi() en XC16
 
 	MCHP_24LCxxx_Read_byte(_24LC512_0,INT_ENABLE_SENSOR_1, &aux);
 //    i2cbus_read( _24LC512_0, INT_ENABLE_SENSOR_1, &aux, sizeof (aux) );
@@ -348,7 +349,7 @@ void	setDeviceSensorEnables( uint8* p )
 	sensor[0] = *(p + 2);	//	digito 3
 	sensor[1] = *(p + 3);	//	digito 4
 //	data = xtoi( sensor );
-    data = (uint8)strtol(sensor,&end,16);
+    data = (uint8)strtol(sensor,&end,16); //No existe xtoi() en XC16
     
     MCHP_24LCxxx_Read_byte(_24LC512_0, INT_ENABLE_SENSOR_2, &aux);
 //	i2cbus_read( _24LC512_0, INT_ENABLE_SENSOR_2, &aux, sizeof (aux) );
@@ -360,7 +361,7 @@ void	setDeviceSensorEnables( uint8* p )
 	sensor[0] = *(p + 4);	//	digito 5
 	sensor[1] = *(p + 5);	//	digito 6
 //	data = xtoi( sensor );
-    data = (uint8)strtol(sensor,&end,16);
+    data = (uint8)strtol(sensor,&end,16); //No existe xtoi() en XC16
     MCHP_24LCxxx_Read_byte(_24LC512_0, INT_ENABLE_SENSOR_3, &aux);
 //	i2cbus_read( _24LC512_0, INT_ENABLE_SENSOR_3, &aux, sizeof (aux) );
 

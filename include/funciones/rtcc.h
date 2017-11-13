@@ -60,8 +60,8 @@ typedef struct {
 uint8_t	read_rtcc_byte( uint8_t address, uint8_t* data);
 uint8_t	write_rtcc_byte( uint8_t address, uint8_t* data);
 
-uint8_t	read_rtcc_array_2( uint8_t address, uint8_t* array, uint8_t size );
-uint8_t	write_rtcc_array_2( uint8_t address, uint8_t* array, uint8_t size );
+uint8_t	read_rtcc_array( uint8_t address, uint8_t* array, uint8_t size );
+uint8_t	write_rtcc_array( uint8_t address, uint8_t* array, uint8_t size );
 
 void    rtc_init();
 void    get_rtcc_datetime( rtcc_t *rtcc );

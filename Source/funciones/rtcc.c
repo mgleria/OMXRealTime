@@ -3,7 +3,7 @@
 
 rtcc_t tiempo;					///<	Estructura con la fecha y hora del sistema.
 
-uint8_t	write_rtcc_array_2( uint8_t address, uint8_t* array, uint8_t size )
+uint8_t	write_rtcc_array( uint8_t address, uint8_t* array, uint8_t size )
 {
     //BUFFER_RTCC_SIZE debe ser mayor que size ya que writeBuffer[0] es la word Address
     
@@ -75,7 +75,7 @@ uint8_t	write_rtcc_array_2( uint8_t address, uint8_t* array, uint8_t size )
         return 0;
 }
 
-uint8_t	read_rtcc_array_2( uint8_t address, uint8_t* array, uint8_t size ){
+uint8_t	read_rtcc_array( uint8_t address, uint8_t* array, uint8_t size ){
     
     I2C1_MESSAGE_STATUS status;
     uint16_t    retryTimeOut, slaveTimeOut;
@@ -203,7 +203,7 @@ uint8_t	read_rtcc_array_2( uint8_t address, uint8_t* array, uint8_t size ){
  */
 uint8_t	read_rtcc_byte( uint8_t address, uint8_t* data)
 {
-	return read_rtcc_array_2(address, data, 1);
+	return read_rtcc_array(address, data, 1);
 }
 
 /**********************************************************************************************/
@@ -215,7 +215,7 @@ uint8_t	read_rtcc_byte( uint8_t address, uint8_t* data)
  */
 uint8_t	write_rtcc_byte( uint8_t address, uint8_t* data)
 {
-	return write_rtcc_array_2( address, data, 1);
+	return write_rtcc_array( address, data, 1);
 }
 
 

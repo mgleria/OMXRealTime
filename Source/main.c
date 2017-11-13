@@ -61,6 +61,8 @@ string version[] = "2.00";
 #define bufLen                              ( 15 )
 #define DEFAULT_STACK_SIZE                  (1000)  
 
+//Prototipo de tareas
+
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
 
 void vTaskFunction( void *pvParameters );
@@ -69,7 +71,9 @@ void vTaskSensorADC( void *pvParameters );
 
 void vTaskShell( void *pvParameters );
 
-void vTaskI2C( void *pvParameters ); 
+void vTaskI2C( void *pvParameters );
+
+void vTaskSample( void *pvParameters );
 
 //static void vReceiverTask( void *pvParameters );
 
@@ -101,13 +105,13 @@ int main( void )
 //    vLedInitialise();
     
     #define     MEMORY_ADDRESS          0x0000
-    #define     BYTES_A_LEER            8
+    #define     BYTES_A_LEER            16
     #define     INITIAL_VALUE           9
 
     uint8_t     contador;
 
     uint16_t    address, i;
-    uint8_t     readBuffer[BYTES_A_LEER], readByte, writeByte;
+    uint8_t     readBuffer[BYTES_A_LEER], readByte, writeByte, readBuffer2[BYTES_A_LEER];
     uint8_t     respuesta1, respuesta2, respuesta3, respuesta4; 
     TickType_t  xDelayMs;
     
@@ -137,10 +141,13 @@ int main( void )
     
     for(i=0;i<BYTES_A_LEER;i++) readBuffer[i] = INITIAL_VALUE;
     
+    for(i=0;i<BYTES_A_LEER;i++) readBuffer2[i] = INITIAL_VALUE;
+    
 
 //    respuesta1 = MCHP_24LCxxx_Init_I2C1(_24LC512_0);
-//    respuesta2 = MCHP_24LCxxx_Init_I2C1(_24LC512_1);
-//    respuesta1 = MCHP_24LCxxx_Write(address, sourceData, BYTES_A_LEER);
+    respuesta2 = MCHP_24LCxxx_Init_I2C1(_24LC512_1);
+    __delay_ms(2);
+    respuesta1 = MCHP_24LCxxx_Write_array(_24LC512_0,address, sourceData, BYTES_A_LEER);
 //        respuesta2 = write_rtcc_array_2(0, sourceData, BYTES_A_LEER);
     
 //    rtc_init();
@@ -162,7 +169,9 @@ int main( void )
 //        respuesta3 = read_rtcc_array_2( 0, readBuffer, BYTES_A_LEER );
         get_rtcc_datetime(&time_readed);
         
-//        respuesta4 = MCHP_24LCxxx_Read_array(_24LC512_1, address, readBuffer,15);
+        respuesta4 = MCHP_24LCxxx_Read_array(_24LC512_1, address, readBuffer,BYTES_A_LEER);
+//        __delay_ms(2);
+        respuesta3 = MCHP_24LCxxx_Read_array(_24LC512_0, address, readBuffer2,BYTES_A_LEER);
                 
         contador++;
         

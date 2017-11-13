@@ -62,9 +62,10 @@
 /*	Definicion de direcciones de memoria ram externa	*/
 #define	EXT_RAM_
 
-extern uint16	usbSendSamples;
-extern uint16	usbSendSamplesPtr;
-extern uint8    usbSendSamplesDev;
+//Por qué están aca y en memory.c ????
+//extern uint16	usbSendSamples;
+//extern uint16	usbSendSamplesPtr;
+//extern uint8    usbSendSamplesDev;
 
 /**********************************************************************************************/
 /*	para utilizar con la funcion getSample( xxxx )	*/
