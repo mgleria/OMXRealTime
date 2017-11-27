@@ -141,12 +141,14 @@ char	getSample( muestra_t *muestra, char sample )
  */
 uint8 putSample( muestra_t* muestra )
 {
-	auto char *s;
-	auto uint8 intentos = 0;
-	auto char	readed[sizeof(muestra_t)];
+	uint8_t r1,r2;
+	uint8_t intentos = 0;
+	uint8_t	readed[sizeof(muestra_t)];
     
-    auto uint8 memDevice = _24LC512_0;
-    auto uint8 memNumber = 0;  
+    uint8_t memDevice = _24LC512_0;
+    uint8_t memNumber = 0;
+    
+    uint8_t sizeMuestra = sizeof(muestra_t);
 
 	//	actualiza los valores de punteros desde la RAM del RTCC
 	read_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
@@ -154,7 +156,7 @@ uint8 putSample( muestra_t* muestra )
 	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
     
     // actualiza el nùmero de memoria donde debe escribir
-    memNumber = (uint8)(samplesWrite / SAMPLES_BLOCK_SIZE);
+    memNumber = (uint8_t)(samplesWrite / SAMPLES_BLOCK_SIZE);
     memDevice += memNumber * 2;
     
         
@@ -171,11 +173,14 @@ uint8 putSample( muestra_t* muestra )
 	do
 	{
 		/*	guarda la muestra	*/
-        MCHP_24LCxxx_Write_array(memDevice,write_address,(uint8_t*)muestra,sizeof(muestra_t));
+        r1 = MCHP_24LCxxx_Write_array(memDevice,write_address,(uint8_t*)muestra,sizeof(muestra_t));
 //		i2cbus_write( memDevice, write_address, (char*)muestra, sizeof(muestra_t) );
 		/*	lee lo que acaba de guardar	*/
+        __delay_ms(2);
+		r2 = MCHP_24LCxxx_Read_array(memDevice, write_address,readed,sizeof(readed));
+
         
-		MCHP_24LCxxx_Read_array(memDevice, write_address,readed,sizeof(readed));
+        
 //        s = i2cbus_read( memDevice, write_address, readed, sizeof(readed) );
 	}while( strncmp( (char*)muestra,(char*)readed, sizeof(muestra_t) ) && ((intentos++) < MAX_ATTEMPS) );
 

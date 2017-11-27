@@ -81,7 +81,11 @@
  */
         
 #define SLAVE_I2C_GENERIC_RETRY_MAX         500
-#define SLAVE_I2C_GENERIC_DEVICE_TIMEOUT    500
+//Se define un factor de multiplicación en lugar de un valor fijo para que la función que escribe y lee datos de 
+//las memorias eeprom pueda ajustar el timeout del TRB en función del tamaño del mismo.
+//El valor se saca de pruebas empíricas donde se determinó que para enviar 68bytes un timeout de 2000 era suficiente.
+#define SLAVE_I2C_GENERIC_FACTOR_TIMEOUT    30
+#define SLAVE_I2C_GENERIC_DEVICE_TIMEOUT    2000
 
 typedef enum
 {

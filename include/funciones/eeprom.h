@@ -22,7 +22,8 @@
 #define  _24LC512_6					0x56		//	01010110
 #define  _24LC512_7					0x57		//	01010111
 
-#define BUFFER_SIZE                         18      //2 más de la cantidad de datos que pretendo transmitir
+#define BUFFER_SIZE                         68      //2 más de la cantidad de datos que pretendo transmitir
+                                                    //muestra_t tiene 66 bytes
 
 uint8_t MCHP_24LCxxx_Init_I2C1(uint8_t chip);
 uint8_t MCHP_24LCxxx_Write_byte(uint8_t chip,uint16_t address,uint8_t *pData);

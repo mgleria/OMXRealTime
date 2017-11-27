@@ -254,5 +254,9 @@ typedef enum
 	ACK
 }acknowledge;
 
+//Para función delay
+#define FCY 8000000UL
+#include <libpic30.h>
+
 #endif	/* TYPEDEF_H */
 

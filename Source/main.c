@@ -33,6 +33,7 @@
 #include "funciones/shell.h"
 #include "funciones/eeprom.h"
 #include "funciones/rtcc.h"
+#include "funciones/memory.h"
 
 /**********************************************************************************************/
 /*	texto del modelo de equipo	*/
@@ -61,7 +62,7 @@ string version[] = "2.00";
 #define bufLen                              ( 15 )
 #define DEFAULT_STACK_SIZE                  (1000)  
 
-//Prototipo de tareas
+//***********************Prototipo de tareas************************************
 
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
 
@@ -75,6 +76,9 @@ void vTaskI2C( void *pvParameters );
 
 void vTaskSample( void *pvParameters );
 
+
+//***********************Prototipo de funciones*********************************
+
 //static void vReceiverTask( void *pvParameters );
 
 //static void vSenderTask( void *pvParameters );
@@ -83,7 +87,8 @@ void vTaskDelay( TickType_t xTicksToDelay );
 //Función que reemplaza la MACRO provista por freeRTOS para convertir ms a ticks
 TickType_t xMainMsToTicks( TickType_t xTimeInMs);
 
-//------------------------------------------------------------------------------
+//******************************Globales****************************************
+
 //The queue used to send messages to the LCD task.
 static QueueHandle_t xLCDQueue;
 
@@ -92,7 +97,7 @@ static QueueHandle_t xLCDQueue;
 //xQueueShell = xQueueCreate(1, MAX_RESP_LENGHT);
  
 TaskHandle_t xShellHandle;
-TaskHandle_t xI2CTaskHandle;
+TaskHandle_t xSampleHandle;
 
 static const char *pcSensor = "Pot";
 static char cStringBuffer[ mainMAX_STRING_LENGTH ];
@@ -103,12 +108,14 @@ int main( void )
 {
     SYSTEM_Initialize();
 //    vLedInitialise();
+    muestra_t sampleToPut, sampleToGet;
+    char response1,response2;
+    uint16_t contador = 0;
+    init_sample(&sampleToPut);
     
-    #define     MEMORY_ADDRESS          0x0000
-    #define     BYTES_A_LEER            16
+    #define     MEMORY_ADDRESS          0x000F
+    #define     BYTES_A_LEER            64
     #define     INITIAL_VALUE           9
-
-    uint8_t     contador;
 
     uint16_t    address, i;
     uint8_t     readBuffer[BYTES_A_LEER], readByte, writeByte, readBuffer2[BYTES_A_LEER];
@@ -117,6 +124,10 @@ int main( void )
     
     rtcc_t time;
     rtcc_t time_readed;
+    
+    uint16_t sampleRead;
+    uint16_t sampleWrite;
+    uint16_t sampleTotal;
     
     time.anio      = 0x17; //2017 en formato de dos dígitos
     time.mes       = 0x11; //Noviembre
@@ -127,10 +138,23 @@ int main( void )
     time.segundos  = 0x00; //CH bit(7) disable = clock running
     
     
-    uint8_t         sourceData[16] = {  0xB0, 0xB1, 0xB2, 0xB3, 
+    uint8_t         sourceData[64] = {  0xB0, 0xB1, 0xB2, 0xB3, 
+                                        0xB4, 0xB5, 0xB6, 0xB7, 
+                                        0xB8, 0xB9, 0xBB, 0xBB, 
+                                        0xBC, 0xBD, 0xBE, 0xBF,
+                                        0xB0, 0xB1, 0xB2, 0xB3, 
+                                        0xB4, 0xB5, 0xB6, 0xB7, 
+                                        0xB8, 0xB9, 0xBB, 0xBB, 
+                                        0xBC, 0xBD, 0xBE, 0xBF,
+                                        0xB0, 0xB1, 0xB2, 0xB3, 
+                                        0xB4, 0xB5, 0xB6, 0xB7, 
+                                        0xB8, 0xB9, 0xBB, 0xBB, 
+                                        0xBC, 0xBD, 0xBE, 0xBF,
+                                        0xB0, 0xB1, 0xB2, 0xB3, 
                                         0xB4, 0xB5, 0xB6, 0xB7, 
                                         0xB8, 0xB9, 0xBB, 0xBB, 
                                         0xBC, 0xBD, 0xBE, 0xBF }; 
+    
     
     address = MEMORY_ADDRESS;
     
@@ -144,14 +168,18 @@ int main( void )
     for(i=0;i<BYTES_A_LEER;i++) readBuffer2[i] = INITIAL_VALUE;
     
 
-//    respuesta1 = MCHP_24LCxxx_Init_I2C1(_24LC512_0);
-    respuesta2 = MCHP_24LCxxx_Init_I2C1(_24LC512_1);
+    respuesta1 = MCHP_24LCxxx_Init_I2C1(_24LC512_0);
+//    respuesta2 = MCHP_24LCxxx_Init_I2C1(_24LC512_1);
     __delay_ms(2);
-    respuesta1 = MCHP_24LCxxx_Write_array(_24LC512_0,address, sourceData, BYTES_A_LEER);
+//    respuesta1 = MCHP_24LCxxx_Write_array(_24LC512_0,address, sourceData, BYTES_A_LEER);
 //        respuesta2 = write_rtcc_array_2(0, sourceData, BYTES_A_LEER);
     
 //    rtc_init();
 //    set_rtcc_datetime(&time);
+    resetSamplesPtr();
+
+    
+    respuesta3 = putSample(&sampleToPut);
         
 
     
@@ -164,26 +192,48 @@ int main( void )
         
 //        respuesta2 = MCHP_24LCxxx_Write_byte(_24LC512_0,address+20,&writeByte);
 
-        for (i=0;i<10000;i++);
+        __delay_ms(2);
+        sampleRead = getSamplesRead();
+        sampleWrite = getSamplesWrite();
+        sampleTotal = getSamplesTotal();
+        
+        respuesta3 = putSample(&sampleToPut);
+        
+        sampleRead = getSamplesRead();
+        sampleWrite = getSamplesWrite();
+        sampleTotal = getSamplesTotal();
+        
+        __delay_ms(2);
+        
+        respuesta4 = getSample(&sampleToGet,nextSample);
+        
+        sampleRead = getSamplesRead();
+        sampleWrite = getSamplesWrite();
+        sampleTotal = getSamplesTotal();
+        
+        
         
 //        respuesta3 = read_rtcc_array_2( 0, readBuffer, BYTES_A_LEER );
-        get_rtcc_datetime(&time_readed);
+//        get_rtcc_datetime(&time_readed);
         
-        respuesta4 = MCHP_24LCxxx_Read_array(_24LC512_1, address, readBuffer,BYTES_A_LEER);
+        
+        
+//        respuesta4 = MCHP_24LCxxx_Read_array(_24LC512_0, address, readBuffer,BYTES_A_LEER);
+//        respuesta4 = MCHP_24LCxxx_Read_byte(_24LC512_0,address+10,&readByte);
 //        __delay_ms(2);
-        respuesta3 = MCHP_24LCxxx_Read_array(_24LC512_0, address, readBuffer2,BYTES_A_LEER);
+//        respuesta3 = MCHP_24LCxxx_Read_array(_24LC512_0, address, readBuffer2,BYTES_A_LEER);
                 
         contador++;
         
     }
     
-//    xTaskCreate(    vTaskI2C,
-//                    "I2C",
-//                    DEFAULT_STACK_SIZE,
+//    xTaskCreate(    vTaskSample,
+//                    "Sample",
+//                    1000,
 //                    NULL,
 //                    3,
-//                    &xI2CTaskHandle);
-    
+//                    &xSampleHandle);
+//    
 //    xTaskCreate(    vTaskShell,
 //                    "Shell",
 //                    2000,
@@ -197,13 +247,13 @@ int main( void )
 //                    (void*)pcSensor, /* Pass the text to be printed into the task using the task parameter. */
 //                    1, /* This task will run at priority 1. */
 //                    NULL ); /* The task handle is not used in this example. */
-    
-    
-    /* Start the task that will control the LCD.  This returns the handle
-	to the queue used to write text out to the task. */
+//    
+//    
+//    /* Start the task that will control the LCD.  This returns the handle
+//	to the queue used to write text out to the task. */
 //	xLCDQueue = xStartLCDTask();
-
-	/* Finally start the scheduler. */
+//
+//	/* Finally start the scheduler. */
 //	vTaskStartScheduler();
 
 	/* Will only reach here if there is insufficient heap available to start
@@ -259,27 +309,14 @@ void vTaskSensorADC( void *pvParameters ){
     }
 }
 
-void vTaskI2C( void *pvParameters ){
+void vTaskSample( void *pvParameters ){
 // Seccion de inicializacion
-//    uint8_t dataToWrite = 0;
-//    uint8_t dataReceived = 0;
-    #define     MEMORY_ADDRESS          0x0020
-    #define     BYTES_A_LEER            5
-
-    uint8_t     contador;
-
-    uint16_t    address;
-    uint8_t     *pData;
-    uint8_t     readBuffer[BYTES_A_LEER] = { 0 };
-    uint16_t    nCount;
-    uint8_t     respuesta; 
     TickType_t  xDelayMs;
-   
-    address = MEMORY_ADDRESS;
-    pData = readBuffer;
-    nCount = BYTES_A_LEER;
+    char response1,response2;
+    uint16_t contador;
+    muestra_t sampleToPut, sampleToGet;
     
-    contador = 0;
+    init_sample(&sampleToPut);
     
     xDelayMs = xMainMsToTicks(1000);
     
@@ -288,13 +325,15 @@ void vTaskI2C( void *pvParameters ){
     for( ;; ){
         vTaskDelay(xDelayMs);
         
-        /*uint8_t MCHP24AA512_Read(
-                                uint16_t address,
-                                uint8_t *pData,
-                                uint16_t nCount)*/
+//        vTaskSuspendAll ();
+//        response1 = putSample(&sampleToPut);
+        response1 = MCHP_24LCxxx_Write_array(0x50,0x0025,(uint8_t*)&sampleToPut,1);
+//        xTaskResumeAll ();
         
-//        respuesta = MCHP_24LCxxx_Read_1(address, pData, nCount);
         
+        vTaskDelay(xDelayMs);
+        
+        response2 = getSample(&sampleToGet,0);
         contador++;
     }
 }
@@ -383,3 +422,28 @@ void flushComando(uint8_t *comando)
         comando[i] = 0;
     }
 }
+
+void init_sample(muestra_t *muestra)
+{
+    muestra->cmd=0x01;
+    muestra->tipo=0x02;
+    muestra->num_serie=0x0303;
+    muestra->hora=0x04;
+    muestra->minutos=0x05;
+    muestra->dia=0x06;
+    muestra->mes=0x07;
+    muestra->anio=0x08;
+    muestra->senial =0x09;
+//    muestra->clima=0;
+    muestra->corriente1=0x1111;
+    muestra->corriente2=0x1212;
+    muestra->bateria=0x1313;
+    muestra->periodo=0x14;
+    muestra->sensorHab1=0x15;
+    muestra->sensorHab2=0x16;
+    muestra->sensorHab3=0x17;
+    muestra->nullE=0x1;
+//    muestra->_reserved_[6]=0x191919;
+}
+
+
