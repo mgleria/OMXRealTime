@@ -19,6 +19,10 @@
 #include "freeRtos/task.h"
 #include "freeRtos/queue.h"
 
+///*FreeRTOS Include*/
+//#include "semphr.h" 
+
+
 /* Demo application includes. */
 #include "perifericos/lcd.h"
 #include "perifericos/adc.h"
@@ -34,6 +38,8 @@
 #include "funciones/eeprom.h"
 #include "funciones/rtcc.h"
 #include "funciones/memory.h"
+#include "funciones/sampling.h"
+#include "timers.h"
 
 /**********************************************************************************************/
 /*	texto del modelo de equipo	*/
@@ -62,6 +68,12 @@ string version[] = "2.00";
 #define bufLen                              ( 15 )
 #define DEFAULT_STACK_SIZE                  (1000)  
 
+//Software TIMERS
+#define T_MUESTREO_ACTIVO_MIN               1
+#define T_MUESTREO_PASIVO_MIN               9
+#define T_MUESTREO_DATO_SEG                 1
+
+
 //***********************Prototipo de tareas************************************
 
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
@@ -85,8 +97,18 @@ void vTaskSample( void *pvParameters );
 //The vTaskDelay() API function prototype
 void vTaskDelay( TickType_t xTicksToDelay ); 
 //Función que reemplaza la MACRO provista por freeRTOS para convertir ms a ticks
-TickType_t xMainMsToTicks( TickType_t xTimeInMs);
+TickType_t xMsToTicks( TickType_t xTimeInMs);
+TickType_t xSegToTicks( TickType_t xTimeInMs);
+TickType_t xMinToTicks( TickType_t xTimeInMs);
 
+static void prvPasiveCallback (TimerHandle_t xTimer);
+static void prvActiveCallback (TimerHandle_t xTimer);
+static void prvDataCallback (TimerHandle_t xTimer);
+
+static void  sensorsConfig();
+
+static void init_sample(muestra_t *muestra);
+static void assembleSample(muestra_t *muestra);
 //******************************Globales****************************************
 
 //The queue used to send messages to the LCD task.
@@ -99,141 +121,50 @@ static QueueHandle_t xLCDQueue;
 TaskHandle_t xShellHandle;
 TaskHandle_t xSampleHandle;
 
+TimerHandle_t xSamplePasive;
+TimerHandle_t xSampleActive;
+TimerHandle_t xSampleData;
+
+TickType_t  xTimePasive, xTimeActive, xTimeData;
+
 static const char *pcSensor = "Pot";
 static char cStringBuffer[ mainMAX_STRING_LENGTH ];
 
 //uint8_t respuestaUART[MAX_RESP_LENGHT];
 
+//SemaphoreHandle_t mutexSample;
+
 int main( void )
 {
     SYSTEM_Initialize();
+    sensorsConfig();
 //    vLedInitialise();
-    muestra_t sampleToPut, sampleToGet;
-    char response1,response2;
-    uint16_t contador = 0;
-    init_sample(&sampleToPut);
-    
-    #define     MEMORY_ADDRESS          0x000F
-    #define     BYTES_A_LEER            64
-    #define     INITIAL_VALUE           9
-
-    uint16_t    address, i;
-    uint8_t     readBuffer[BYTES_A_LEER], readByte, writeByte, readBuffer2[BYTES_A_LEER];
-    uint8_t     respuesta1, respuesta2, respuesta3, respuesta4; 
-    TickType_t  xDelayMs;
-    
-    rtcc_t time;
-    rtcc_t time_readed;
-    
-    uint16_t sampleRead;
-    uint16_t sampleWrite;
-    uint16_t sampleTotal;
-    
-    time.anio      = 0x17; //2017 en formato de dos dígitos
-    time.mes       = 0x11; //Noviembre
-    time.dia       = 0x09; //09
-    time.dow       = 0x05; //jueves (domingo=1)
-    time.hora      = 0x18; //18hs
-    time.minutos   = 0x28; //28min
-    time.segundos  = 0x00; //CH bit(7) disable = clock running
     
     
-    uint8_t         sourceData[64] = {  0xB0, 0xB1, 0xB2, 0xB3, 
-                                        0xB4, 0xB5, 0xB6, 0xB7, 
-                                        0xB8, 0xB9, 0xBB, 0xBB, 
-                                        0xBC, 0xBD, 0xBE, 0xBF,
-                                        0xB0, 0xB1, 0xB2, 0xB3, 
-                                        0xB4, 0xB5, 0xB6, 0xB7, 
-                                        0xB8, 0xB9, 0xBB, 0xBB, 
-                                        0xBC, 0xBD, 0xBE, 0xBF,
-                                        0xB0, 0xB1, 0xB2, 0xB3, 
-                                        0xB4, 0xB5, 0xB6, 0xB7, 
-                                        0xB8, 0xB9, 0xBB, 0xBB, 
-                                        0xBC, 0xBD, 0xBE, 0xBF,
-                                        0xB0, 0xB1, 0xB2, 0xB3, 
-                                        0xB4, 0xB5, 0xB6, 0xB7, 
-                                        0xB8, 0xB9, 0xBB, 0xBB, 
-                                        0xBC, 0xBD, 0xBE, 0xBF }; 
+//    xTimePasive = xMinToTicks(1);
+//    xTimeActive = xSegToTicks(10);
+//    xTimeData   = xSegToTicks(1);
+    xTimePasive = xSegToTicks(6);
+    xTimeActive = xSegToTicks(3);
+    xTimeData   = xSegToTicks(1);
     
+//    TimerHandle_t xTimerCreate(     const char * const pcTimerName,
+//                                    TickType_t xTimerPeriodInTicks,
+//                                    UBaseType_t uxAutoReload,
+//                                    void * pvTimerID,
+//                                    TimerCallbackFunction_t pxCallbackFunction );
     
-    address = MEMORY_ADDRESS;
-    
-    readByte = 0;
-    writeByte = 76;
-    
-    respuesta1,respuesta2, respuesta3, respuesta4, contador = 0;
-    
-    for(i=0;i<BYTES_A_LEER;i++) readBuffer[i] = INITIAL_VALUE;
-    
-    for(i=0;i<BYTES_A_LEER;i++) readBuffer2[i] = INITIAL_VALUE;
-    
-
-    respuesta1 = MCHP_24LCxxx_Init_I2C1(_24LC512_0);
-//    respuesta2 = MCHP_24LCxxx_Init_I2C1(_24LC512_1);
-    __delay_ms(2);
-//    respuesta1 = MCHP_24LCxxx_Write_array(_24LC512_0,address, sourceData, BYTES_A_LEER);
-//        respuesta2 = write_rtcc_array_2(0, sourceData, BYTES_A_LEER);
-    
-//    rtc_init();
-//    set_rtcc_datetime(&time);
-    resetSamplesPtr();
-
-    
-    respuesta3 = putSample(&sampleToPut);
+    xSamplePasive   = xTimerCreate("pasivePeriod",xTimePasive,pdTRUE,0,prvPasiveCallback);
+    xSampleActive   = xTimerCreate("activePeriod",xTimeActive,pdTRUE,0,prvActiveCallback);
+    xSampleData     = xTimerCreate("dataPeriod",xTimeData,pdTRUE,0,prvDataCallback) ;
         
-
+    xTaskCreate(    vTaskSample,
+                    "vTaskSample",
+                    1000,
+                    NULL,
+                    configMAX_PRIORITIES-1,
+                    &xSampleHandle);
     
-    while(1){
-//Este delay sirve para ver bien la forma de onda en el osciloscopio
-//        for(i=0;i<65000;i++);
-        
-//        __delay_ms(10);
-        
-        
-//        respuesta2 = MCHP_24LCxxx_Write_byte(_24LC512_0,address+20,&writeByte);
-
-        __delay_ms(2);
-        sampleRead = getSamplesRead();
-        sampleWrite = getSamplesWrite();
-        sampleTotal = getSamplesTotal();
-        
-        respuesta3 = putSample(&sampleToPut);
-        
-        sampleRead = getSamplesRead();
-        sampleWrite = getSamplesWrite();
-        sampleTotal = getSamplesTotal();
-        
-        __delay_ms(2);
-        
-        respuesta4 = getSample(&sampleToGet,nextSample);
-        
-        sampleRead = getSamplesRead();
-        sampleWrite = getSamplesWrite();
-        sampleTotal = getSamplesTotal();
-        
-        
-        
-//        respuesta3 = read_rtcc_array_2( 0, readBuffer, BYTES_A_LEER );
-//        get_rtcc_datetime(&time_readed);
-        
-        
-        
-//        respuesta4 = MCHP_24LCxxx_Read_array(_24LC512_0, address, readBuffer,BYTES_A_LEER);
-//        respuesta4 = MCHP_24LCxxx_Read_byte(_24LC512_0,address+10,&readByte);
-//        __delay_ms(2);
-//        respuesta3 = MCHP_24LCxxx_Read_array(_24LC512_0, address, readBuffer2,BYTES_A_LEER);
-                
-        contador++;
-        
-    }
-    
-//    xTaskCreate(    vTaskSample,
-//                    "Sample",
-//                    1000,
-//                    NULL,
-//                    3,
-//                    &xSampleHandle);
-//    
 //    xTaskCreate(    vTaskShell,
 //                    "Shell",
 //                    2000,
@@ -252,9 +183,9 @@ int main( void )
 //    /* Start the task that will control the LCD.  This returns the handle
 //	to the queue used to write text out to the task. */
 //	xLCDQueue = xStartLCDTask();
-//
-//	/* Finally start the scheduler. */
-//	vTaskStartScheduler();
+
+	/* Finally start the scheduler. */
+	vTaskStartScheduler();
 
 	/* Will only reach here if there is insufficient heap available to start
 	the scheduler. */
@@ -274,7 +205,7 @@ void vTaskSensorADC( void *pvParameters ){
     
     uint8_t contador =0;
     
-    xDelayMs = xMainMsToTicks(1000);
+    xDelayMs = xMsToTicks(1000);
 
     numBytesWritten = 0;
     xLastWakeTime = xTaskGetTickCount();
@@ -311,30 +242,72 @@ void vTaskSensorADC( void *pvParameters ){
 
 void vTaskSample( void *pvParameters ){
 // Seccion de inicializacion
-    TickType_t  xDelayMs;
-    char response1,response2;
-    uint16_t contador;
-    muestra_t sampleToPut, sampleToGet;
+    uint32_t status;
+    xTimerStart(xSamplePasive,0);
+    BaseType_t samplingFinished = pdFALSE;
+    muestra_t sample, sampleReturned;
     
-    init_sample(&sampleToPut);
+    uint16_t sensor_1;
+    uint16_t sensor_2;
     
-    xDelayMs = xMainMsToTicks(1000);
+    uint8_t returnPutSample,returnGetSample;
+    uint16_t ptrEscritura, ptrLectura;
     
-
+    uint16_t readed, writed;
+    
+    uint8_t arraySample[sizeof(muestra_t)], arraySampleReturned[sizeof(muestra_t)];
+    int i;
+    for(i=0;i<sizeof(muestra_t);i++){
+        arraySample[i] = 0;
+        arraySampleReturned[i] = 0;
+    }
+    
+    
+    init_sample(&sample);
+    init_sample(&sampleReturned);
+    
+//    ptrLectura = 1;
+//    resetSamplesPtr();
+    
     // Cuerpo de la tarea
     for( ;; ){
-        vTaskDelay(xDelayMs);
-        
-//        vTaskSuspendAll ();
-//        response1 = putSample(&sampleToPut);
-        response1 = MCHP_24LCxxx_Write_array(0x50,0x0025,(uint8_t*)&sampleToPut,1);
-//        xTaskResumeAll ();
-        
-        
-        vTaskDelay(xDelayMs);
-        
-        response2 = getSample(&sampleToGet,0);
-        contador++;
+        status = ulTaskNotifyTake(  pdTRUE,  /* Clear the notification value before
+                                                exiting. */
+                                    portMAX_DELAY ); /* Block indefinitely. */
+        //Se adquieren los valores y se guardan en 'sample'.
+        switch(status){
+            case SENSOR_1:
+                sensor_1 = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
+                sample.bateria = sensor_1;
+//                writed = sensor_1;
+//                arraySample[63] = sensor_1 >> 8;
+//                arraySample[64] = sensor_1 ;
+//                arraySample[0] = 0xFF;
+                samplingFinished = pdTRUE; //colocar en el case correspondiente
+                break;
+            case SENSOR_2:
+           
+//                setSamplesRead(ptrLectura);
+                returnGetSample = getSample(&sampleReturned,nextSample);
+//                returnGetSample = MCHP_24LCxxx_Read_array(_24LC512_0, ptrLectura,arraySampleReturned,sizeof(muestra_t));
+                sensor_2 = 0;
+//                sensor_2 = getData_Sensor_2();
+                break;
+            case CLOSE_SAMPLE:
+               samplingFinished = pdTRUE; 
+        }
+        //Si la mustra ya cerró, hay que ensamblarla y almacenarla en la EEPROM
+        if(samplingFinished){
+           assembleSample(&sample);
+//           ptrEscritura = 0x0025;
+//           setSamplesWrite(ptrEscritura);
+           returnPutSample = putSample(&sample);
+            
+//           arraySample[25] = 89;
+//           arraySample[sizeof(muestra_t)-1] = 11;
+//           returnPutSample = MCHP_24LCxxx_Write_array(_24LC512_0,ptrLectura,arraySample,sizeof(muestra_t));
+           samplingFinished = pdFALSE;
+        }
     }
 }
 
@@ -371,22 +344,6 @@ void vTaskShell( void *pvParameters ){
     }
 }
 
-//static void vSenderTask( void *pvParameters ){
-//    //PRODUCTOR DE DATOS
-//    // Seccion de incializacion
-//    long lValueToSend;
-//    portBASE_TYPE xStatus;
-//    lValueToSend = ( long ) pvParameters;
-//    
-//    // Cuerpo de la tarea
-//    for( ;; ){
-//        //Escribo 
-//        xQueueSendToBack( xQueue, &lValueToSend, 0 );
-//        taskYIELD(); // Cedo el resto de mi timeslice
-//    }
-//}
-
-
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
 {
 	( void ) pcTaskName;
@@ -406,11 +363,29 @@ void vApplicationIdleHook( void )
 }
 
 //#define pdMS_TO_TICKS( xTimeInMs ) ( ( TickType_t ) ( ( ( TickType_t ) ( xTimeInMs ) * ( TickType_t ) configTICK_RATE_HZ ) / ( TickType_t ) 1000 ) )
-TickType_t xMainMsToTicks( TickType_t xTimeInMs){
+TickType_t xMsToTicks( TickType_t xTimeInMs){
     
     uint32_t xTimeInTicks =0;
     
     xTimeInTicks = ((uint32_t)xTimeInMs*(uint32_t)configTICK_RATE_HZ)/(uint32_t)1000;
+    
+    return (TickType_t) xTimeInTicks;
+}
+
+TickType_t xSegToTicks( TickType_t xTimeInSeg){
+    
+    uint32_t xTimeInTicks =0;
+    
+    xTimeInTicks = xMsToTicks(xTimeInSeg*1000);
+    
+    return (TickType_t) xTimeInTicks;
+}
+
+TickType_t xMinToTicks( TickType_t xTimeInMin){
+    
+    uint32_t xTimeInTicks =0;
+    
+    xTimeInTicks = xSegToTicks(xTimeInMin*60);
     
     return (TickType_t) xTimeInTicks;
 }
@@ -423,27 +398,86 @@ void flushComando(uint8_t *comando)
     }
 }
 
-void init_sample(muestra_t *muestra)
+static void init_sample(muestra_t *muestra)
 {
-    muestra->cmd=0x01;
-    muestra->tipo=0x02;
-    muestra->num_serie=0x0303;
-    muestra->hora=0x04;
-    muestra->minutos=0x05;
-    muestra->dia=0x06;
-    muestra->mes=0x07;
-    muestra->anio=0x08;
-    muestra->senial =0x09;
-//    muestra->clima=0;
-    muestra->corriente1=0x1111;
-    muestra->corriente2=0x1212;
-    muestra->bateria=0x1313;
-    muestra->periodo=0x14;
-    muestra->sensorHab1=0x15;
-    muestra->sensorHab2=0x16;
-    muestra->sensorHab3=0x17;
-    muestra->nullE=0x1;
-//    muestra->_reserved_[6]=0x191919;
+//    muestra->_reserved_ = {0,0,0,0,0,0};
+    muestra->anio=0x00;
+    muestra->bateria=0x0000;
+    muestra->clima.hum = 0x0000;
+    muestra->clima.humHoja = 0x0000;
+    muestra->clima.humSuelo1 = 0x0000;
+    muestra->clima.humSuelo2 = 0x0000;
+    muestra->clima.humSuelo3 = 0x0000;
+    muestra->clima.lluvia = 0x0000;
+    muestra->clima.luzDia = 0x0000;
+    muestra->clima.presion = 0;
+    muestra->clima.radiacionSolar = 0x0000;
+    muestra->clima.tempHoja = 0x0000;
+    muestra->clima.tempSuelo1 = 0x0000;
+    muestra->clima.tempSuelo2 = 0x0000;
+    muestra->clima.tempSuelo3 = 0x0000;
+    muestra->clima.temper = 0x0000;
+    muestra->clima.viento.direccionM = 0x0000;
+    muestra->clima.viento.direccionP = 0x00;
+    muestra->clima.viento.velocidadM = 0x0000;
+    muestra->clima.viento.velocidadP = 0x0000;
+    muestra->cmd=0x00;
+    muestra->corriente1=0x0000;
+    muestra->corriente2=0x0000;
+    muestra->dia=0x00;
+    muestra->mes=0x00;
+    muestra->hora=0x00;
+    muestra->minutos=0x00;
+    muestra->nullE = NULL;
+    muestra->num_serie=0x0000;
+    muestra->periodo=0x00;
+    muestra->senial =0x00;
+    muestra->sensorHab1=0x00;
+    muestra->sensorHab2=0x00;
+    muestra->sensorHab3=0x00;
+    muestra->tipo=0x00;
+      
 }
 
+static void assembleSample(muestra_t *muestra)
+{
+    rtcc_t rtcc;
+    
+    get_rtcc_datetime(&rtcc);
+    
+    muestra->anio = rtcc.anio;
+    muestra->mes = rtcc.mes;
+    muestra->dia = rtcc.dia;
+    muestra->hora = rtcc.hora;
+    muestra->minutos = rtcc.minutos;
+   
+}
 
+static void prvPasiveCallback (TimerHandle_t xTimer){
+    
+    vLedToggleLED(0);
+    xTimerStop(xSamplePasive,0);
+    xTimerStart(xSampleActive,0);
+    xTimerStart(xSampleData,0);
+    xTaskNotify(xSampleHandle,SENSOR_1,eSetValueWithOverwrite);
+}
+
+static void prvActiveCallback (TimerHandle_t xTimer){
+    vLedToggleLED(1);
+    
+    xTimerStop(xSampleData,0);
+    xTimerStop(xSampleActive,0);
+    xTimerStart(xSamplePasive,0);
+    
+    xTaskNotify(xSampleHandle,SENSOR_2,eSetValueWithOverwrite);
+}
+
+static void prvDataCallback (TimerHandle_t xTimer){
+    vLedToggleLED(2);
+}
+
+static void  sensorsConfig(){
+    //Potenciómetro - ADC
+    ADC_SetConfiguration ( ADC_CONFIGURATION_DEFAULT );
+    ADC_ChannelEnable ( ADC_CHANNEL_POTENTIOMETER );
+}

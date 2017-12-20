@@ -4,8 +4,8 @@
 /* Demo app includes. */
 #include "perifericos/led.h"
 
-#define ptOUTPUT 	0x0000
-#define ptALL_OFF	0x0000
+#define ptOUTPUT 	0x0
+#define ptALL_OFF	0x0
 
 /*-----------------------------------------------------------
  * Simple parallel port IO routines.
@@ -13,10 +13,26 @@
 
 void vLedInitialise( void )
 {
-	/* The explorer 16 board has LED's on port A.  All bits are set as output
-	so PORTA is read-modified-written directly. */
- 	TRISA = ptOUTPUT;
-	PORTA = ptALL_OFF;
+//	/* The explorer 16 board has LED's on port A.  Only the led's bits are set as output
+//	so PORTA is read-modified-written directly. */
+// 	TRISA.TRISA0 = ptOUTPUT;
+//    TRISA.TRISA1 = ptOUTPUT;
+//    TRISA.TRISA2 = ptOUTPUT;
+//    TRISA.TRISA3 = ptOUTPUT;
+//    TRISA.TRISA4 = ptOUTPUT;
+//    TRISA.TRISA5 = ptOUTPUT;
+//    TRISA.TRISA6 = ptOUTPUT;
+//    TRISA.TRISA7 = ptOUTPUT;
+//    
+//	PORTA.RA0 = ptALL_OFF;
+//    PORTA.RA1 = ptALL_OFF;
+//    PORTA.RA2 = ptALL_OFF;
+//    PORTA.RA3 = ptALL_OFF;
+//    PORTA.RA4 = ptALL_OFF;
+//    PORTA.RA5 = ptALL_OFF;
+//    PORTA.RA6 = ptALL_OFF;
+//    PORTA.RA7 = ptALL_OFF;
+    
 }
 /*-----------------------------------------------------------*/
 

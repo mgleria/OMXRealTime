@@ -27,6 +27,7 @@
           <itemPath>include/funciones/eeprom.h</itemPath>
           <itemPath>include/funciones/rtcc.h</itemPath>
           <itemPath>include/funciones/memory.h</itemPath>
+          <itemPath>include/funciones/sampling.h</itemPath>
         </logicalFolder>
         <logicalFolder name="perifericos" displayName="perifericos" projectFiles="true">
           <itemPath>include/perifericos/adc.h</itemPath>
@@ -81,6 +82,7 @@
         <itemPath>Source/funciones/rtcc.c</itemPath>
         <itemPath>Source/funciones/eeprom.c</itemPath>
         <itemPath>Source/funciones/memory.c</itemPath>
+        <itemPath>Source/funciones/sampling.c</itemPath>
       </logicalFolder>
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
@@ -280,7 +282,6 @@
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="memories.configurationmemory" value="true"/>
         <property key="memories.dataflash" value="true"/>
         <property key="memories.eeprom" value="true"/>

@@ -85,7 +85,8 @@ static uint8    usbSendSamplesDev = _24LC512_0; ///<    memoria desde donde leer
 char	getSample( muestra_t *muestra, char sample )
 {
     auto uint8 memDevice = _24LC512_0;
-    auto uint8 memNumber = 0;  
+    auto uint8 memNumber = 0; 
+    uint8_t returnValue = 10; //SACAR
     
 	//	actualiza los valores desde la RAM del RTCC
 	read_rtcc_array( SAMPLES_READ_ADDRESS, (uint8_t*)&samplesRead, sizeof(samplesRead) );
@@ -115,7 +116,8 @@ char	getSample( muestra_t *muestra, char sample )
 	read_address += SAMPLES_START_ADD;
     
 	if( samplesTotal )						//	si hay muestras almacenadas
-		MCHP_24LCxxx_Read_array(memDevice,read_address,(uint8_t*)muestra,sizeof(muestra_t));
+        returnValue = MCHP_24LCxxx_Read_array(memDevice,read_address,(uint8_t*)muestra,sizeof(muestra_t));
+//		returnValue = MCHP_24LCxxx_Read_array(memDevice,read_address,(uint8_t*)muestra,sizeof(muestra_t));
 //        i2cbus_read( memDevice, read_address, (char*)muestra, (uint16)sizeof(muestra_t) );
 
 	//	actualiza los valores en la RAM del RTCC
@@ -129,7 +131,8 @@ char	getSample( muestra_t *muestra, char sample )
 		return false;
 	}
 
-	return	true;
+//	return	true;
+    return returnValue;
 }
 /******************************************************************************/
 /**

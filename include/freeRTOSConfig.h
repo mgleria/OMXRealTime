@@ -29,7 +29,7 @@
 //Cada cuanto interrumpe el tick de FreeRTOS (Hz)
 #define configTICK_RATE_HZ				( ( TickType_t ) 1000 )
 #define configCPU_CLOCK_HZ				( ( unsigned long ) 4000000 )  /* Fosc/2 */
-#define configMAX_PRIORITIES			( 4 )
+#define configMAX_PRIORITIES			( 5 )
 #define configMINIMAL_STACK_SIZE		( 200 )
 #define configTOTAL_HEAP_SIZE			( ( size_t ) 10240 )
 #define configMAX_TASK_NAME_LEN			( 4 )
@@ -41,6 +41,14 @@
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 		1
 #define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
+//Para podeer utilizar el mecanismo de notificaciones entre tareas
+#define configUSE_TASK_NOTIFICATIONS    1
+
+//Software Timers Configgurations
+#define configUSE_TIMERS                1
+#define configTIMER_TASK_PRIORITY       configMAX_PRIORITIES-2       
+#define configTIMER_TASK_STACK_DEPTH    configMINIMAL_STACK_SIZE*2
+#define configTIMER_QUEUE_LENGTH        3
 
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */
