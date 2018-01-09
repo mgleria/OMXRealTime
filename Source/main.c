@@ -138,6 +138,7 @@ int main( void )
 {
     SYSTEM_Initialize();
     sensorsConfig();
+    rtc_init();
 //    vLedInitialise();
     
     
@@ -251,9 +252,12 @@ void vTaskSample( void *pvParameters ){
     uint16_t sensor_2;
     
     uint8_t returnPutSample,returnGetSample;
-    uint16_t ptrEscritura, ptrLectura;
+    uint16_t ptrEscritura, ptrLectura, totalSamples;
     
     uint16_t readed, writed;
+    
+    bool firstGet = true;
+    
     
     uint8_t arraySample[sizeof(muestra_t)], arraySampleReturned[sizeof(muestra_t)];
     int i;
@@ -262,12 +266,13 @@ void vTaskSample( void *pvParameters ){
         arraySampleReturned[i] = 0;
     }
     
+    totalSamples = 0;
     
     init_sample(&sample);
     init_sample(&sampleReturned);
     
 //    ptrLectura = 1;
-//    resetSamplesPtr();
+    resetSamplesPtr();
     
     // Cuerpo de la tarea
     for( ;; ){
@@ -287,12 +292,18 @@ void vTaskSample( void *pvParameters ){
                 break;
             case SENSOR_2:
            
-//                setSamplesRead(ptrLectura);
-                returnGetSample = getSample(&sampleReturned,nextSample);
-//                returnGetSample = MCHP_24LCxxx_Read_array(_24LC512_0, ptrLectura,arraySampleReturned,sizeof(muestra_t));
-                sensor_2 = 0;
-//                sensor_2 = getData_Sensor_2();
+                totalSamples = getSamplesTotal();
+                
+                if(firstGet || !totalSamples){ //Primera vez o no hay muestras nuevas
+                    returnGetSample = getSample(&sampleReturned,lastSample);
+                    firstGet = false;
+                }
+                else{
+                    returnGetSample = getSample(&sampleReturned,nextSample);
+                }
+                
                 break;
+                
             case CLOSE_SAMPLE:
                samplingFinished = pdTRUE; 
         }
