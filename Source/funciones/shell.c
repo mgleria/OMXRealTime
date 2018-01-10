@@ -343,53 +343,53 @@ string	*processCmdLine( char * cmdLine )
 
 					case( __prs__ ):
 						/*	configura el parametro	*/
-//						if( (*action == '=') && (dataLength <= 5) )
-//						{
-//							setSamplesRead( atoi( data ) );	//	asigna nuevo valor
-//							*action = '?';		//	fuerza la respuesta
-//						}
-//						/*	responde con lo solicitado	*/
-//						if( *action == '?' )
-//						{
-//							sprintf(bufferAux, "%s:%u", &_commands_[index][0], getSamplesRead() );
-//							strcat( response, (string*)&bufferAux );
-//							strcat( response, (string*)"\n" );
-//						}
-                        sprintf( response, "Comando encontrado: %s. NO IMPLEMENTADO\n",(string*)&_commands_[index][0]);
+						if( (*action == '=') && (dataLength <= 5) )
+						{
+							setSamplesRead( atoi( data ) );	//	asigna nuevo valor
+							*action = '?';		//	fuerza la respuesta
+						}
+						/*	responde con lo solicitado	*/
+						if( *action == '?' )
+						{
+							sprintf(bufferAux, "%s:%u", &_commands_[index][0], getSamplesRead() );
+							strcat( response, (string*)&bufferAux );
+							strcat( response, (string*)"\n" );
+						}
+//                        sprintf( response, "Comando encontrado: %s. NO IMPLEMENTADO\n",(string*)&_commands_[index][0]);
 						break;
 
 					case( __pws__ ):
 						/*	configura el parametro	*/
-//						if( (*action == '=') && (dataLength <= 5) )
-//						{
-//							setSamplesWrite( atoi( data ) );	//	asigna nuevo valor
-//							*action = '?';
-//						}
-//						/*	responde con lo solicitado	*/
-//						if( *action == '?' )
-//						{
-//							sprintf(bufferAux, "%s:%u", &_commands_[index][0], getSamplesWrite() );
-//							strcat( response, (string*)&bufferAux );
-//							strcat( response, (string*)"\n" );
-//						}
-                        sprintf( response, "Comando encontrado: %s. NO IMPLEMENTADO\n",(string*)&_commands_[index][0]);
+						if( (*action == '=') && (dataLength <= 5) )
+						{
+							setSamplesWrite( atoi( data ) );	//	asigna nuevo valor
+							*action = '?';
+						}
+						/*	responde con lo solicitado	*/
+						if( *action == '?' )
+						{
+							sprintf(bufferAux, "%s:%u", &_commands_[index][0], getSamplesWrite() );
+							strcat( response, (string*)&bufferAux );
+							strcat( response, (string*)"\n" );
+						}
+//                        sprintf( response, "Comando encontrado: %s. NO IMPLEMENTADO\n",(string*)&_commands_[index][0]);
 						break;
 
 					case( __pts__ ):
 						/*	configura el parametro	*/
-//						if( (*action == '=') && (dataLength <= 5) )
-//						{
-//							setSamplesTotal( atoi( data ) );	//	asigna nuevo valor
-//							*action = '?';		//	fuerza la respuesta
-//						}
-//						/*	responde con lo solicitado	*/
-//						if( *action == '?' )
-//						{
-//							sprintf(bufferAux, "%s:%u", &_commands_[index][0], getSamplesTotal() );
-//							strcat( response, (string*)&bufferAux );
-//							strcat( response, (string*)"\n" );
-//						}
-                        sprintf( response, "Comando encontrado: %s. NO IMPLEMENTADO\n",(string*)&_commands_[index][0]);
+						if( (*action == '=') && (dataLength <= 5) )
+						{
+							setSamplesTotal( atoi( data ) );	//	asigna nuevo valor
+							*action = '?';		//	fuerza la respuesta
+						}
+						/*	responde con lo solicitado	*/
+						if( *action == '?' )
+						{
+							sprintf(bufferAux, "%s:%u", &_commands_[index][0], getSamplesTotal() );
+							strcat( response, (string*)&bufferAux );
+							strcat( response, (string*)"\n" );
+						}
+//                        sprintf( response, "Comando encontrado: %s. NO IMPLEMENTADO\n",(string*)&_commands_[index][0]);
 						break;
 
 					case( __date__ ):

@@ -63,76 +63,67 @@ string model[] = "OMX-N";
 
 string version[] = "2.00";
 
+#define MAX_PRIORITY    configMAX_PRIORITIES-1
+
+
 
 #define mainMAX_STRING_LENGTH				( 20 )
 #define bufLen                              ( 15 )
 #define DEFAULT_STACK_SIZE                  (1000)  
 
 //Software TIMERS
-#define T_MUESTREO_ACTIVO_MIN               1
-#define T_MUESTREO_PASIVO_MIN               9
-#define T_MUESTREO_DATO_SEG                 1
+#define T_MUESTREO_PASIVO_S               6
+#define T_MUESTREO_ACTIVO_S               3
+#define T_MUESTREO_DATO_S                 1
 
 
 //***********************Prototipo de tareas************************************
 
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
 
-void vTaskFunction( void *pvParameters );
-
-void vTaskSensorADC( void *pvParameters );
-
 void vTaskShell( void *pvParameters );
-
-void vTaskI2C( void *pvParameters );
 
 void vTaskSample( void *pvParameters );
 
-
-//***********************Prototipo de funciones*********************************
-
-//static void vReceiverTask( void *pvParameters );
-
-//static void vSenderTask( void *pvParameters );
+//***********************Prototipo de funciones externas************************
 //The vTaskDelay() API function prototype
 void vTaskDelay( TickType_t xTicksToDelay ); 
-//Función que reemplaza la MACRO provista por freeRTOS para convertir ms a ticks
+
+//***********************Prototipo de funciones propias*************************
+//Función que reemplaza la MACRO provista por freeRTOS para convertir tiempo
+//en diferentes unidades a ticks
 TickType_t xMsToTicks( TickType_t xTimeInMs);
 TickType_t xSegToTicks( TickType_t xTimeInMs);
 TickType_t xMinToTicks( TickType_t xTimeInMs);
-
+//Handler de las funciones que se ejecutan cuando los respectivos software 
+//timers expiran
 static void prvPasiveCallback (TimerHandle_t xTimer);
 static void prvActiveCallback (TimerHandle_t xTimer);
 static void prvDataCallback (TimerHandle_t xTimer);
-
+//Inicialización software timers
+static void softwareTimers_init();
+//Función que configura todos los sensores que intervienen el el proceso vTaskSample
 static void  sensorsConfig();
-
+//Funciones relativas al proceso vTaskSample
 static void init_sample(muestra_t *muestra);
 static void assembleSample(muestra_t *muestra);
+
 //******************************Globales****************************************
 
 //The queue used to send messages to the LCD task.
 static QueueHandle_t xLCDQueue;
-
-//Cola de respuesta generada a los comandos procesados por vTaskShell
-//QueueHandle_t xQueueShell;
-//xQueueShell = xQueueCreate(1, MAX_RESP_LENGHT);
- 
+//Handlers tareas
 TaskHandle_t xShellHandle;
 TaskHandle_t xSampleHandle;
-
+//Handlers software timers
 TimerHandle_t xSamplePasive;
 TimerHandle_t xSampleActive;
 TimerHandle_t xSampleData;
-
+//Tiempos usados en software timers
 TickType_t  xTimePasive, xTimeActive, xTimeData;
 
 static const char *pcSensor = "Pot";
 static char cStringBuffer[ mainMAX_STRING_LENGTH ];
-
-//uint8_t respuestaUART[MAX_RESP_LENGHT];
-
-//SemaphoreHandle_t mutexSample;
 
 int main( void )
 {
@@ -140,50 +131,25 @@ int main( void )
     sensorsConfig();
     rtc_init();
 //    vLedInitialise();
-    
-    
-//    xTimePasive = xMinToTicks(1);
-//    xTimeActive = xSegToTicks(10);
-//    xTimeData   = xSegToTicks(1);
-    xTimePasive = xSegToTicks(6);
-    xTimeActive = xSegToTicks(3);
-    xTimeData   = xSegToTicks(1);
-    
-//    TimerHandle_t xTimerCreate(     const char * const pcTimerName,
-//                                    TickType_t xTimerPeriodInTicks,
-//                                    UBaseType_t uxAutoReload,
-//                                    void * pvTimerID,
-//                                    TimerCallbackFunction_t pxCallbackFunction );
-    
-    xSamplePasive   = xTimerCreate("pasivePeriod",xTimePasive,pdTRUE,0,prvPasiveCallback);
-    xSampleActive   = xTimerCreate("activePeriod",xTimeActive,pdTRUE,0,prvActiveCallback);
-    xSampleData     = xTimerCreate("dataPeriod",xTimeData,pdTRUE,0,prvDataCallback) ;
+    softwareTimers_init();
         
     xTaskCreate(    vTaskSample,
                     "vTaskSample",
                     1000,
                     NULL,
-                    configMAX_PRIORITIES-1,
+                    MAX_PRIORITY,
                     &xSampleHandle);
     
-//    xTaskCreate(    vTaskShell,
-//                    "Shell",
-//                    2000,
-//                    NULL,
-//                    2,
-//                    &xShellHandle);
-//    
-//    xTaskCreate(    vTaskSensorADC, /* Pointer to the function that implements the task. */
-//                    "Sensor", /* Text name for the task. This is to facilitate debugging only. */
-//                    DEFAULT_STACK_SIZE, /* Stack depth - small microcontrollers will use much less stack than this. */
-//                    (void*)pcSensor, /* Pass the text to be printed into the task using the task parameter. */
-//                    1, /* This task will run at priority 1. */
-//                    NULL ); /* The task handle is not used in this example. */
-//    
-//    
-//    /* Start the task that will control the LCD.  This returns the handle
-//	to the queue used to write text out to the task. */
-//	xLCDQueue = xStartLCDTask();
+    xTaskCreate(    vTaskShell,
+                    "Shell",
+                    2000,
+                    NULL,
+                    2,
+                    &xShellHandle);
+    
+    /* Start the task that will control the LCD.  This returns the handle
+	to the queue used to write text out to the task. */
+	xLCDQueue = xStartLCDTask();
 
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
@@ -193,55 +159,8 @@ int main( void )
 	return 0;
 }
 
-void vTaskSensorADC( void *pvParameters ){
-    //Periodo con el que actuará la tarea (ms))
-    TickType_t xDelayMs;
-    TickType_t xLastWakeTime;
-    uint8_t numBytesWritten;
-    
-    unsigned portBASE_TYPE wichLED;
-    char *pcSensor;
-    char cLcdLine[bufLen];
-    uint16_t adcResult;
-    
-    uint8_t contador =0;
-    
-    xDelayMs = xMsToTicks(1000);
-
-    numBytesWritten = 0;
-    xLastWakeTime = xTaskGetTickCount();
-    pcSensor = ( char * ) pvParameters;
-    wichLED = 0;
-    
-    ADC_SetConfiguration ( ADC_CONFIGURATION_DEFAULT );
-    ADC_ChannelEnable ( ADC_CHANNEL_POTENTIOMETER );
-    /* The message that is sent on the queue to the LCD task.  The first
-    parameter is the minimum time (in ticks) that the message should be
-    left on the LCD without being overwritten.  The second parameter is a pointer
-    to the message to display itself. */
-    xLCDMessage xMessage = { 0, cStringBuffer };
-    
-    for( ;; ){
-        vTaskDelay(xDelayMs);
-        
-        contador++;
-        
-        adcResult = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
-        
-//        sprintf(cLcdLine, "%s: %4d \n",pcSensor,adcResult);
-        
-//        numBytesWritten = UART1_WriteBuffer(cLcdLine,bufLen);
-        
-        
-        sprintf(cLcdLine, "%s: %d : %d\n",pcSensor,adcResult,contador);
-        sprintf( cStringBuffer, cLcdLine );
-		xQueueSend( xLCDQueue, &xMessage, portMAX_DELAY );
-     
-        vLedToggleLED(wichLED);
-    }
-}
-
 void vTaskSample( void *pvParameters ){
+    UBaseType_t uxHighWaterMarkSample;
 // Seccion de inicializacion
     uint32_t status;
     xTimerStart(xSamplePasive,0);
@@ -284,16 +203,10 @@ void vTaskSample( void *pvParameters ){
             case SENSOR_1:
                 sensor_1 = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
                 sample.bateria = sensor_1;
-//                writed = sensor_1;
-//                arraySample[63] = sensor_1 >> 8;
-//                arraySample[64] = sensor_1 ;
-//                arraySample[0] = 0xFF;
                 samplingFinished = pdTRUE; //colocar en el case correspondiente
                 break;
             case SENSOR_2:
-           
-                totalSamples = getSamplesTotal();
-                
+                totalSamples = getSamplesTotal();   
                 if(firstGet || !totalSamples){ //Primera vez o no hay muestras nuevas
                     returnGetSample = getSample(&sampleReturned,lastSample);
                     firstGet = false;
@@ -301,29 +214,25 @@ void vTaskSample( void *pvParameters ){
                 else{
                     returnGetSample = getSample(&sampleReturned,nextSample);
                 }
-                
                 break;
                 
             case CLOSE_SAMPLE:
                samplingFinished = pdTRUE; 
         }
+        
         //Si la mustra ya cerró, hay que ensamblarla y almacenarla en la EEPROM
         if(samplingFinished){
            assembleSample(&sample);
-//           ptrEscritura = 0x0025;
-//           setSamplesWrite(ptrEscritura);
-           returnPutSample = putSample(&sample);
-            
-//           arraySample[25] = 89;
-//           arraySample[sizeof(muestra_t)-1] = 11;
-//           returnPutSample = MCHP_24LCxxx_Write_array(_24LC512_0,ptrLectura,arraySample,sizeof(muestra_t));
+           returnPutSample = putSample(&sample);          
            samplingFinished = pdFALSE;
         }
+        
+        uxHighWaterMarkSample = uxTaskGetStackHighWaterMark( NULL );
     }
 }
 
 void vTaskShell( void *pvParameters ){
-    
+    UBaseType_t uxHighWaterMarkShell;
     // Seccion de inicializacion
     uint8_t comando[MAX_COMMAND_LENGHT] ={0};
     string respuesta[MAX_RESP_LENGHT]={0};
@@ -331,11 +240,9 @@ void vTaskShell( void *pvParameters ){
     uint16_t sizeRespuesta;
     bytesEnviados = bytesRecibidos = -1;
     
-
     // Cuerpo de la tarea
-    for( ;; ){
-            
-            
+    for( ;; ){   
+            uxHighWaterMarkShell = uxTaskGetStackHighWaterMark( NULL );
             //Detengo el TMR2 que inició al final de _U1RXInterrupt().
             TMR2_Stop();
             //Leemos el comando recibido por la UART
@@ -352,6 +259,7 @@ void vTaskShell( void *pvParameters ){
             //Si se envió la respuesta, se suspende la tarea hasta que llegue el próximo comando.
             flushComando(comando); 
             vTaskSuspend( NULL );
+            
     }
 }
 
@@ -462,6 +370,17 @@ static void assembleSample(muestra_t *muestra)
     muestra->hora = rtcc.hora;
     muestra->minutos = rtcc.minutos;
    
+}
+
+static void softwareTimers_init(){
+    
+    xTimePasive = xSegToTicks(T_MUESTREO_PASIVO_S);
+    xTimeActive = xSegToTicks(T_MUESTREO_ACTIVO_S);
+    xTimeData   = xSegToTicks(T_MUESTREO_DATO_S);
+    
+    xSamplePasive   = xTimerCreate("pasivePeriod",xTimePasive,pdTRUE,0,prvPasiveCallback);
+    xSampleActive   = xTimerCreate("activePeriod",xTimeActive,pdTRUE,0,prvActiveCallback);
+    xSampleData     = xTimerCreate("dataPeriod",xTimeData,pdTRUE,0,prvDataCallback) ;
 }
 
 static void prvPasiveCallback (TimerHandle_t xTimer){
