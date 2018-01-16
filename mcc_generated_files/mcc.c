@@ -102,9 +102,10 @@ void SYSTEM_Initialize(void)
     PIN_MANAGER_Initialize();
     OSCILLATOR_Initialize();
     INTERRUPT_Initialize();
+    UART2_Initialize();
     I2C1_Initialize();
-    TMR2_Initialize();
     UART1_Initialize();
+    TMR2_Initialize();
 }
 
 void OSCILLATOR_Initialize(void)
