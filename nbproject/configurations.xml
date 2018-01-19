@@ -57,6 +57,7 @@
         <itemPath>mcc_generated_files/mcc.h</itemPath>
         <itemPath>mcc_generated_files/i2c1.h</itemPath>
         <itemPath>mcc_generated_files/uart2.h</itemPath>
+        <itemPath>mcc_generated_files/tmr3.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -102,6 +103,7 @@
         <itemPath>mcc_generated_files/mcc.c</itemPath>
         <itemPath>mcc_generated_files/i2c1.c</itemPath>
         <itemPath>mcc_generated_files/uart2.c</itemPath>
+        <itemPath>mcc_generated_files/tmr3.c</itemPath>
       </logicalFolder>
       <logicalFolder name="perifericos" displayName="perifericos" projectFiles="true">
         <itemPath>Source/perifericos/adc.c</itemPath>

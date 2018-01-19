@@ -5,7 +5,7 @@
 
 /*	standard includes	*/
 #include	<stdlib.h>
-#include	<stdbool.h>
+#include    <stdbool.h>
 #include	<stdio.h>
 #include	<string.h>
 
@@ -58,16 +58,16 @@ static uint8	cmdPut = 0;				///<	indice para colocar el prox. comando en la list
 /*	Arreglo que contiene la tarma de envio con solicitud de algun proceso. */
 //char			modemBufferTx[256] = {0};
 /**	Arreglo que contiene la respuesta a la solicitud de algun proceso. */
-char			modemBufferRx[256] = {0};
+char			modemBufferRx[MODEM_BUFFER_SIZE] = {0};
 uint8			caracterIndex = 0;		///<	Indice del arreglo modemBufferRx.
 uint16			caracterTimeOut = 0;	///<	Timeout para la entrada de caracteres.
-char			dataReady = false;		///<	true cuando una trama esta lista.
+char			dataReady = false;		///<	TRUE cuando una trama esta lista.
 
 static uint16 conexion_timeout = 0;		///<	variable para el time out en la comunicacion
 
 static uint8 timeoutTimes = 0;			///<	variable para contar los TIMEOUTs y reiniciar.
 
-static char COM_Error = false;           ///<    flag para indicar la ocurrencia de un error.
+static char COM_Error = FALSE;           ///<    flag para indicar la ocurrencia de un error.
 /**********************************************************************************************/
 /*	Valiables extrernas definidas en otros archivos	*/
 
@@ -97,8 +97,8 @@ static char COM_Error = false;           ///<    flag para indicar la ocurrencia
 #ifdef	__DEBUG
 #define	OutCmd(cmd)		{	usr_stdout = _UART1_;	printf( "%s", cmd );	}
 #else
-//#define	OutCmd(cmd)		{	usr_stdout = _UART1_;	printf( "%s", cmd );	\
-//							usr_stdout = _UART2_;	printf( "|DEV|%s|end|\n", cmd );	} //VER
+#define	OutCmd(cmd)		{	usr_stdout = _UART1_;	printf( "%s", cmd );	\
+							usr_stdout = _UART2_;	printf( "|DEV|%s|end|\n", cmd );	}
 #endif
 
 /**********************************************************************************************/
@@ -122,7 +122,7 @@ void    Reset_MDM(void);
  */
 char	conexion( void )
 {
-	/* Enumeracion de los estados de la tarea que administra las
+	/* Enumeracion de los estados de la tarea que administra las 
 	 * conexiones al mismo hardware (modem).
 	 */
 	enum
@@ -134,7 +134,7 @@ char	conexion( void )
 
 	auto uint8 n = 0;
 	static char conexionState = initQueue;
-
+	
 	//	retardo para la tarea
 	if( GetTaskDelay() )
 	{
@@ -159,7 +159,7 @@ char	conexion( void )
 			cmdPut = 0;
 			conexionState = iniciarHardware;
 			break;
-
+			
 		//	inicializa solo el hardware
 		case( iniciarHardware ):
 			if( initHardware() )
@@ -191,7 +191,7 @@ char	arbConnection( void )
 		ESPERAR_RESPUESTA,
 		PROXIMO_COMANDO
 	};
-
+	
 	static char	estado = CARGAR_COMANDO;
 	static char* comando = NULL;
 
@@ -218,31 +218,32 @@ char	arbConnection( void )
 				cmdDelay = cmdQueue[cmdGet].delay;
 				//	carga el numero de respuestas que se espera al comando enviado
 				cmdFrames = cmdQueue[cmdGet].nFrames;
-
+			
 				estado = ENVIAR_COMANDO;
 			}
 			else
 				estado = PROXIMO_COMANDO;
-
+			
 			break;
-
+			
 		case( ENVIAR_COMANDO ):
 			//	espera a que termine la demora para enviar el comando...
 			if( !(cmdDelay--) )
 			{
 				/*	limpia el buffer de recepcion				*/
 				clearRxBuffer( (char*)&modemBufferRx );
-				dataReady = false;
-                
+				dataReady = FALSE;
 //				RCREG1 = NULL;
-//				PIR1bits.RC1IF = false;
+//				PIR1bits.RC1IF = FALSE;
 //				PIE1bits.RC1IE = ON;
+                //VER
 				/*	envia el comando al modem	*/
-//				OutCmd( comando ); //VER
-
+//				OutCmd( comando );
+                //VER
+				
 				/*	borra el puntero al comando que ya se envio	*/
 				cmdQueue[cmdGet].cmd = NULL;
-
+				
 				estado = ESPERAR_RESPUESTA;
 			}
 			break;
@@ -253,26 +254,26 @@ char	arbConnection( void )
 				//	si se recibio un paquete de datos...
 				if( dataReady )
 				{
-					dataReady = false;
+					dataReady = FALSE;
 					static char *trama = NULL;
 					char *auxiliar=NULL;
 					static char *trama_prev = NULL;
-
-
+					
+					
 					/* cuenta los <CR><LF> en en buffer de recepcion */
                     //if( trama == NULL )
 						trama = (char*)modemBufferRx;
-
+					
 					#ifndef	__DEBBUG
-//VER
 //					usr_stdout = _UART2_;
 //					printf( "|MDM|%s|end|", trama );			//	eco de cada trama
+                    //VER
 					#endif
 					uint8 trama_count = 0;
-
-					/*CUANDO SE RECIBE PROMPT PARA ENVÃO DE DATOS, ES LA ÃšNICA VEZ QUE LA RESPUESTA NO TERMINA CON \r\n
-					 ENTONCES SE LE CONCATENA ESTO AL FINAL PARA QUE FUNCIONE EL TRAMACOUNT Y SE RESPETE LA MISMA LÃ“GICA
-					 DE LA MÃQUINA DE ESTADOS.*/
+					
+					/*CUANDO SE RECIBE PROMPT PARA ENVÍO DE DATOS, ES LA ÚNICA VEZ QUE LA RESPUESTA NO TERMINA CON \r\n
+					 ENTONCES SE LE CONCATENA ESTO AL FINAL PARA QUE FUNCIONE EL TRAMACOUNT Y SE RESPETE LA MISMA LÓGICA
+					 DE LA MÁQUINA DE ESTADOS.*/
 					auxiliar=strstr(trama,"\r\n>");//	buscamos el > para saber que sta listo para recibir
 				      if(auxiliar!=NULL)
 						{
@@ -280,7 +281,7 @@ char	arbConnection( void )
 						  strcpy(trama,"\r\n>\r\n" );
 						  strcat(trama,"\0");
 					   }
-
+				
 					while( *trama )
 					{
 						if( trama_prev = (strstr( (char*)trama, (const char*)"\r\n" ) + 2) )
@@ -292,9 +293,11 @@ char	arbConnection( void )
 					}
 
                     /*	calcula la cantidad de tramas recibidas */
-					trama_count /= 2;
-
-
+					trama_count /= 2;	
+			
+                    /* si hubo desborde en la recepción */
+                    if( strstr( (char*)modemBufferRx, (const char*) "OVERFLOW" ) )
+                        trama_count = cmdFrames;
 					/*	si hay al menos una trama ... */
 					//if( trama_count )
 					//{
@@ -306,16 +309,16 @@ char	arbConnection( void )
 					//if( (sint8)(cmdFrames -= trama_count) <= 0 )
                     if( cmdFrames <= trama_count )
 					{
-
+						
 					//	timeoutTimes = 0;
 						/*	desactiva interrupcion en recepcion */
-//VER
 //						PIE1bits.RC1IE = OFF;
+                        //VER
 						trama = NULL;
 						/*	copia la respuesta a quien la solicita */
 						strcpy( cmdQueue[cmdGet].resp, modemBufferRx );
                         if( strstr( (char*)modemBufferRx, (const char*) "ERROR" ) )
-                            COM_Error = true;
+                            COM_Error = TRUE;
                         timeoutTimes = 0;
 //						#ifndef	__DEBBUG
 //						usr_stdout = _UART2_;
@@ -333,7 +336,7 @@ char	arbConnection( void )
 					estado = PROXIMO_COMANDO;
 					break;
 				}
-
+			
 			}
 			//	Si se supero el tiempo de espera de la respuesta...
 			else
@@ -348,7 +351,7 @@ char	arbConnection( void )
                 if( strstr( (char*)modemBufferRx, (const char*) "ERROR" ) )
                     COM_Error = true;
                 clearModemRxBuffer();
-				//dataReady = true;
+				//dataReady = TRUE;
                 estado = PROXIMO_COMANDO;
 			}
 
@@ -356,18 +359,18 @@ char	arbConnection( void )
 
 		case( PROXIMO_COMANDO ):
 			/*	prepara el proximo comando	*/
-
+			
 			cmdGet = (++cmdGet & (MAX_CMD_PERMITTED-1));
 
 			/*	solo carga el comando si encuentra uno disponible	*/
 			if( cmdQueue[cmdGet].cmd )
 				estado = CARGAR_COMANDO;
-
+            
             /*  si existieron demasiados errores consecutivos    */
             if (COM_Error)
             {
                 estado = CARGAR_COMANDO;
-                COM_Error = false;
+                COM_Error = FALSE;
                 return (ERROR);
             }
 			/*	si la cola esta vacia y hay ciertos TIMEOUTs	*/
@@ -383,8 +386,8 @@ char	arbConnection( void )
 //				estado = CARGAR_COMANDO;
 //				return	(ERROR);
 //			}
-
-
+            
+                
 			break;
 	}
 	return	(OK);
@@ -402,21 +405,21 @@ char	arbConnection( void )
  * @param delay		tiempo de demora para enviar el comando en [mS].
  * @param frames	numero de tramas o respuestas que se esperan.
  *
- * @return			true si pudo colocar en la cola el comando
+ * @return			TRUE si pudo colocar en la cola el comando
  */
 char	putCmdQueue( char* cmdLine, char* rx, uint16 timeout, uint16 delay, uint8 frames )
 {
 
 	//	controla que no se pisen los comandos de la lista
 //	if( cmdPut == cmdGet )
-//		return	false;
-
+//		return	FALSE;
+	
 	//	carga en la cola el proximo comando a ejecutarse
 	cmdQueue[(cmdPut)].cmd = cmdLine;
 
 	//	carga en la cola la direccion del buffer para la respuesta
 	cmdQueue[(cmdPut)].resp = rx;
-
+	
 
 	//	carga el tiempo maximo para esperar la respuesta
 	cmdQueue[(cmdPut)].timeout = sec( timeout );
@@ -430,7 +433,7 @@ char	putCmdQueue( char* cmdLine, char* rx, uint16 timeout, uint16 delay, uint8 f
 	//	incrementa el numero de comandos en la cola y trunca el valor
 	cmdPut = (++cmdPut & (MAX_CMD_PERMITTED-1));
 
-	return	(true);
+	return	(TRUE);
 }
 
 /**********************************************************************************************/
@@ -457,14 +460,14 @@ void	clearRxBuffer( char* b )
  */
 void	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d, uint8 f )
  {
+	
 
-
-
+	
 	/*	copia el comando en el buffer de TX			*/
 	strcpy( (char*)tx, (const char*)text );
 	/*	envia el comando a la lista					*/
 	putCmdQueue( tx, rx, t, d, f );
-
+	
 }
 
 /**********************************************************************************************/
@@ -474,30 +477,40 @@ void	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d, ui
 void uart_modem_interrupt(void)
 {
 //	modemBufferRx[caracterIndex] = getc_uart1();		// Copio el dato recibido en el buffer
-//
-//
+    //VER
+	
+	
 //	usr_stdout = _UART1_;
-//	modemBufferRx[caracterIndex+1] = NULL;				//	caracter fin de trama
-//
-//
-//	/*	Incremento la posiciÃ³n del buffer de recepcion	*/
-//	caracterIndex = (++caracterIndex) & (sizeof(modemBufferRx)-1);
-//
-//	/*	recarga el tiempo de espera de caracteres	*/
+    //VER
+	modemBufferRx[caracterIndex+1] = NULL;				//	caracter fin de trama
+	
+	
+	/*	Incremento la posición del buffer de recepcion	*/
+	caracterIndex = (++caracterIndex) & (sizeof(modemBufferRx)-1);
+
+	/*	recarga el tiempo de espera de caracteres	*/
 //	caracterTimeOut = MODEM_DATA_TIMEOUT;
-//
-//	/*	bandera de fin de trama	*/
-//	dataReady = false;
-//
-//	/*	reset del timeout de conexion	*/
-//	conexion_timeout = 0; //VER
+    //VER
+
+	/*	bandera de fin de trama	*/
+	dataReady = FALSE;
+
+	/*	reset del timeout de conexion	*/
+	conexion_timeout = 0;
+    
+    /*	detecciòn de overflow del buffer	*/
+    if (caracterIndex == 0)
+    {
+        strcpy(modemBufferRx,(const char*)"BUFFER_OVERFLOW\0");
+        caracterIndex = strlen (modemBufferRx);
+    }
 }
 
 /**********************************************************************************************/
 /**
  * \brief
  * Inicializa el HARDWARE del modem.
- *
+ * 
  * @return	OFF cuando se termina de inicializar, ON mientras se inicializa.
  */
 char	initHardware( void )
@@ -509,28 +522,33 @@ char	initHardware( void )
 		HARD_ON,
 		HARD_CONFIG
 	};
-
+	
 	static char	estado = HARD_OFF;
-	static char sendATinit = true;
+	static char sendATinit = TRUE;
 
 	switch( estado )
 	{
 		case( HARD_OFF ):
 			#if	(__DEBUG!=1)
-//			usr_stdout = _UART2_; //VER
-			printf("|LOG|Modem apagado|end|");
+//			usr_stdout = _UART2_;
+//			printf("|LOG|Modem apagado|end|");
+            //VER
 			#endif
 //			PIE1bits.TX1IE = OFF;
 //			POWER_GPRS_HARD_OFF;					// quita alimentacion al modulo
-//			SetSysState(noConnected); //VER
+//			SetMdmState(no_mdm);
+            //VER
 			SetTaskDelay( sec(20) );
 			estado = HARD_ON;
 			break;
 
 		case( HARD_ON ):
-//			POWER_GPRS_HARD_ON;						// habilita alimentacio al modulo gprs //VER
+//			POWER_GPRS_HARD_ON;						// habilita alimentacio al modulo gprs
+            //VER
 			SetTaskDelay( sec(20) );				// retardo para ejecutar el proximo comando
-//			set_uart_speed( 1, 138 );				//	uart 1 @ 115200, rx interrupt //VER
+//			set_uart_speed( 1, 138 );				//	uart 1 @ 115200, rx interrupt
+            //VER
+            
 //			#ifndef	__DEBUG
 //			set_uart_speed( 2, 138 );				//	uart 2 @ 115200, rx interrupt
 //			#endif
@@ -543,9 +561,10 @@ char	initHardware( void )
 			if( sendATinit )
 			{
 				clearModemRxBuffer();
-//				usr_stdout = _UART1_; //VER
+//				usr_stdout = _UART1_;
+                //VER
 				puts( "AT&K0;E0;V1\r" );
-				sendATinit = false;
+				sendATinit = FALSE;
 				cmdTimeOut = sec(10);
 			}
 			else
@@ -559,19 +578,19 @@ char	initHardware( void )
 							putsLog("Inicializacion modem correcta");
 							//printf("ModemBufferRx vale: %s",modemBufferRx);
 							clearModemRxBuffer();
-							sendATinit = true;
+							sendATinit = TRUE;
 							cmdTimeOut = 0;
 							estado = HARD_CONFIG;
 							SetTaskDelay( sec(1) );
 							estado = HARD_OFF;
 							return	(ON);								//	fin inicializacion
 						}
-						dataReady = false;
+						dataReady = FALSE;
 					}
 				}
 				else
 				{
-					sendATinit = true;
+					sendATinit = TRUE;
 					estado = HARD_OFF;
 				}
 			}
@@ -596,14 +615,14 @@ void	clearModemRxBuffer( void )
 /**********************************************************************************************/
 /**
  * \brief
- *
+ * 
  */
 void	setConexionProcessTick()
 {
 	if( caracterTimeOut )
 	{
 		if( !(--caracterTimeOut) )
-			dataReady = true;
+			dataReady = TRUE;
 	}
 }
 

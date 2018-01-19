@@ -1,4 +1,4 @@
-/*
+/* 
  * File:   conexion.h
  * Author: Juan Cruz Becerra
  *
@@ -41,6 +41,9 @@
 /*	Definir aqui el numero maximo de respuestas "TIMEOUT" permitidas antes de reiniciar el subproceso */
 #define	MAX_TIMEOUT_PERMITTED	8
 
+/*	Definir aqui el tamaño del buffer de recepción de informaciòn desde el modem */
+#define MODEM_BUFFER_SIZE       256
+
 /**********************************************************************************************/
 /*	Funciones prototipo globales	*/
 void	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d, uint8 f );
@@ -56,3 +59,4 @@ extern char usr_stdout;
 #endif	//	USE_xxxx
 
 #endif	/* MODEM_H */
+
