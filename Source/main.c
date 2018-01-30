@@ -130,6 +130,9 @@ int main( void )
     SYSTEM_Initialize();
     sensorsConfig();
     rtc_init();
+    
+    vTraceEnable(TRC_START);
+    
 //    vLedInitialise();
     softwareTimers_init();
         
