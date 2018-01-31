@@ -28,7 +28,6 @@
           <itemPath>include/funciones/rtcc.h</itemPath>
           <itemPath>include/funciones/memory.h</itemPath>
           <itemPath>include/funciones/sampling.h</itemPath>
-          <itemPath>include/funciones/puts.usb.h</itemPath>
         </logicalFolder>
         <logicalFolder name="perifericos" displayName="perifericos" projectFiles="true">
           <itemPath>include/perifericos/adc.h</itemPath>
@@ -36,12 +35,8 @@
           <itemPath>include/perifericos/lcd_driver.h</itemPath>
           <itemPath>include/perifericos/led.h</itemPath>
         </logicalFolder>
-        <logicalFolder name="procesos" displayName="procesos" projectFiles="true">
-          <itemPath>include/procesos/modem.h</itemPath>
-        </logicalFolder>
         <logicalFolder name="sistema" displayName="sistema" projectFiles="true">
           <itemPath>include/sistema/ext_rtcc.h</itemPath>
-          <itemPath>include/sistema/HardwareProfile.h</itemPath>
         </logicalFolder>
         <itemPath>C:/Git/OMXRealTime.X/include/freeRTOSConfig.h</itemPath>
         <itemPath>include/typedef.h</itemPath>
@@ -56,8 +51,6 @@
         <itemPath>mcc_generated_files/uart1.h</itemPath>
         <itemPath>mcc_generated_files/mcc.h</itemPath>
         <itemPath>mcc_generated_files/i2c1.h</itemPath>
-        <itemPath>mcc_generated_files/uart2.h</itemPath>
-        <itemPath>mcc_generated_files/tmr3.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -90,7 +83,6 @@
         <itemPath>Source/funciones/eeprom.c</itemPath>
         <itemPath>Source/funciones/memory.c</itemPath>
         <itemPath>Source/funciones/sampling.c</itemPath>
-        <itemPath>Source/funciones/puts.usb.c</itemPath>
       </logicalFolder>
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
@@ -102,17 +94,12 @@
         <itemPath>mcc_generated_files/uart1.c</itemPath>
         <itemPath>mcc_generated_files/mcc.c</itemPath>
         <itemPath>mcc_generated_files/i2c1.c</itemPath>
-        <itemPath>mcc_generated_files/uart2.c</itemPath>
-        <itemPath>mcc_generated_files/tmr3.c</itemPath>
       </logicalFolder>
       <logicalFolder name="perifericos" displayName="perifericos" projectFiles="true">
         <itemPath>Source/perifericos/adc.c</itemPath>
         <itemPath>Source/perifericos/lcd.c</itemPath>
         <itemPath>Source/perifericos/lcd_driver.c</itemPath>
         <itemPath>Source/perifericos/led.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="procesos" displayName="procesos" projectFiles="true">
-        <itemPath>Source/procesos/modem.c</itemPath>
       </logicalFolder>
       <logicalFolder name="sistema" displayName="sistema" projectFiles="true">
       </logicalFolder>
@@ -276,7 +263,7 @@
       </C30-LD>
       <C30Global>
         <property key="common-include-directories"
-                  value="include;include\freeRTOS;mcc_generated_files"/>
+                  value="include;include\freeRTOS;mcc_generated_files;..\..\Program Files (x86)\Percepio\Tracealyzer for FreeRTOS\TraceRecorder\include"/>
         <property key="dual-boot-partition" value="0"/>
         <property key="fast-math" value="false"/>
         <property key="generic-16-bit" value="false"/>
