@@ -38,6 +38,13 @@
         <logicalFolder name="sistema" displayName="sistema" projectFiles="true">
           <itemPath>include/sistema/ext_rtcc.h</itemPath>
         </logicalFolder>
+        <logicalFolder name="traceRecorder"
+                       displayName="traceRecorder"
+                       projectFiles="true">
+          <itemPath>include/traceRecorder/trcConfig.h</itemPath>
+          <itemPath>include/traceRecorder/trcSnapshotConfig.h</itemPath>
+          <itemPath>include/traceRecorder/trcStreamingConfig.h</itemPath>
+        </logicalFolder>
         <itemPath>C:/Git/OMXRealTime.X/include/freeRTOSConfig.h</itemPath>
         <itemPath>include/typedef.h</itemPath>
       </logicalFolder>
@@ -103,6 +110,13 @@
       </logicalFolder>
       <logicalFolder name="sistema" displayName="sistema" projectFiles="true">
       </logicalFolder>
+      <logicalFolder name="traceRecorder"
+                     displayName="traceRecorder"
+                     projectFiles="true">
+        <itemPath>Source/traceRecorder/trcKernelPort.c</itemPath>
+        <itemPath>Source/traceRecorder/trcSnapshotRecorder.c</itemPath>
+        <itemPath>Source/traceRecorder/trcStreamingRecorder.c</itemPath>
+      </logicalFolder>
       <itemPath>Source/main.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -126,7 +140,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PKOBSKDEPlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.32</languageToolchainVersion>
+        <languageToolchainVersion>1.31</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
