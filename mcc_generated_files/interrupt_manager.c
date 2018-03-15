@@ -67,9 +67,9 @@ void INTERRUPT_Initialize (void)
     //    URXI: U2RX - UART2 Receiver
     //    Priority: 1
         IPC7bits.U2RXIP = 1;
-    //    TI: T3 - Timer3
+    //    TI: T4 - Timer4
     //    Priority: 1
-        IPC2bits.T3IP = 1;
+        IPC6bits.T4IP = 1;
     //    TI: T2 - Timer2
     //    Priority: 1
         IPC1bits.T2IP = 1;

@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=Source/freeRTOS/Portable/MemMang/heap_1.c Source/freeRTOS/Portable/port.c Source/freeRTOS/Portable/portasm_PIC24.S Source/freeRTOS/croutine.c Source/freeRTOS/event_groups.c Source/freeRTOS/list.c Source/freeRTOS/queue.c Source/freeRTOS/tasks.c Source/freeRTOS/timers.c Source/funciones/shell.c Source/funciones/rtcc.c Source/funciones/eeprom.c Source/funciones/memory.c Source/funciones/sampling.c mcc_generated_files/interrupt_manager.c mcc_generated_files/traps.c mcc_generated_files/tmr2.c mcc_generated_files/pin_manager.c mcc_generated_files/uart1.c mcc_generated_files/mcc.c mcc_generated_files/i2c1.c Source/perifericos/adc.c Source/perifericos/lcd.c Source/perifericos/lcd_driver.c Source/perifericos/led.c Source/main.c
+SOURCEFILES_QUOTED_IF_SPACED=Source/drivers/at_cmds.c Source/freeRTOS/Portable/MemMang/heap_1.c Source/freeRTOS/Portable/port.c Source/freeRTOS/Portable/portasm_PIC24.S Source/freeRTOS/croutine.c Source/freeRTOS/event_groups.c Source/freeRTOS/list.c Source/freeRTOS/queue.c Source/freeRTOS/tasks.c Source/freeRTOS/timers.c Source/funciones/shell.c Source/funciones/rtcc.c Source/funciones/eeprom.c Source/funciones/memory.c Source/funciones/sampling.c mcc_generated_files/interrupt_manager.c mcc_generated_files/traps.c mcc_generated_files/tmr2.c mcc_generated_files/pin_manager.c mcc_generated_files/uart1.c mcc_generated_files/mcc.c mcc_generated_files/i2c1.c mcc_generated_files/uart2.c mcc_generated_files/tmr4.c Source/perifericos/adc.c Source/perifericos/lcd.c Source/perifericos/lcd_driver.c Source/perifericos/led.c Source/main.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Source/freeRTOS/Portable/MemMang/heap_1.o ${OBJECTDIR}/Source/freeRTOS/Portable/port.o ${OBJECTDIR}/Source/freeRTOS/Portable/portasm_PIC24.o ${OBJECTDIR}/Source/freeRTOS/croutine.o ${OBJECTDIR}/Source/freeRTOS/event_groups.o ${OBJECTDIR}/Source/freeRTOS/list.o ${OBJECTDIR}/Source/freeRTOS/queue.o ${OBJECTDIR}/Source/freeRTOS/tasks.o ${OBJECTDIR}/Source/freeRTOS/timers.o ${OBJECTDIR}/Source/funciones/shell.o ${OBJECTDIR}/Source/funciones/rtcc.o ${OBJECTDIR}/Source/funciones/eeprom.o ${OBJECTDIR}/Source/funciones/memory.o ${OBJECTDIR}/Source/funciones/sampling.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/traps.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/Source/perifericos/adc.o ${OBJECTDIR}/Source/perifericos/lcd.o ${OBJECTDIR}/Source/perifericos/lcd_driver.o ${OBJECTDIR}/Source/perifericos/led.o ${OBJECTDIR}/Source/main.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Source/freeRTOS/Portable/MemMang/heap_1.o.d ${OBJECTDIR}/Source/freeRTOS/Portable/port.o.d ${OBJECTDIR}/Source/freeRTOS/Portable/portasm_PIC24.o.d ${OBJECTDIR}/Source/freeRTOS/croutine.o.d ${OBJECTDIR}/Source/freeRTOS/event_groups.o.d ${OBJECTDIR}/Source/freeRTOS/list.o.d ${OBJECTDIR}/Source/freeRTOS/queue.o.d ${OBJECTDIR}/Source/freeRTOS/tasks.o.d ${OBJECTDIR}/Source/freeRTOS/timers.o.d ${OBJECTDIR}/Source/funciones/shell.o.d ${OBJECTDIR}/Source/funciones/rtcc.o.d ${OBJECTDIR}/Source/funciones/eeprom.o.d ${OBJECTDIR}/Source/funciones/memory.o.d ${OBJECTDIR}/Source/funciones/sampling.o.d ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o.d ${OBJECTDIR}/mcc_generated_files/traps.o.d ${OBJECTDIR}/mcc_generated_files/tmr2.o.d ${OBJECTDIR}/mcc_generated_files/pin_manager.o.d ${OBJECTDIR}/mcc_generated_files/uart1.o.d ${OBJECTDIR}/mcc_generated_files/mcc.o.d ${OBJECTDIR}/mcc_generated_files/i2c1.o.d ${OBJECTDIR}/Source/perifericos/adc.o.d ${OBJECTDIR}/Source/perifericos/lcd.o.d ${OBJECTDIR}/Source/perifericos/lcd_driver.o.d ${OBJECTDIR}/Source/perifericos/led.o.d ${OBJECTDIR}/Source/main.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Source/drivers/at_cmds.o ${OBJECTDIR}/Source/freeRTOS/Portable/MemMang/heap_1.o ${OBJECTDIR}/Source/freeRTOS/Portable/port.o ${OBJECTDIR}/Source/freeRTOS/Portable/portasm_PIC24.o ${OBJECTDIR}/Source/freeRTOS/croutine.o ${OBJECTDIR}/Source/freeRTOS/event_groups.o ${OBJECTDIR}/Source/freeRTOS/list.o ${OBJECTDIR}/Source/freeRTOS/queue.o ${OBJECTDIR}/Source/freeRTOS/tasks.o ${OBJECTDIR}/Source/freeRTOS/timers.o ${OBJECTDIR}/Source/funciones/shell.o ${OBJECTDIR}/Source/funciones/rtcc.o ${OBJECTDIR}/Source/funciones/eeprom.o ${OBJECTDIR}/Source/funciones/memory.o ${OBJECTDIR}/Source/funciones/sampling.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/traps.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/mcc_generated_files/uart2.o ${OBJECTDIR}/mcc_generated_files/tmr4.o ${OBJECTDIR}/Source/perifericos/adc.o ${OBJECTDIR}/Source/perifericos/lcd.o ${OBJECTDIR}/Source/perifericos/lcd_driver.o ${OBJECTDIR}/Source/perifericos/led.o ${OBJECTDIR}/Source/main.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Source/drivers/at_cmds.o.d ${OBJECTDIR}/Source/freeRTOS/Portable/MemMang/heap_1.o.d ${OBJECTDIR}/Source/freeRTOS/Portable/port.o.d ${OBJECTDIR}/Source/freeRTOS/Portable/portasm_PIC24.o.d ${OBJECTDIR}/Source/freeRTOS/croutine.o.d ${OBJECTDIR}/Source/freeRTOS/event_groups.o.d ${OBJECTDIR}/Source/freeRTOS/list.o.d ${OBJECTDIR}/Source/freeRTOS/queue.o.d ${OBJECTDIR}/Source/freeRTOS/tasks.o.d ${OBJECTDIR}/Source/freeRTOS/timers.o.d ${OBJECTDIR}/Source/funciones/shell.o.d ${OBJECTDIR}/Source/funciones/rtcc.o.d ${OBJECTDIR}/Source/funciones/eeprom.o.d ${OBJECTDIR}/Source/funciones/memory.o.d ${OBJECTDIR}/Source/funciones/sampling.o.d ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o.d ${OBJECTDIR}/mcc_generated_files/traps.o.d ${OBJECTDIR}/mcc_generated_files/tmr2.o.d ${OBJECTDIR}/mcc_generated_files/pin_manager.o.d ${OBJECTDIR}/mcc_generated_files/uart1.o.d ${OBJECTDIR}/mcc_generated_files/mcc.o.d ${OBJECTDIR}/mcc_generated_files/i2c1.o.d ${OBJECTDIR}/mcc_generated_files/uart2.o.d ${OBJECTDIR}/mcc_generated_files/tmr4.o.d ${OBJECTDIR}/Source/perifericos/adc.o.d ${OBJECTDIR}/Source/perifericos/lcd.o.d ${OBJECTDIR}/Source/perifericos/lcd_driver.o.d ${OBJECTDIR}/Source/perifericos/led.o.d ${OBJECTDIR}/Source/main.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Source/freeRTOS/Portable/MemMang/heap_1.o ${OBJECTDIR}/Source/freeRTOS/Portable/port.o ${OBJECTDIR}/Source/freeRTOS/Portable/portasm_PIC24.o ${OBJECTDIR}/Source/freeRTOS/croutine.o ${OBJECTDIR}/Source/freeRTOS/event_groups.o ${OBJECTDIR}/Source/freeRTOS/list.o ${OBJECTDIR}/Source/freeRTOS/queue.o ${OBJECTDIR}/Source/freeRTOS/tasks.o ${OBJECTDIR}/Source/freeRTOS/timers.o ${OBJECTDIR}/Source/funciones/shell.o ${OBJECTDIR}/Source/funciones/rtcc.o ${OBJECTDIR}/Source/funciones/eeprom.o ${OBJECTDIR}/Source/funciones/memory.o ${OBJECTDIR}/Source/funciones/sampling.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/traps.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/Source/perifericos/adc.o ${OBJECTDIR}/Source/perifericos/lcd.o ${OBJECTDIR}/Source/perifericos/lcd_driver.o ${OBJECTDIR}/Source/perifericos/led.o ${OBJECTDIR}/Source/main.o
+OBJECTFILES=${OBJECTDIR}/Source/drivers/at_cmds.o ${OBJECTDIR}/Source/freeRTOS/Portable/MemMang/heap_1.o ${OBJECTDIR}/Source/freeRTOS/Portable/port.o ${OBJECTDIR}/Source/freeRTOS/Portable/portasm_PIC24.o ${OBJECTDIR}/Source/freeRTOS/croutine.o ${OBJECTDIR}/Source/freeRTOS/event_groups.o ${OBJECTDIR}/Source/freeRTOS/list.o ${OBJECTDIR}/Source/freeRTOS/queue.o ${OBJECTDIR}/Source/freeRTOS/tasks.o ${OBJECTDIR}/Source/freeRTOS/timers.o ${OBJECTDIR}/Source/funciones/shell.o ${OBJECTDIR}/Source/funciones/rtcc.o ${OBJECTDIR}/Source/funciones/eeprom.o ${OBJECTDIR}/Source/funciones/memory.o ${OBJECTDIR}/Source/funciones/sampling.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/traps.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/mcc_generated_files/uart2.o ${OBJECTDIR}/mcc_generated_files/tmr4.o ${OBJECTDIR}/Source/perifericos/adc.o ${OBJECTDIR}/Source/perifericos/lcd.o ${OBJECTDIR}/Source/perifericos/lcd_driver.o ${OBJECTDIR}/Source/perifericos/led.o ${OBJECTDIR}/Source/main.o
 
 # Source Files
-SOURCEFILES=Source/freeRTOS/Portable/MemMang/heap_1.c Source/freeRTOS/Portable/port.c Source/freeRTOS/Portable/portasm_PIC24.S Source/freeRTOS/croutine.c Source/freeRTOS/event_groups.c Source/freeRTOS/list.c Source/freeRTOS/queue.c Source/freeRTOS/tasks.c Source/freeRTOS/timers.c Source/funciones/shell.c Source/funciones/rtcc.c Source/funciones/eeprom.c Source/funciones/memory.c Source/funciones/sampling.c mcc_generated_files/interrupt_manager.c mcc_generated_files/traps.c mcc_generated_files/tmr2.c mcc_generated_files/pin_manager.c mcc_generated_files/uart1.c mcc_generated_files/mcc.c mcc_generated_files/i2c1.c Source/perifericos/adc.c Source/perifericos/lcd.c Source/perifericos/lcd_driver.c Source/perifericos/led.c Source/main.c
+SOURCEFILES=Source/drivers/at_cmds.c Source/freeRTOS/Portable/MemMang/heap_1.c Source/freeRTOS/Portable/port.c Source/freeRTOS/Portable/portasm_PIC24.S Source/freeRTOS/croutine.c Source/freeRTOS/event_groups.c Source/freeRTOS/list.c Source/freeRTOS/queue.c Source/freeRTOS/tasks.c Source/freeRTOS/timers.c Source/funciones/shell.c Source/funciones/rtcc.c Source/funciones/eeprom.c Source/funciones/memory.c Source/funciones/sampling.c mcc_generated_files/interrupt_manager.c mcc_generated_files/traps.c mcc_generated_files/tmr2.c mcc_generated_files/pin_manager.c mcc_generated_files/uart1.c mcc_generated_files/mcc.c mcc_generated_files/i2c1.c mcc_generated_files/uart2.c mcc_generated_files/tmr4.c Source/perifericos/adc.c Source/perifericos/lcd.c Source/perifericos/lcd_driver.c Source/perifericos/led.c Source/main.c
 
 
 CFLAGS=
@@ -94,6 +94,13 @@ MP_LINKER_FILE_OPTION=,--script=p24FJ1024GB610.gld
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
+${OBJECTDIR}/Source/drivers/at_cmds.o: Source/drivers/at_cmds.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/Source/drivers" 
+	@${RM} ${OBJECTDIR}/Source/drivers/at_cmds.o.d 
+	@${RM} ${OBJECTDIR}/Source/drivers/at_cmds.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  Source/drivers/at_cmds.c  -o ${OBJECTDIR}/Source/drivers/at_cmds.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Source/drivers/at_cmds.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -mno-eds-warn  -omf=elf -D__OMX_S__ -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"include" -I"include/freeRTOS" -I"mcc_generated_files" -I"../../Program Files (x86)/Percepio/Tracealyzer for FreeRTOS/TraceRecorder/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/Source/drivers/at_cmds.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 ${OBJECTDIR}/Source/freeRTOS/Portable/MemMang/heap_1.o: Source/freeRTOS/Portable/MemMang/heap_1.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/Source/freeRTOS/Portable/MemMang" 
 	@${RM} ${OBJECTDIR}/Source/freeRTOS/Portable/MemMang/heap_1.o.d 
@@ -234,6 +241,20 @@ ${OBJECTDIR}/mcc_generated_files/i2c1.o: mcc_generated_files/i2c1.c  nbproject/M
 	${MP_CC} $(MP_EXTRA_CC_PRE)  mcc_generated_files/i2c1.c  -o ${OBJECTDIR}/mcc_generated_files/i2c1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/mcc_generated_files/i2c1.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -mno-eds-warn  -omf=elf -D__OMX_S__ -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"include" -I"include/freeRTOS" -I"mcc_generated_files" -I"../../Program Files (x86)/Percepio/Tracealyzer for FreeRTOS/TraceRecorder/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/mcc_generated_files/i2c1.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/mcc_generated_files/uart2.o: mcc_generated_files/uart2.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/mcc_generated_files" 
+	@${RM} ${OBJECTDIR}/mcc_generated_files/uart2.o.d 
+	@${RM} ${OBJECTDIR}/mcc_generated_files/uart2.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  mcc_generated_files/uart2.c  -o ${OBJECTDIR}/mcc_generated_files/uart2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/mcc_generated_files/uart2.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -mno-eds-warn  -omf=elf -D__OMX_S__ -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"include" -I"include/freeRTOS" -I"mcc_generated_files" -I"../../Program Files (x86)/Percepio/Tracealyzer for FreeRTOS/TraceRecorder/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/mcc_generated_files/uart2.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/mcc_generated_files/tmr4.o: mcc_generated_files/tmr4.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/mcc_generated_files" 
+	@${RM} ${OBJECTDIR}/mcc_generated_files/tmr4.o.d 
+	@${RM} ${OBJECTDIR}/mcc_generated_files/tmr4.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  mcc_generated_files/tmr4.c  -o ${OBJECTDIR}/mcc_generated_files/tmr4.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/mcc_generated_files/tmr4.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -mno-eds-warn  -omf=elf -D__OMX_S__ -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"include" -I"include/freeRTOS" -I"mcc_generated_files" -I"../../Program Files (x86)/Percepio/Tracealyzer for FreeRTOS/TraceRecorder/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/mcc_generated_files/tmr4.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 ${OBJECTDIR}/Source/perifericos/adc.o: Source/perifericos/adc.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/Source/perifericos" 
 	@${RM} ${OBJECTDIR}/Source/perifericos/adc.o.d 
@@ -270,6 +291,13 @@ ${OBJECTDIR}/Source/main.o: Source/main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${FIXDEPS} "${OBJECTDIR}/Source/main.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 else
+${OBJECTDIR}/Source/drivers/at_cmds.o: Source/drivers/at_cmds.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/Source/drivers" 
+	@${RM} ${OBJECTDIR}/Source/drivers/at_cmds.o.d 
+	@${RM} ${OBJECTDIR}/Source/drivers/at_cmds.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  Source/drivers/at_cmds.c  -o ${OBJECTDIR}/Source/drivers/at_cmds.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Source/drivers/at_cmds.o.d"      -mno-eds-warn  -g -omf=elf -D__OMX_S__ -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"include" -I"include/freeRTOS" -I"mcc_generated_files" -I"../../Program Files (x86)/Percepio/Tracealyzer for FreeRTOS/TraceRecorder/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/Source/drivers/at_cmds.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 ${OBJECTDIR}/Source/freeRTOS/Portable/MemMang/heap_1.o: Source/freeRTOS/Portable/MemMang/heap_1.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/Source/freeRTOS/Portable/MemMang" 
 	@${RM} ${OBJECTDIR}/Source/freeRTOS/Portable/MemMang/heap_1.o.d 
@@ -409,6 +437,20 @@ ${OBJECTDIR}/mcc_generated_files/i2c1.o: mcc_generated_files/i2c1.c  nbproject/M
 	@${RM} ${OBJECTDIR}/mcc_generated_files/i2c1.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  mcc_generated_files/i2c1.c  -o ${OBJECTDIR}/mcc_generated_files/i2c1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/mcc_generated_files/i2c1.o.d"      -mno-eds-warn  -g -omf=elf -D__OMX_S__ -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"include" -I"include/freeRTOS" -I"mcc_generated_files" -I"../../Program Files (x86)/Percepio/Tracealyzer for FreeRTOS/TraceRecorder/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/mcc_generated_files/i2c1.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/mcc_generated_files/uart2.o: mcc_generated_files/uart2.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/mcc_generated_files" 
+	@${RM} ${OBJECTDIR}/mcc_generated_files/uart2.o.d 
+	@${RM} ${OBJECTDIR}/mcc_generated_files/uart2.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  mcc_generated_files/uart2.c  -o ${OBJECTDIR}/mcc_generated_files/uart2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/mcc_generated_files/uart2.o.d"      -mno-eds-warn  -g -omf=elf -D__OMX_S__ -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"include" -I"include/freeRTOS" -I"mcc_generated_files" -I"../../Program Files (x86)/Percepio/Tracealyzer for FreeRTOS/TraceRecorder/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/mcc_generated_files/uart2.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/mcc_generated_files/tmr4.o: mcc_generated_files/tmr4.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/mcc_generated_files" 
+	@${RM} ${OBJECTDIR}/mcc_generated_files/tmr4.o.d 
+	@${RM} ${OBJECTDIR}/mcc_generated_files/tmr4.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  mcc_generated_files/tmr4.c  -o ${OBJECTDIR}/mcc_generated_files/tmr4.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/mcc_generated_files/tmr4.o.d"      -mno-eds-warn  -g -omf=elf -D__OMX_S__ -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"include" -I"include/freeRTOS" -I"mcc_generated_files" -I"../../Program Files (x86)/Percepio/Tracealyzer for FreeRTOS/TraceRecorder/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/mcc_generated_files/tmr4.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/Source/perifericos/adc.o: Source/perifericos/adc.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/Source/perifericos" 

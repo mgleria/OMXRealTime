@@ -36,16 +36,63 @@
 #define	MODEM_DATA_TIMEOUT		(uint16)(0.150/TICK_SYSTEM_STATE)
 
 /*	Definir aqui el tiempo maximo de espera para transferencia de datos entre modem y micro */
-#define	CONEXION_TIMEOUT		(uint16)((10.0*60.0)/MODEM_TASK_TICK)	//	10 minutos
+#define     CONEXION_TIMEOUT		(uint16)((10.0*60.0)/MODEM_TASK_TICK)	//	10 minutos
 
 /*	Definir aqui el numero maximo de respuestas "TIMEOUT" permitidas antes de reiniciar el subproceso */
 #define	MAX_TIMEOUT_PERMITTED	8
 
-/*	Definir aqui el tamaño del buffer de recepción de informaciòn desde el modem */
+/*	Definir aqui el tama?o del buffer de recepci?n de informaci?n desde el modem */
 #define MODEM_BUFFER_SIZE       256
+
+#define REQUEST_QUEUE_SIZE      1
+
+#define RESPONSE_QUEUE_SIZE     1
+
+#define MAX_LENGHT_END_OF_FRAME 10
+
+/**********************************************************************************************/
+/*	Estructura de cola de comandos
+ */
+
+enum remitente
+{
+	GPRS = 0,
+	SMS,
+	SHELL
+};
+
+enum endOfFrames
+{
+    OK = 0,
+    CONNECT,
+    RING,
+    NO_CARRIER,
+    ERROR,
+    CONNECT_1200
+};
+
+typedef struct
+{
+	char*		cmd;                ///<	puntero a la linea de comando
+	char*		resp;               ///<	puntero donde se copia la respuesta al comando enviado
+	uint16		timeout;            ///<	tiempo maximo de espera de la respuesta en ms
+	uint16		delay;              ///<	demora para enviar el comando
+	uint8		nFrames;            ///<	numero de tramas que se esperan
+    uint8       sender;             ///<    id de quien solicita el comando
+    uint8       expextedEndOfFrame; ///<    Final de trama que se espera recibir del modem
+}cmdQueue_t;
+
+
+
+
+#define     DATA_READY      1
+#define     DATA_ERROR      2
+
 
 /**********************************************************************************************/
 /*	Funciones prototipo globales	*/
+void    vTaskModem( void *pvParameters );
+
 void	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d, uint8 f );
 void	setConexionProcessTick();
 void	uart_modem_interrupt( void );

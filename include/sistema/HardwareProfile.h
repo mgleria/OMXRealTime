@@ -28,9 +28,9 @@
 
 
 /**********************************************************************************************/
-#if	!defined	(__OMX_S__)	&&	!defined	(__OMX_S_C__) && !defined (__OMX_N__) &&	!defined	(__OMX_T__)
-	#error		Dispositivo no definido
-	#endif
+//#if	!defined	(__OMX_S__)	&&	!defined	(__OMX_S_C__) && !defined (__OMX_N__) &&	!defined	(__OMX_T__)
+//	#error		Dispositivo no definido
+//	#endif
 
 
 /**********************************************************************************************/

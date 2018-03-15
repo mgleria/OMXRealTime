@@ -5,6 +5,9 @@
                    displayName="Header Files"
                    projectFiles="true">
       <logicalFolder name="include" displayName="include" projectFiles="true">
+        <logicalFolder name="drivers" displayName="drivers" projectFiles="true">
+          <itemPath>include/drivers/at_cmds.h</itemPath>
+        </logicalFolder>
         <logicalFolder name="freeRTOS" displayName="freeRTOS" projectFiles="true">
           <itemPath>include/freeRTOS/croutine.h</itemPath>
           <itemPath>include/freeRTOS/deprecated_definitions.h</itemPath>
@@ -35,8 +38,12 @@
           <itemPath>include/perifericos/lcd_driver.h</itemPath>
           <itemPath>include/perifericos/led.h</itemPath>
         </logicalFolder>
+        <logicalFolder name="procesos" displayName="procesos" projectFiles="true">
+          <itemPath>include/procesos/modem.h</itemPath>
+        </logicalFolder>
         <logicalFolder name="sistema" displayName="sistema" projectFiles="true">
           <itemPath>include/sistema/ext_rtcc.h</itemPath>
+          <itemPath>include/sistema/HardwareProfile.h</itemPath>
         </logicalFolder>
         <itemPath>C:/Git/OMXRealTime.X/include/freeRTOSConfig.h</itemPath>
         <itemPath>include/typedef.h</itemPath>
@@ -51,6 +58,8 @@
         <itemPath>mcc_generated_files/uart1.h</itemPath>
         <itemPath>mcc_generated_files/mcc.h</itemPath>
         <itemPath>mcc_generated_files/i2c1.h</itemPath>
+        <itemPath>mcc_generated_files/uart2.h</itemPath>
+        <itemPath>mcc_generated_files/tmr4.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -61,6 +70,7 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="drivers" displayName="drivers" projectFiles="true">
+        <itemPath>Source/drivers/at_cmds.c</itemPath>
       </logicalFolder>
       <logicalFolder name="freeRTOS" displayName="freeRTOS" projectFiles="true">
         <logicalFolder name="Portable" displayName="Portable" projectFiles="true">
@@ -94,6 +104,8 @@
         <itemPath>mcc_generated_files/uart1.c</itemPath>
         <itemPath>mcc_generated_files/mcc.c</itemPath>
         <itemPath>mcc_generated_files/i2c1.c</itemPath>
+        <itemPath>mcc_generated_files/uart2.c</itemPath>
+        <itemPath>mcc_generated_files/tmr4.c</itemPath>
       </logicalFolder>
       <logicalFolder name="perifericos" displayName="perifericos" projectFiles="true">
         <itemPath>Source/perifericos/adc.c</itemPath>
@@ -282,6 +294,7 @@
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="memories.configurationmemory" value="true"/>
         <property key="memories.dataflash" value="true"/>
         <property key="memories.eeprom" value="true"/>

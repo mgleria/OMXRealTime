@@ -47,6 +47,7 @@
 */
 
 #include "uart2.h"
+#include "tmr4.h"
 
 /**
   Section: Data Type Definitions
@@ -104,8 +105,8 @@ static UART_OBJECT uart2_obj ;
 
 */
 
-#define UART2_CONFIG_TX_BYTEQ_LENGTH 8
-#define UART2_CONFIG_RX_BYTEQ_LENGTH 8
+#define UART2_CONFIG_TX_BYTEQ_LENGTH 100
+#define UART2_CONFIG_RX_BYTEQ_LENGTH 100
 
 
 /** UART Driver Queue
@@ -126,12 +127,12 @@ static uint8_t uart2_rxByteQ[UART2_CONFIG_RX_BYTEQ_LENGTH] ;
 
 void UART2_Initialize (void)
 {
-   // STSEL 1; IREN disabled; PDSEL 8N; UARTEN enabled; RTSMD disabled; USIDL disabled; WAKE disabled; ABAUD disabled; LPBACK disabled; BRGH enabled; URXINV disabled; UEN TX_RX; 
+    // STSEL 1; IREN disabled; PDSEL 8N; UARTEN enabled; RTSMD disabled; USIDL disabled; WAKE disabled; ABAUD disabled; LPBACK disabled; BRGH enabled; URXINV disabled; UEN TX_RX; 
    U2MODE = (0x8008 & ~(1<<15));  // disabling UARTEN bit   
    // UTXISEL0 TX_ONE_CHAR; UTXINV disabled; OERR NO_ERROR_cleared; URXISEL RX_ONE_CHAR; UTXBRK COMPLETED; UTXEN disabled; ADDEN disabled; 
    U2STA = 0x0000;
-   // BaudRate = 115200; Frequency = 4000000 Hz; U2BRG 8; 
-   U2BRG = 0x0008;
+   // BaudRate = 115200; Frequency = 16000000 Hz; U2BRG 34; 
+   U2BRG = 0x0022;
    // ADMADDR 0; ADMMASK 0; 
    U2ADMD = 0x0000;
 
@@ -161,6 +162,8 @@ void UART2_Initialize (void)
 */
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _U2TXInterrupt ( void )
 { 
+//    vLedToggleLED(0);
+    
     if(uart2_obj.txStatus.s.empty)
     {
         IEC1bits.U2TXIE = false;
@@ -193,7 +196,8 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _U2TXInterrupt ( void )
 
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _U2RXInterrupt( void )
 {
-
+//    UART2_Write(U2RXREG);
+//    vLedToggleLED(1);
 
     while((U2STAbits.URXDA == 1))
     {
@@ -219,6 +223,9 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _U2RXInterrupt( void )
     }
 
     IFS1bits.U2RXIF = false;
+    
+    TMR4_Start();
+    
    
 }
 
