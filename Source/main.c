@@ -165,7 +165,7 @@ typedef enum
 int main( void )
 {
     SYSTEM_Initialize();
-//    sensorsConfig();
+    sensorsConfig();
 //    rtc_init();
 //    vLedInitialise();
 //    softwareTimers_init();
@@ -237,6 +237,11 @@ void vTaskTest( void *pvParameters )
         
         __C30_UART=1;
         vLedToggleLED(2);
+        
+        
+        //Esto es lo que va a ser realizado por la tarea vTaskSample()
+        //Sólo estoy colocando en muestra->clima->luzDia el valor leído del pote
+        assembleSample(&muestra);
         
        
         prepareSample(&trama_muestra, &muestra);
@@ -393,7 +398,7 @@ void vTaskSample( void *pvParameters ){
         switch(status){
             case SENSOR_1:
                 sensor_1 = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
-                sample.bateria = sensor_1;
+                sample.clima.luzDia = sensor_1;
                 samplingFinished = pdTRUE; //colocar en el case correspondiente
                 break;
             case SENSOR_2:
@@ -552,15 +557,18 @@ static void init_sample(muestra_t *muestra)
 
 static void assembleSample(muestra_t *muestra)
 {
-    rtcc_t rtcc;
     
-    get_rtcc_datetime(&rtcc);
+//    rtcc_t rtcc;
+//    
+//    get_rtcc_datetime(&rtcc);
+//    
+//    muestra->anio = rtcc.anio;
+//    muestra->mes = rtcc.mes;
+//    muestra->dia = rtcc.dia;
+//    muestra->hora = rtcc.hora;
+//    muestra->minutos = rtcc.minutos;
     
-    muestra->anio = rtcc.anio;
-    muestra->mes = rtcc.mes;
-    muestra->dia = rtcc.dia;
-    muestra->hora = rtcc.hora;
-    muestra->minutos = rtcc.minutos;
+    muestra->clima.luzDia = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
    
 }
 
@@ -962,7 +970,7 @@ uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS)
     // @todo quitar el caracter null de fin de trama ya que se controla la cantidad con sizeof
 //    strncpy( (char*)&tramaGPRS, (char*)&string_cabecera, strlen((char*)&string_cabecera) );
 
-    n = 0; k = 0;
+    n = 0;
 	t = tramaGPRS;
     p = (char*)tramaMuestra;
     
@@ -976,23 +984,17 @@ uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS)
     }
     
 //    printf("n*2:%d | (char*)t+(2*(n-1)):%s\r\n",n*2,(char*)t+(2*(n-1)));
+    
+//No es necesario el caracter de fin de trama porque hay el estado 'putData' lo hace
 //    strncpy( tramaGPRS + n*2, string_cierre, strlen(string_cierre) );
-//    strncpy()
     
-//    int i;
-//    for(i=0;i<sizeof(tramaGPRS2);i++){
-//        *tramaGPRS2 = tramaGPRS[i];
-//        tramaGPRS2++;
-//    }
     
+    //Para eliminar el byte de padding generado al comienzo del struct viento
     for(k=42;k<116;k++){
         tramaGPRS[k]=tramaGPRS[k+2];
     }
-    
-    
-    
-    return true;
-          
+
+    return true;        
 }
 
 void prepareSample(trama_muestra_t *tramaMuestra, muestra_t *muestraAlmacenada)
