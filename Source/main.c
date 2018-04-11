@@ -114,8 +114,16 @@ static void  sensorsConfig();
 //Funciones relativas al proceso vTaskSample
 static void init_sample(muestra_t *muestra);
 static void assembleSample(muestra_t *muestra);
+////////////////////////////
+uint8	bcd2dec( uint8 bcd );
+uint16	swapBytes( uint16 var );
+void prepareSample(trama_muestra_t *tramaMuestra, muestra_t *muestraAlmacenada);
+uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS);
 
 uint8_t	gprsProcess( void );
+
+
+
 
 //******************************Globales****************************************
 
@@ -140,7 +148,19 @@ uint8 sendCmd=TRUE;
 static const char *pcSensor = "Pot";
 static char cStringBuffer[ mainMAX_STRING_LENGTH ];
 
-uint8_t flagDataUartReady = 0;
+uint8_t flagDataUartReady;
+
+
+/***********************PARA MOVER AL ARCHIVO CORRESPONDIENTE******************/
+typedef enum
+{
+	muestras = 1,
+	reservado,
+	configuracion,
+	registro
+}putDataSecuence_t;
+
+//estacion_t estacion;
 
 int main( void )
 {
@@ -198,90 +218,40 @@ int main( void )
  */
 void vTaskTest( void *pvParameters )
 {
-    #define TASK_PERIOD_MS  500
-    #define DELAY 0;
-    #define END_OF_FRAMES "\r\nOK\r\n";
-    #define N_FRAMES 1;
-    #define SENDER SMS;
-    #define TIMEOUT 100;
-    
-    //Variables
-//    uint32_t status;
-    uint16_t receivedBytes, sendedBytes, bufferSizeGet;
+    #define TASK_PERIOD_MS 1000
     TickType_t taskDelay;
-//    BaseType_t response;
-//    cmdQueue_t request;
-    char command[10] = "AT+GMR\r\n";
-//    
-    char respuestaModem[50]= "";
-    
-//    char *pc = command;
-//    
-//    request.cmd = pc;
-//    request.delay = DELAY;
-//    request.expextedEndOfFrame = OK; //Despues matchearlo con END_OF_FRAMES
-//    request.nFrames = 1;
-//    request.sender = SMS; //Despues matchear con SENDER
-//    request.timeout = TIMEOUT;
-    
-    receivedBytes, sendedBytes, bufferSizeGet = 0;
-    
-//    uint8_t cmdLenght = 0;
-    
     taskDelay = xMsToTicks(TASK_PERIOD_MS);
     
+    muestra_t muestra;
+    trama_muestra_t trama_muestra;
+	#define	Buffer_GPRS_Size	(130)
+	static char bufferGPRS[Buffer_GPRS_Size] = {0};
+
+    
+    init_sample(&muestra);
     
     
-    uint8_t i=0;
-    
-//    for(i=0;i<50;i++) 
     //Loop principal
     for(;;)
     {
         
- 
-     
+        __C30_UART=1;
         vLedToggleLED(2);
-//              
-//        //Espera arbitraria para dormir la tarea
-        vTaskDelay(taskDelay);
         
-//        for(i=0;i<TASK_PERIOD_MS;i++){}
-//        
-
-         
        
-        
-        i=gprsProcess();
-        
-        
-   
-            
-        
-//        if(i==200) i=0;
+        prepareSample(&trama_muestra, &muestra);
 
+        asm("nop");
         
-//        status = ulTaskNotifyTake(  pdTRUE,  /* Clear the notification value before exiting. */
-//                                    portMAX_DELAY ); /* Block indefinitely. */
-//        
-//        switch(status){
-//            case DATA_READY:
-//                //Acciones cuando la respuesta está lista y tiene la finalización esperada
-//                
-//                bufferSizeGet = UART1_ReceiveBufferSizeGet();
-//        
-//                receivedBytes = UART1_ReadBuffer(respuestaModem,8);
-//        
-//                cmdLenght = strlen(request.cmd);
-//                
-//                
-//                break;
-//            case DATA_ERROR:
-//                //Acciones cuando NO recibo la respuesta esperada.
-//                //Debo avisarle al remitente que hubo un error
-//                break;
-//        }
+        prepareSampleToSend(&trama_muestra,bufferGPRS );
         
+//        debugUART1("end loop\r\n");
+        
+//        Espera arbitraria para dormir la tarea        
+        vTaskDelay(taskDelay); 
+        
+        asm("nop");
+        asm("nop");
         
     }
 }
@@ -314,6 +284,10 @@ void vTaskModem( void *pvParameters )
     
     for(;;)
     {
+        
+        //gprsProcess();
+        
+        
         //Si la cola fue creada correctamente
         if(xModemRequests != NULL){
             /*Si no hay elementos en la cola xModemRequests, la tarea se bloquea 
@@ -535,44 +509,45 @@ void flushComando(uint8_t *comando)
 }
 
 static void init_sample(muestra_t *muestra)
-{
-//    muestra->_reserved_ = {0,0,0,0,0,0};
-    muestra->anio=0x00;
-    muestra->bateria=0x0000;
-    muestra->clima.hum = 0x0000;
-    muestra->clima.humHoja = 0x0000;
-    muestra->clima.humSuelo1 = 0x0000;
-    muestra->clima.humSuelo2 = 0x0000;
-    muestra->clima.humSuelo3 = 0x0000;
-    muestra->clima.lluvia = 0x0000;
-    muestra->clima.luzDia = 0x0000;
-    muestra->clima.presion = 0;
-    muestra->clima.radiacionSolar = 0x0000;
-    muestra->clima.tempHoja = 0x0000;
-    muestra->clima.tempSuelo1 = 0x0000;
-    muestra->clima.tempSuelo2 = 0x0000;
-    muestra->clima.tempSuelo3 = 0x0000;
-    muestra->clima.temper = 0x0000;
-    muestra->clima.viento.direccionM = 0x0000;
-    muestra->clima.viento.direccionP = 0x00;
-    muestra->clima.viento.velocidadM = 0x0000;
-    muestra->clima.viento.velocidadP = 0x0000;
-    muestra->cmd=0x00;
-    muestra->corriente1=0x0000;
-    muestra->corriente2=0x0000;
-    muestra->dia=0x00;
-    muestra->mes=0x00;
-    muestra->hora=0x00;
-    muestra->minutos=0x00;
-    muestra->nullE = NULL;
-    muestra->num_serie=0x0000;
-    muestra->periodo=0x00;
-    muestra->senial =0x00;
-    muestra->sensorHab1=0x00;
-    muestra->sensorHab2=0x00;
-    muestra->sensorHab3=0x00;
-    muestra->tipo=0x00;
-      
+{    
+    muestra->cmd=0x01;
+    muestra->tipo=0x02;
+    muestra->num_serie=0x0403;
+    muestra->hora=0x05;
+    muestra->minutos=0x06;
+    muestra->dia=0x07;
+    muestra->mes=0x08;
+    muestra->anio=0x09;
+    muestra->senial =0x0A;
+    muestra->clima.temper = 0x0C0B;
+    muestra->clima.hum = 0x0E0D;
+    muestra->clima.presion = 972.12345; //0x447307e7
+    muestra->clima.lluvia = 0x1413;
+    muestra->clima.viento.direccionP = 0x15;
+    muestra->clima.viento.velocidadP = 0x1716;
+    muestra->clima.viento.direccionM = 0x1918;
+    muestra->clima.viento.velocidadM = 0x1B1A;
+    muestra->clima.luzDia = 0x1D1C;
+    muestra->clima.radiacionSolar = 0x1F1E;
+    muestra->clima.tempSuelo1 = 0x2120;
+    muestra->clima.humSuelo1 = 0x2322;
+    muestra->clima.tempSuelo2 = 0x2524;
+    muestra->clima.humSuelo2 = 0x2726;
+    muestra->clima.tempSuelo3 = 0x2928;
+    muestra->clima.humSuelo3 = 0x2B2A;
+    muestra->clima.humHoja = 0x2D2C;
+    muestra->clima.tempHoja = 0x2F2E;
+    muestra->corriente1=0x3130;
+    muestra->corriente2=0x3332;  
+    muestra->bateria=0x3534; 
+    muestra->periodo=0x36;
+    muestra->sensorHab1=0x37;
+    muestra->sensorHab2=0x38;
+    muestra->sensorHab3=0x39;
+    muestra->nullE=NULL; 
+//    strcpy(muestra->nullE,"\x3A");
+//    strcpy(muestra->_reserved_,"\x40\x3F\x3E\x3D\x3C\x3B");
+       
 }
 
 static void assembleSample(muestra_t *muestra)
@@ -970,3 +945,157 @@ uint8_t	gprsProcess( void )
     return	FALSE;
 }
 
+uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS)
+{
+    printf("prepareSampleToSend()\r\n");
+    uint8_t n,k;
+    
+    char *p = NULL; char *t = NULL;
+//    const char string_cabecera[] = "";
+    const char string_cierre[] = "\x001A";
+
+//    char *t = tramaGPRS + strlen((char*)&string_cabecera);
+    
+    
+    
+    // Armo el buffer a transmitir: concatenado de cadenas cabecera, datos y cierre.
+    // @todo quitar el caracter null de fin de trama ya que se controla la cantidad con sizeof
+//    strncpy( (char*)&tramaGPRS, (char*)&string_cabecera, strlen((char*)&string_cabecera) );
+
+    n = 0; k = 0;
+	t = tramaGPRS;
+    p = (char*)tramaMuestra;
+    
+    
+    printf("sizeof(trama_muestra_t): %d\r\n",sizeof(trama_muestra_t));
+    
+    while( n < sizeof(trama_muestra_t)-2 ){ //No agarra el byte nullE
+        sprintf( (char*)t + (2*n), (const char*)"%02X", *(p+n));
+        n++;
+//        printf("n:%d | (char*)t+(2*n):%s\r\n",n,(char*)t + (2*n));
+    }
+    
+//    printf("n*2:%d | (char*)t+(2*(n-1)):%s\r\n",n*2,(char*)t+(2*(n-1)));
+//    strncpy( tramaGPRS + n*2, string_cierre, strlen(string_cierre) );
+//    strncpy()
+    
+//    int i;
+//    for(i=0;i<sizeof(tramaGPRS2);i++){
+//        *tramaGPRS2 = tramaGPRS[i];
+//        tramaGPRS2++;
+//    }
+    
+    for(k=42;k<116;k++){
+        tramaGPRS[k]=tramaGPRS[k+2];
+    }
+    
+    
+    
+    return true;
+          
+}
+
+void prepareSample(trama_muestra_t *tramaMuestra, muestra_t *muestraAlmacenada)
+{
+    //	copia los datos a la trama - estacion
+    tramaMuestra->cmd = muestraAlmacenada->cmd;
+    tramaMuestra->tipo = muestraAlmacenada->tipo;  //estacion.tipo; //configDevice.type = 0;
+    tramaMuestra->num_serie = muestraAlmacenada->num_serie; //swapBytes( estacion.num_serie ); //configDevice.serial = 0;
+    tramaMuestra->hora = bcd2dec( muestraAlmacenada->hora );
+    tramaMuestra->min = bcd2dec( muestraAlmacenada->minutos );
+    tramaMuestra->dia = bcd2dec( muestraAlmacenada->dia );
+    tramaMuestra->mes = bcd2dec( muestraAlmacenada->mes );
+    tramaMuestra->anio = bcd2dec( muestraAlmacenada->anio );
+    tramaMuestra->signal = muestraAlmacenada->senial;
+//    #ifdef	USE_HIH6131
+    #if !defined	USE_HIH6131
+    tramaMuestra->clima.temper = muestraAlmacenada->clima.temper | 0x8000;
+    tramaMuestra->clima.hum = muestraAlmacenada->clima.hum | 0x8000;
+    #else
+    tramaMuestra->clima.temper = muestraAlmacenada->clima.temper;
+    tramaMuestra->clima.hum = muestraAlmacenada->clima.hum;
+    #endif
+    tramaMuestra->clima.presion = muestraAlmacenada->clima.presion;
+    tramaMuestra->clima.lluvia = muestraAlmacenada->clima.lluvia;
+    tramaMuestra->clima.radiacionSolar = muestraAlmacenada->clima.radiacionSolar;
+    //	el modelo de pluviometro chino se guarda con la mascara->
+//    #if	defined	(__OMX_S_C__)
+//    tramaMuestra->clima.lluvia |= 0x4000;		
+//    #endif
+    #if	defined	(__OMX_T__)
+    tramaMuestra->clima.radiacionSolar |= 0x8000;
+    tramaMuestra->clima.lluvia |= 0x8000;
+    #endif
+    #ifdef	USE_RK200
+    tramaMuestra->clima.radiacionSolar |= 0x4000;
+    #endif
+    #if	defined	(__OMX_S__)	||	defined	(__OMX_S_C__) ||  defined	(__OMX_T__)
+    tramaMuestra->clima.viento.direccionP = muestraAlmacenada->clima.viento.direccionP;
+    tramaMuestra->clima.viento.velocidadP = muestraAlmacenada->clima.viento.velocidadP;
+    tramaMuestra->clima.viento.direccionM = muestraAlmacenada->clima.viento.direccionM;
+    tramaMuestra->clima.viento.velocidadM = muestraAlmacenada->clima.viento.velocidadM;
+    tramaMuestra->clima.luzDia = muestraAlmacenada->clima.luzDia;
+    tramaMuestra->clima.tempSuelo1 = muestraAlmacenada->clima.tempSuelo1;
+    tramaMuestra->clima.humSuelo1 = muestraAlmacenada->clima.humSuelo1;
+//    tramaMuestra->clima.tempSuelo2 = muestraAlmacenada->clima.tempSuelo2 | 0x4000;
+    tramaMuestra->clima.tempSuelo2 = muestraAlmacenada->clima.tempSuelo2;
+    tramaMuestra->clima.humSuelo2 = muestraAlmacenada->clima.humSuelo2;
+    tramaMuestra->clima.tempSuelo3 = muestraAlmacenada->clima.tempSuelo3;
+    tramaMuestra->clima.humSuelo3 = muestraAlmacenada->clima.humSuelo3;
+    tramaMuestra->clima.humHoja = muestraAlmacenada->clima.humHoja;
+    tramaMuestra->clima.tempHoja = muestraAlmacenada->clima.tempHoja;
+    #elif   defined (__OMX_N__)
+    //tramaMuestra->clima.luzDia = muestraAlmacenada->clima.luzDia;
+    //tramaMuestra->clima.radiacionSolar = muestraAlmacenada->clima.radiacionSolar;
+    tramaMuestra->clima.tempSuelo1 = muestraAlmacenada->clima.tempSuelo1;
+    tramaMuestra->clima.humSuelo1 = muestraAlmacenada->clima.humSuelo1;
+    tramaMuestra->clima.tempSuelo2 = muestraAlmacenada->clima.tempSuelo2;
+    tramaMuestra->clima.humSuelo2 = muestraAlmacenada->clima.humSuelo2;
+    tramaMuestra->clima.nivel = muestraAlmacenada->clima.nivel;               //Muestra nivel
+    tramaMuestra->clima.humSuelo3 = muestraAlmacenada->clima.humSuelo3;
+    tramaMuestra->clima.humHoja = muestraAlmacenada->clima.humHoja;
+    tramaMuestra->clima.tempHoja = muestraAlmacenada->clima.tempHoja;
+    #endif
+
+    #if	defined	(__OMX_T__)
+    tramaMuestra->clima.tempSuelo2 += 0x4000;
+    #endif
+
+    #if	defined	(__OMX_S__) 
+    tramaMuestra->corriente1 = muestraAlmacenada->corriente1;
+    tramaMuestra->corriente2 = muestraAlmacenada->corriente2;
+    #endif
+    tramaMuestra->bateria = muestraAlmacenada->bateria;
+    tramaMuestra->periodo = muestraAlmacenada->periodo;
+    tramaMuestra->sensorHab1 = muestraAlmacenada->sensorHab1;
+    tramaMuestra->sensorHab2 = muestraAlmacenada->sensorHab2;
+    tramaMuestra->sensorHab3 = muestraAlmacenada->sensorHab3;
+    tramaMuestra->nullE = muestraAlmacenada->nullE;
+}
+
+/**********************************************************************************************/
+/**
+ * Convierte un numero en formato BCD a formato DECIMAL.
+ * @param bcd	numero en bcd
+ * @return		numero en decimal
+ */
+uint8	bcd2dec( uint8 bcd )
+{
+	auto uint8 decimal = bcd & 0xF;
+	decimal += (bcd >> 4) * 10;
+	return decimal;
+}
+
+/**********************************************************************************************/
+/**
+ * Intercambia los bytes de una variable de 16 bits.
+ * @param var	variable
+ * @return		bytes intercambiados
+ */
+uint16	swapBytes( uint16 var )
+{
+	auto uint8 temp = (uint8)(var >> 8);
+	var <<= 8;
+	var |= (uint16)temp;
+	return	var;
+}

@@ -28,10 +28,10 @@ typedef signed long sint32;				///<	32-bit signed variable
  * Wind variable type definition
  */
 #if	defined	(__OMX_S__)	||	defined	(__OMX_S_C__) || defined	(__OMX_T__)
-typedef struct
+typedef struct 
 {
 	uint8				direccionP;		//	20
-	uint16				velocidadP;		//	21,22
+    uint16				velocidadP;		//	21,22
 	uint16				direccionM;		//	23,24
 	uint16				velocidadM;		//	25,26
 }viento_t;								//	7 bytes
@@ -43,8 +43,8 @@ typedef struct
 /*
  * Weather variable definition  - sensors
  */
-typedef struct
-{
+typedef struct 
+{    
 	uint16				temper;			//	10,11
 	uint16				hum;			//	12,13
 	float				presion;		//	14 a 17
@@ -144,27 +144,27 @@ typedef struct
 /*
  * definicion de variable tipo trama muestra
  */
-typedef struct
+typedef struct 
 {
-	uint8				cmd;			//	0
-	uint8				tipo;			//	1
-	uint16				num_serie;		//	2,3
-	uint8				hora;			//	4
-	uint8				min;			//	5
-	uint8				dia;			//	6
-	uint8				mes;			//	7
-	uint8				anio;			//	8
-	uint8				signal;			//	9
-	clima_t				clima;			//	10 a 46 para modelo OMX_S / OMX_L
-	uint16				corriente1;		//	47,48
-	uint16				corriente2;		//	49,50
-	uint16				bateria;		//	51,52
-	uint8				periodo;		//	53
-	uint8				sensorHab1;		//	54
-	uint8				sensorHab2;		//	55
-	uint8				sensorHab3;		//	56
-	char				nullE;			//	para indicar fin de trama
-}trama_muestra_t;						//	57 caracteres en total
+	uint8       cmd         ;		//	0
+	uint8		tipo        ;		//	1
+	uint16		num_serie;                                  //	2,3
+	uint8		hora        ;		//	4
+	uint8		min         ;		//	5
+	uint8		dia         ;		//	6
+	uint8		mes         ;		//	7
+	uint8		anio        ;		//	8
+	uint8		signal      ;		//	9
+	clima_t		clima       ;		//	10 a 46 para modelo OMX_S / OMX_L
+	uint16		corriente1;                                 //	47,48
+	uint16		corriente2;                                 //	49,50
+	uint16		bateria;                                    //	51,52
+	uint8		periodo     ;		//	53
+	uint8		sensorHab1  ;		//	54
+	uint8		sensorHab2  ;		//	55
+	uint8		sensorHab3  ;		//	56
+	char		nullE       ;		//	57 para indicar fin de trama
+}trama_muestra_t;                                           //	57 caracteres en total
 
 /**********************************************************************************************/
 /*

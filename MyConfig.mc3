@@ -7758,12 +7758,12 @@
          <value>0</value>
       </entry>
       <entry>
-         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="TMR4" name="actualPeriod"/>
-         <value>0.25</value>
-      </entry>
-      <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="I2C1" registerAlias="I2CCONH" settingAlias="SCIE" alias="enabled"/>
          <value>1</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="TMR4" name="actualPeriod"/>
+         <value>0.25</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="System Module" registerAlias="FWDT" settingAlias="WDTPS"/>
@@ -8994,12 +8994,12 @@
          <value>1</value>
       </entry>
       <entry>
-         <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="UART1" registerAlias="UMODE" settingAlias="STSEL"/>
-         <value>1</value>
-      </entry>
-      <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="I2C1" registerAlias="I2CCON" settingAlias="A10M" alias="7 Bit"/>
          <value>0</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="UART1" registerAlias="UMODE" settingAlias="STSEL"/>
+         <value>1</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="RPINR3" settingAlias="T3CKR"/>
@@ -9394,16 +9394,16 @@
          <value>1</value>
       </entry>
       <entry>
-         <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="TMR4" registerAlias="PR"/>
-         <value>62500</value>
-      </entry>
-      <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="I2C1" registerAlias="I2CCON" settingAlias="SCLREL" alias="Releases"/>
          <value>1</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="I2C1" registerAlias="I2CSTAT" settingAlias="TRSTAT" alias="enabled"/>
          <value>1</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="TMR4" registerAlias="PR"/>
+         <value>62500</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="TRISE" settingAlias="TRISE4"/>
@@ -9538,12 +9538,12 @@
          <value>5</value>
       </entry>
       <entry>
-         <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="TMR4" registerAlias="TCON" settingAlias="TSIDL"/>
-         <value>disabled</value>
-      </entry>
-      <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="I2C1" registerAlias="I2CCON" settingAlias="I2CSIDL" alias="disabled"/>
          <value>0</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="TMR4" registerAlias="TCON" settingAlias="TSIDL"/>
+         <value>disabled</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="TRISC" settingAlias="TRISC15"/>
@@ -13930,12 +13930,12 @@
          <value>DISABLE</value>
       </entry>
       <entry>
-         <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="TMR4" registerAlias="TCON" settingAlias="TECS" alias="TMRCK"/>
-         <value>3</value>
-      </entry>
-      <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="I2C1" registerAlias="I2CSTAT" settingAlias="ACKSTAT" alias="disabled"/>
          <value>0</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="TMR4" registerAlias="TCON" settingAlias="TECS" alias="TMRCK"/>
+         <value>3</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="IOCPD" settingAlias="IOCPD5"/>
@@ -15184,24 +15184,24 @@
    </tokenMap>
    <generatedFileHashHistoryMap class="java.util.HashMap">
       <entry>
-         <file>mcc_generated_files\interrupt_manager.h</file>
-         <hash>85df177cff9fb99279ff1654a9a072edc74b9387e27e9684d9832bc1c221694f</hash>
+         <file>mcc_generated_files\mcc.h</file>
+         <hash>c6b615e2d2b58ddd0bc3969e39d2e0efd7ddc278b911901d1ab277d586018346</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files\mcc.h</file>
-         <hash>50fd46b68e61b1bd6d1b058526dc3fd7dc6b368da711ee48eec87cda1315a0eb</hash>
+         <file>mcc_generated_files\interrupt_manager.h</file>
+         <hash>85df177cff9fb99279ff1654a9a072edc74b9387e27e9684d9832bc1c221694f</hash>
       </entry>
       <entry>
          <file>mcc_generated_files\tmr4.h</file>
          <hash>ab2e9c9ce52c699d38f8d0a52173f1484b807eb4ee8754ac2507d106dbd91f7c</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files\i2c1.c</file>
-         <hash>98d64e8e380822ac15eb47565d7c2980506cc69883b530391190d6871d36f579</hash>
-      </entry>
-      <entry>
          <file>mcc_generated_files\uart2.h</file>
          <hash>2caf0c4a3ad936a676eecce405975444534007a926f26664f85424aa2524a3a6</hash>
+      </entry>
+      <entry>
+         <file>mcc_generated_files\i2c1.c</file>
+         <hash>98d64e8e380822ac15eb47565d7c2980506cc69883b530391190d6871d36f579</hash>
       </entry>
       <entry>
          <file>mcc_generated_files\uart1.h</file>
@@ -15248,12 +15248,12 @@
          <hash>9e0882bcac2d363f98fbebfdd092382d0a174ce5598d9142b834a1137d0448aa</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files\interrupt_manager.c</file>
-         <hash>d230053e85347eb9dff4ea525a6f656d7117da93c8db4a1d1ae1d842395161e7</hash>
+         <file>mcc_generated_files\mcc.c</file>
+         <hash>91d93529d2939342829095470cd5ada56085fd010b10b02f65738625918cea8d</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files\mcc.c</file>
-         <hash>350045c580f9a81647c345c01d36876ce84b0cfe71b750689a3bc9efd464ea63</hash>
+         <file>mcc_generated_files\interrupt_manager.c</file>
+         <hash>d230053e85347eb9dff4ea525a6f656d7117da93c8db4a1d1ae1d842395161e7</hash>
       </entry>
    </generatedFileHashHistoryMap>
 </config>
