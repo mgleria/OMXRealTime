@@ -111,7 +111,11 @@ extern string	atcmd_socketStatus[];
 
 extern string	atcmd_disableEcho[]                 ;
 
-extern string  atcmd_setContextHARDCODED[]          ;
+//extern string  atcmd_setContextHARDCODED[]          ;
+
+extern string   atcmd_setContextPersonal[]          ;
+
+extern string   atcmd_setContextClaro[]             ;
 
 extern string	atcmd_activateContextHARDCODED[]    ;
 
@@ -124,6 +128,8 @@ extern string	atcmd_socketDialHARDCODED_1[]		;
 extern string	atcmd_socketDialHARDCODED_2[]		;
 
 extern string	atcmd_FRAME[]                       ;
+
+extern string	atcmd_FRAME2[]                       ;
 
 extern string	atcmd_EOF[]                         ;
 

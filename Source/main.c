@@ -120,7 +120,7 @@ uint16	swapBytes( uint16 var );
 void prepareSample(trama_muestra_t *tramaMuestra, muestra_t *muestraAlmacenada);
 uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS);
 
-uint8_t	gprsProcess( void );
+uint8_t	gprsProcess( char *grpsDATA );
 
 
 
@@ -224,8 +224,8 @@ void vTaskTest( void *pvParameters )
     
     muestra_t muestra;
     trama_muestra_t trama_muestra;
-	#define	Buffer_GPRS_Size	(130)
-	static char bufferGPRS[Buffer_GPRS_Size] = {0};
+	#define	dataGPRS_Size	(120)
+	static char dataGPRS[dataGPRS_Size] = {0};
 
     
     init_sample(&muestra);
@@ -248,9 +248,11 @@ void vTaskTest( void *pvParameters )
 
         asm("nop");
         
-        prepareSampleToSend(&trama_muestra,bufferGPRS );
+        prepareSampleToSend(&trama_muestra,dataGPRS );
         
 //        debugUART1("end loop\r\n");
+        
+        gprsProcess(dataGPRS);
         
 //        Espera arbitraria para dormir la tarea        
         vTaskDelay(taskDelay); 
@@ -516,8 +518,8 @@ void flushComando(uint8_t *comando)
 static void init_sample(muestra_t *muestra)
 {    
     muestra->cmd=0x01;
-    muestra->tipo=0x02;
-    muestra->num_serie=0x0403;
+    muestra->tipo=0x03;
+    muestra->num_serie=0x0727;
     muestra->hora=0x05;
     muestra->minutos=0x06;
     muestra->dia=0x07;
@@ -650,8 +652,8 @@ void debugUART1(const char* s){
         finalStateToggleLed,
 	}gprsState = gprsReset, prev_gprsState = 0xFF;
     
-#define     GPRS_BUFFER_SIZE    100
-uint8_t	gprsProcess( void )
+#define     GPRS_BUFFER_SIZE    120 //Duplicado ojo!
+uint8_t	gprsProcess( char *grpsDATA )
 {
 
     char gprsBuffer [GPRS_BUFFER_SIZE]={0};
@@ -695,7 +697,7 @@ uint8_t	gprsProcess( void )
 			{
                 debugUART1("setContext:\r\n");
 //				UART1_WriteBuffer("setContext",strlen("setContext"));
-                UART2_WriteBuffer(atcmd_setContextHARDCODED,strlen(atcmd_setContextHARDCODED));
+                UART2_WriteBuffer(atcmd_setContextPersonal,strlen(atcmd_setContextPersonal));
 				/*	modo recepcion para espera de la respuesta	*/
 				sendCmd = FALSE;
 			}
@@ -863,11 +865,14 @@ uint8_t	gprsProcess( void )
 			{
                 debugUART1("putData:\r\n");
 
-                UART2_WriteBuffer(atcmd_FRAME,strlen(atcmd_FRAME));			
+                UART2_WriteBuffer(grpsDATA,strlen(grpsDATA)); //FRAME pasado por parametro
+                
+//                UART2_WriteBuffer(atcmd_FRAME2,strlen(atcmd_FRAME2));
+                
 				UART2_WriteBuffer(atcmd_EOF,strlen(atcmd_EOF)); //Fin de trama
                 
                 debugUART1("Trama: ");
-                debugUART1(atcmd_FRAME);
+                debugUART1(grpsDATA);
                 debugUART1("\r\n");
 
 				sendCmd = FALSE;
@@ -883,6 +888,7 @@ uint8_t	gprsProcess( void )
                 else
                 {
                     //strcat(gprsBuffer,"_ERROR_\n\r");
+                    UART1_WriteBuffer("WAITING SRING:  ",strlen("WAITING SRING:  "));
                     UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
                 }
 			}
@@ -898,13 +904,15 @@ uint8_t	gprsProcess( void )
 				sendCmd = FALSE;
 			}
 			else
-			{	
-                UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);                 
+			{	               
+                UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
+                debugUART1("Rta SERVER: ");
+                UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                debugUART1("\r\n");
+                
 				if(strstr(gprsBuffer,"024F"))
                 {		
-                    debugUART1("Rta SERVER: ");
-                    UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
-                    debugUART1("\r\n");
+                    debugUART1("Rta SERVER: 024F\r\n");
                     SetProcessState( &gprsState, closeSocket);
                 }
                 else
@@ -950,17 +958,17 @@ uint8_t	gprsProcess( void )
             vLedToggleLED(1);
 			break;
     }
-    return	FALSE;
+    return	TRUE;
 }
 
 uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS)
 {
-    printf("prepareSampleToSend()\r\n");
+//    printf("prepareSampleToSend()\r\n");
     uint8_t n,k;
     
     char *p = NULL; char *t = NULL;
 //    const char string_cabecera[] = "";
-    const char string_cierre[] = "\x001A";
+//    const char string_cierre[] = "\x001A";
 
 //    char *t = tramaGPRS + strlen((char*)&string_cabecera);
     
@@ -975,7 +983,7 @@ uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS)
     p = (char*)tramaMuestra;
     
     
-    printf("sizeof(trama_muestra_t): %d\r\n",sizeof(trama_muestra_t));
+//    printf("sizeof(trama_muestra_t): %d\r\n",sizeof(trama_muestra_t));
     
     while( n < sizeof(trama_muestra_t)-2 ){ //No agarra el byte nullE
         sprintf( (char*)t + (2*n), (const char*)"%02X", *(p+n));

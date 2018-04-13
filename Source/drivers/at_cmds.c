@@ -93,7 +93,9 @@ string	atresp_getSignal[]				=	"+CSQ:";
 
 string	atcmd_disableEcho[]                 = "ATE0\r\n";
 
-string  atcmd_setContextHARDCODED[]         = "AT+CGDCONT=1,\"IP\",igprs.claro.com.ar,\"0.0.0.0\",0,0\r\n";
+string  atcmd_setContextClaro[]         = "AT+CGDCONT=1,\"IP\",igprs.claro.com.ar,\"0.0.0.0\",0,0\r\n";
+
+string  atcmd_setContextPersonal[]         = "AT+CGDCONT=1,\"IP\",internet.personal.com,\"0.0.0.0\",0,0\r\n";
 
 string	atcmd_activateContextHARDCODED[]    = "AT#SGACT=1,1\r\n";
 
@@ -106,6 +108,8 @@ string	atcmd_socketDialHARDCODED_1[]		= "AT#SD=1,0,4545,www.omixom.com,0,0,1\r";
 string	atcmd_socketDialHARDCODED_2[]		= "AT#SSEND=1\r";
 
 string	atcmd_FRAME[]                       = "040327090E0310220701000009016501650000000ABF2000";
+
+string	atcmd_FRAME2[]                      = "01032707160A110C110B008000800020734414000400000000000000001D002180000000000000000000000000000000000000EA010AFF6300";
 
 string	atcmd_EOF[]                         = "\x1A"; //<SUB> (substitute) ascii character ->Fin de texto plano
 
