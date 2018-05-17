@@ -15,7 +15,7 @@
   @Description:
     This source file provides implementations for MPLAB(c) Code Configurator interrupts.
     Generation Information : 
-        Product Revision  :  MPLAB(c) Code Configurator - 4.26
+        Product Revision  :  MPLAB(c) Code Configurator - 4.26.2
         Device            :  PIC24FJ1024GB610
     The generated drivers are tested against the following:
         Compiler          :  XC16 1.31
@@ -64,7 +64,7 @@ void PIN_MANAGER_Initialize(void)
     LATC = 0x0000;
     LATD = 0x0000;
     LATE = 0x0000;
-    LATF = 0x0020;
+    LATF = 0x0028;
     LATG = 0x0000;
 
     /****************************************************************************
@@ -75,7 +75,7 @@ void PIN_MANAGER_Initialize(void)
     TRISC = 0xF01E;
     TRISD = 0xFFFF;
     TRISE = 0x03FF;
-    TRISF = 0x319F;
+    TRISF = 0x119F;
     TRISG = 0xF3CF;
 
     /****************************************************************************
@@ -122,8 +122,10 @@ void PIN_MANAGER_Initialize(void)
      ***************************************************************************/
     __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
 
-    RPINR18bits.U1RXR = 0x000A;   //RF4->UART1:U1RX;
     RPOR8bits.RP17R = 0x0003;   //RF5->UART1:U1TX;
+    RPOR15bits.RP31R = 0x0005;   //RF13->UART2:U2TX;
+    RPINR18bits.U1RXR = 0x000A;   //RF4->UART1:U1RX;
+    RPINR19bits.U2RXR = 0x0020;   //RF12->UART2:U2RX;
 
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock   PPS
 

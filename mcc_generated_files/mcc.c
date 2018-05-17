@@ -55,7 +55,7 @@
 #pragma config AIVTDIS = OFF    // Alternate Interrupt Vector Table bit->Disabled AIVT
 
 // FOSCSEL
-#pragma config FNOSC = PRI    // Oscillator Source Selection->Primary Oscillator (XT, HS, EC)
+#pragma config FNOSC = PRIPLL    // Oscillator Source Selection->Primary Oscillator with PLL module (XT + PLL, HS + PLL, EC + PLL)
 #pragma config PLLMODE = PLL96DIV2    // PLL Mode Selection->96 MHz PLL. (8 MHz input)
 #pragma config IESO = OFF    // Two-speed Oscillator Start-up Enable bit->Start up with user-selected oscillator source
 
@@ -102,17 +102,19 @@ void SYSTEM_Initialize(void)
     PIN_MANAGER_Initialize();
     OSCILLATOR_Initialize();
     INTERRUPT_Initialize();
-    I2C1_Initialize();
-    TMR2_Initialize();
+    UART2_Initialize();
+//    I2C1_Initialize();
     UART1_Initialize();
+    TMR4_Initialize();
+    TMR2_Initialize();
 }
 
 void OSCILLATOR_Initialize(void)
 {
-    // CF no clock failure; NOSC PRI; SOSCEN disabled; POSCEN disabled; CLKLOCK unlocked; OSWEN Switch is Complete; IOLOCK not-active; 
-    __builtin_write_OSCCONL((uint8_t) (0x0200 & 0x00FF));
-    // CPDIV 1:1; PLLEN disabled; DOZE 1:8; RCDIV PRI; DOZEN disabled; ROI disabled; 
-    CLKDIV = 0x3200;
+    // CF no clock failure; NOSC PRIPLL; SOSCEN disabled; POSCEN disabled; CLKLOCK unlocked; OSWEN Request Switch; IOLOCK not-active; 
+    __builtin_write_OSCCONL((uint8_t) (0x0301 & 0x00FF));
+    // CPDIV 1:1; PLLEN enabled; DOZE 1:8; RCDIV PRI; DOZEN disabled; ROI disabled; 
+    CLKDIV = 0x3220;
     // STOR disabled; STORPOL Interrupt when STOR is 1; STSIDL disabled; STLPOL Interrupt when STLOCK is 1; STLOCK disabled; STSRC SOSC; STEN disabled; TUN Center frequency; 
     OSCTUN = 0x0000;
     // ROEN disabled; ROSEL FOSC; ROSIDL disabled; ROSWEN disabled; ROOUT disabled; ROSLP disabled; 

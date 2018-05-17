@@ -52,15 +52,15 @@
 */
 void INTERRUPT_Initialize (void)
 {
-    //    MICI: MI2C1 - I2C1 Master Events
+    //    UERI: U2E - UART2 Error
     //    Priority: 1
-        IPC4bits.MI2C1IP = 1;
-    //    SICI: SI2C1 - I2C1 Slave Events
+        IPC16bits.U2ERIP = 1;
+    //    UTXI: U2TX - UART2 Transmitter
     //    Priority: 1
-        IPC4bits.SI2C1IP = 1;
-    //    TI: T2 - Timer2
+        IPC7bits.U2TXIP = 1;
+    //    URXI: U2RX - UART2 Receiver
     //    Priority: 1
-        IPC1bits.T2IP = 1;
+        IPC7bits.U2RXIP = 1;
     //    UERI: U1E - UART1 Error
     //    Priority: 1
         IPC16bits.U1ERIP = 1;
@@ -70,5 +70,23 @@ void INTERRUPT_Initialize (void)
     //    URXI: U1RX - UART1 Receiver
     //    Priority: 1
         IPC2bits.U1RXIP = 1;
+    //    CCPI: CCP1 - Capture/Compare 1
+    //    Priority: 1
+        IPC15bits.CCP1IP = 1;
+    //    CCTI: CCT1 - Capture/Compare Timer 1
+    //    Priority: 1
+        IPC25bits.CCT1IP = 1;
+    //    MICI: MI2C1 - I2C1 Master Events
+    //    Priority: 1
+        IPC4bits.MI2C1IP = 1;
+    //    SICI: SI2C1 - I2C1 Slave Events
+    //    Priority: 1
+        IPC4bits.SI2C1IP = 1;
+    //    TI: T4 - Timer4
+    //    Priority: 1
+        IPC6bits.T4IP = 1;
+    //    TI: T2 - Timer2
+    //    Priority: 1
+        IPC1bits.T2IP = 1;
 
 }

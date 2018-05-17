@@ -27,13 +27,16 @@
 #define configUSE_IDLE_HOOK				1
 #define configUSE_TICK_HOOK				0
 //Cada cuanto interrumpe el tick de FreeRTOS (Hz)
-#define configTICK_RATE_HZ				( ( TickType_t ) 1000 )
-#define configCPU_CLOCK_HZ				( ( unsigned long ) 4000000 )  /* Fosc/2 */
+#define configTICK_RATE_HZ				( ( TickType_t ) 4000 )
+#define configCPU_CLOCK_HZ				( ( unsigned long ) 16000000 )  /* Fosc/2 */
+
 #define configMAX_PRIORITIES			( 5 )
+#define MAX_PRIORITY                    configMAX_PRIORITIES-1
+
 #define configMINIMAL_STACK_SIZE		( 200 )
 #define configTOTAL_HEAP_SIZE			( ( size_t ) 10240 )
 #define configMAX_TASK_NAME_LEN			( 4 )
-#define configUSE_TRACE_FACILITY		0
+
 #define configUSE_16_BIT_TICKS			1
 #define configIDLE_SHOULD_YIELD			1
 #define configCHECK_FOR_STACK_OVERFLOW  2
@@ -51,7 +54,7 @@
 #define configTIMER_QUEUE_LENGTH        3
 
 //TraceRecorder
-#define configUSE_TRACE_FACILITY        1
+#define configUSE_TRACE_FACILITY        0
 
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */
