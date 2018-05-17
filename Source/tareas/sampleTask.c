@@ -1,9 +1,11 @@
 #include    "tareas/sampleTask.h"
+#include    "funciones/memory.h"
 
 static void prvPasiveCallback (TimerHandle_t xTimer);
 static void prvActiveCallback (TimerHandle_t xTimer);
 static void prvDataCallback (TimerHandle_t xTimer);
 static void prvAntireboteCallback (TimerHandle_t xTimer);
+static uint16_t getAccumulatedRain();
 
 //Handlers software timers
 TimerHandle_t xPassiveSamplingTime;
@@ -387,4 +389,90 @@ static void prvDataCallback (TimerHandle_t xTimer){
 
 static void prvAntireboteCallback (TimerHandle_t xTimer){
     
+}
+
+static void FSM_SampleTask(uint32_t status){
+    
+    muestra_t *sample;
+    
+    uint32_t asyncEvents;
+    uint32_t syncEvents;
+    uint16_t syncCounter = 0;
+    uint16_t acum_sensor_1 = 0;
+    uint16_t acum_sensor_2 = 0;
+    
+    /*Los cambios de estado ocurren en los callback de los timers o en otras
+     funciones externas*/
+    switch(status){
+        case SYNC_SERVER_TIME:
+            //Code to sync RTCC with server
+            break;
+        //to-do: Cambiar portMAX_DELAY por el valor apropiado    
+        case ASYNC_SAMPLING:
+            //Wait for async events
+            asyncEvents = ulTaskNotifyTake( pdTRUE,  /* Clear the notification value before
+                                                exiting. */
+                                            portMAX_DELAY ); /* Block indefinitely. */ 
+            switch(asyncEvents){
+                case ASYNC_SENSOR1:
+                    //code ASYNC_SENSOR1
+                    break;
+                case ASYNC_SENSOR2:
+                    //code ASYNC_SENSOR1
+                    break;
+                case ASYNC_SENSOR3:
+                    //code ASYNC_SENSOR1
+                    break;
+                case ASYNC_SENSOR4:
+                    //code ASYNC_SENSOR1
+                    break;      
+            }
+            break;
+        //to-do: Cambiar portMAX_DELAY por el valor apropiado
+        case SYNC_SAMPLING:
+            syncEvents = ulTaskNotifyTake( pdTRUE,  /* Clear the notification value before
+                                                exiting. */
+                                            portMAX_DELAY ); /* Block indefinitely. */
+            syncCounter++;
+            //Para cada medición sincrónica debe definirse un acumulador
+            //acum_sensor_n += functionToGetSampleSensorN();
+            acum_sensor_1 += ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
+            acum_sensor_2 += ADC_Read10bit( ADC_CHANNEL_TEMPERATURE_SENSOR );
+            break;
+        case SAVE_AND_PACKAGE:
+            //Preparar la muestra
+/////////////////////MUESTRAS TOMADAS SINCRONICAMENTE///////////////////////////
+            //to-do: Hacer una función que me permita escalar esto mejor
+            //to-do: corregir nombres acum_sensor_#
+            if(syncCounter>0){
+                sample->clima.luzDia = acum_sensor_1/syncCounter;
+                sample->clima.temper = acum_sensor_2/syncCounter;
+            }
+            else{
+                //to-do: Ver que se hace en caso de que no se hayan tomado 
+                //muestras sincronicas. Reinicio?
+            }
+/////////////////////MUESTRAS TOMADAS ASINCRONICAMENTE//////////////////////////
+            //to-do: Hacer una función que me permita escalar esto mejor
+            sample->clima.lluvia = getAccumulatedRain();
+/////////////////////GUARDANDO MUESTRA EN MEM PERSISENTE////////////////////////
+            if(putSample(sample)){
+                //Muestra guardada exitosamente
+                //to-do?
+            }
+            else{
+                //to-do
+                //ERROR al guardar la muestra. Que hago?
+            }
+                
+            
+            
+            
+            
+            break;
+    }
+}
+
+static uint16_t getAccumulatedRain(){
+    return 0;
 }
