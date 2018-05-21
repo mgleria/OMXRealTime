@@ -143,8 +143,8 @@ int main( void )
 //    rtc_init();
 //    vLedInitialise();
     
-//    startSampleTask();
-    startTestTask();
+    startSampleTask();
+//    startTestTask();
     
 //    vTraceEnable(TRC_START);
     

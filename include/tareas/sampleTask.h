@@ -21,8 +21,8 @@
 #define	SAMPLETASK_H
 
 //Software TIMERS
-#define T_MUESTREO_PASIVO_S                 6
-#define T_MUESTREO_ACTIVO_S                 3
+#define T_MUESTREO_PASIVO_S                 20
+#define T_MUESTREO_ACTIVO_S                 10
 #define T_MUESTREO_DATO_S                   1
 #define T_ANTIREBOTE_LLUVIA_MS              100
 
@@ -48,7 +48,7 @@ typedef enum
     SENSOR_1,
     SENSOR_2,
     SENSOR_3,
-    SINCRONICAS,
+    SYNCHRONOUS,
     CLOSE_SAMPLE        
 } EVENT_ID;
 
