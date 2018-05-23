@@ -10,6 +10,7 @@ static void prvAntireboteCallback (TimerHandle_t xTimer);
 static void FSM_SampleTask(uint32_t status);
 static uint16_t getAccumulatedRain();
 static void setStatusFSM(uint32_t nextStatus);
+static void resetSyncVariables();
 
 //Handlers software timers
 TimerHandle_t xPassiveSamplingTime;
@@ -21,8 +22,18 @@ TickType_t  xTimePasive, xTimeActive, xTimeData, xTimeAntireboteLluvia;
 
 TaskHandle_t xSampleHandle;
 
+static muestra_t sample;
+
 static uint32_t status;
 static bool waitForNotify;
+static uint16_t syncCounter;
+static uint16_t acum_sensor_1;
+static uint16_t acum_sensor_2;
+
+void debug_enable()
+{
+    __C30_UART=1;
+}
 
 void startSampleTask(){
     
@@ -33,7 +44,9 @@ void startSampleTask(){
                     MAX_PRIORITY,
                     &xSampleHandle);
     
-    softwareTimers_init();
+    softwareTimers_create();
+    
+//    debug_enable();
 }
 
 void vTaskSample( void *pvParameters ){
@@ -42,8 +55,8 @@ void vTaskSample( void *pvParameters ){
 // Seccion de inicializacion
     waitForNotify = false;
     
-//    setStatusFSM(SYNC_SERVER_TIME); //Descomentar cuando se implemente el estado SYNC_SERVER_TIME
-    setStatusFSM(ASYNC_SAMPLING);
+    setStatusFSM(SYNC_SERVER_TIME); //Descomentar cuando se implemente el estado SYNC_SERVER_TIME
+//    setStatusFSM(ASYNC_SAMPLING);
         
     // Cuerpo de la tarea
     for( ;; ){
@@ -68,28 +81,28 @@ void vTaskSample( void *pvParameters ){
 }
 
 static void FSM_SampleTask(uint32_t status){
-    
-    muestra_t *sample;
-    
+       
     uint32_t asyncEvents;
     uint32_t syncEvents;
-    uint16_t syncCounter = 0;
-    uint16_t acum_sensor_1 = 0;
-    uint16_t acum_sensor_2 = 0;
     
     /*Los cambios de estado ocurren en los callback de los timers o en otras
      funciones externas*/
     switch(status){  
         case SYNC_SERVER_TIME:
+            debugUART1("SYNC_SERVER_TIME\r\n");
+//            printf("SYNC_SERVER_TIME");
             //Code to sync RTCC with server
 
             setStatusFSM(ASYNC_SAMPLING);
+            //Cuando este softTimer expire, se cambia de estado a SYNC_SAMPLING
+            xTimerStart(xPassiveSamplingTime,0);
             break;
             
         //to-do: Cambiar portMAX_DELAY por el valor apropiado    
         case ASYNC_SAMPLING:
-            //Cuando este softTimer expire, se cambia de estado a SYNC_SAMPLING
-            xTimerStart(xPassiveSamplingTime,0);
+            debugUART1("ASYNC_SAMPLING\r\n");
+//            printf("ASYNC_SAMPLING");
+            
             //Wait for async events
             asyncEvents = ulTaskNotifyTake( 
                 pdTRUE,  /* Clear the notification value before exiting. */
@@ -112,49 +125,60 @@ static void FSM_SampleTask(uint32_t status){
             break;
         //to-do: Cambiar portMAX_DELAY por el valor apropiado
         case SYNC_SAMPLING:
-            
+//            printf("SYNC_SAMPLING");
+            debugUART1("SYNC_SAMPLING\r\n");
             syncEvents = ulTaskNotifyTake( 
                 pdTRUE,  /* Clear the notification value before exiting. */
                 xSegToTicks(T_MUESTREO_DATO_S) ); /* Max Blocking time. */
             
             switch(syncEvents){
                 case SYNCHRONOUS:
+//                    printf("case SYNCHRONOUS:");
                     syncCounter++;
                     //Para cada medición sincrónica debe definirse un acumulador
                     //acum_sensor_n += functionToGetSampleSensorN();
                     acum_sensor_1 += ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
                     acum_sensor_2 += ADC_Read10bit( ADC_CHANNEL_TEMPERATURE_SENSOR );
+                    printf("syncCounter: %d\r\n",syncCounter);
                     break;
                 default:
                     //indicar con algun codigo de error que algo anduvo mal
+                    debugUART1("syncEvents default\r\n");
                     break;
             }
             break;
         case SAVE_AND_PACKAGE:
+            debugUART1("SAVE_AND_PACKAGE\r\n");
+//            printf("SAVE_AND_PACKAGE");
             //Preparar la muestra
 /////////////////////MUESTRAS TOMADAS SINCRONICAMENTE///////////////////////////
             //to-do: Hacer una función que me permita escalar esto mejor
             //to-do: corregir nombres acum_sensor_#
             if(syncCounter>0){
-                sample->clima.luzDia = acum_sensor_1/syncCounter;
-                sample->clima.temper = acum_sensor_2/syncCounter;
+                sample.clima.luzDia = acum_sensor_1/syncCounter;
+//                sample->clima.temper = acum_sensor_2/syncCounter;
+//                printf("acum_sensor_1: %d\r\n",acum_sensor_1);
+                printf("sample.clima.luzDia: %d\r\n",sample.clima.luzDia);
+                printf("acum_sensor_2/syncCounter: %d\r\n",acum_sensor_2/syncCounter);
             }
             else{
                 //to-do: Ver que se hace en caso de que no se hayan tomado 
                 //muestras sincronicas. Reinicio?
+                debugUART1("syncEvents syncCounter<0\r\n");
             }
+            syncCounter = 0;
 /////////////////////MUESTRAS TOMADAS ASINCRONICAMENTE//////////////////////////
             //to-do: Hacer una función que me permita escalar esto mejor
-            sample->clima.lluvia = getAccumulatedRain();
+            sample.clima.lluvia = getAccumulatedRain();
 /////////////////////GUARDANDO MUESTRA EN MEM PERSISENTE////////////////////////
-            if(putSample(sample)){
-                //Muestra guardada exitosamente
-                //to-do?
-            }
-            else{
-                //to-do
-                //ERROR al guardar la muestra. Que hago?
-            }
+//            if(putSample(sample)){
+//                //Muestra guardada exitosamente
+//                //to-do?
+//            }
+//            else{
+//                //to-do
+//                //ERROR al guardar la muestra. Que hago?
+//            }
             setStatusFSM(ASYNC_SAMPLING);
             break;
     }
@@ -168,7 +192,7 @@ static void setStatusFSM(uint32_t nextStatus){
     status = nextStatus;
 }
 
-static void softwareTimers_init(){
+static void softwareTimers_create(){
     
     xTimePasive = xSegToTicks(T_MUESTREO_PASIVO_S);
     xTimeActive = xSegToTicks(T_MUESTREO_ACTIVO_S);
@@ -193,6 +217,7 @@ static void prvPasiveCallback (TimerHandle_t xTimer){
 //    xTaskNotify(xSampleHandle,SENSOR_1,eSetValueWithOverwrite);
     
     setStatusFSM(SYNC_SAMPLING);
+    resetSyncVariables();
 }
 
 static void prvActiveCallback (TimerHandle_t xTimer){
@@ -202,7 +227,7 @@ static void prvActiveCallback (TimerHandle_t xTimer){
     xTimerStop(xActiveSamplingTime,0);
     xTimerStart(xPassiveSamplingTime,0);
     
-    setStatusFSM(SYNC_SAMPLING);
+    setStatusFSM(SAVE_AND_PACKAGE);
     
 //    xTaskNotify(xSampleHandle,SENSOR_2,eSetValueWithOverwrite);
 }
@@ -396,4 +421,10 @@ uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS)
     }
 
     return true;        
+}
+
+static void resetSyncVariables(){
+    syncCounter = 0;
+    acum_sensor_1 = 0;
+    acum_sensor_2 = 0;
 }

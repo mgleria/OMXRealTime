@@ -103,7 +103,7 @@ void SYSTEM_Initialize(void)
     OSCILLATOR_Initialize();
     INTERRUPT_Initialize();
     UART2_Initialize();
-//    I2C1_Initialize();
+    I2C1_Initialize();
     UART1_Initialize();
     TMR4_Initialize();
     TMR2_Initialize();

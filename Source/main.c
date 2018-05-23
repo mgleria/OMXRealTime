@@ -372,10 +372,6 @@ void SetProcessState( uint8 * reg, uint8 state )
 	sendCmd = TRUE;
 }
 
-void debugUART1(const char* s){
-    UART1_WriteBuffer(s,strlen(s));
-}
-
 /*	enumeracion de los posibles estados en el manejo del gprs	*/
 	static enum
 	{

@@ -5,8 +5,11 @@
  * Created on 2 de mayo de 2018, 18:35
  */
 
+/* Standard includes. */
 #include    <stdint.h>
 #include    <stdlib.h>
+#include    <stdio.h>
+#include    <libpic30.h>
 
 #include    "typedef.h"
 #include    "perifericos/adc.h"
@@ -75,7 +78,7 @@ void assembleSample(muestra_t *muestra);
 void prepareSample(trama_muestra_t *tramaMuestra, muestra_t *muestraAlmacenada);
 uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS);
 
-static void softwareTimers_init();
+static void softwareTimers_create();
 
 
 

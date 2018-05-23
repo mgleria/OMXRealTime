@@ -3,6 +3,21 @@
 
 rtcc_t tiempo;					///<	Estructura con la fecha y hora del sistema.
 
+void rtc_init()
+{
+	uint8_t	data;
+    uint8_t aux = 0x11;
+    
+	read_rtcc_byte(0,&data);
+	data = data & 0x7F;
+	write_rtcc_byte(0, &data);
+	__delay_ms(2);
+	write_rtcc_byte(7, &aux);
+	__delay_ms(2);
+
+	get_rtcc_datetime( &tiempo );
+}
+
 uint8_t	write_rtcc_array( uint8_t address, uint8_t* array, uint8_t size )
 {
     //BUFFER_RTCC_SIZE debe ser mayor que size ya que writeBuffer[0] es la word Address
@@ -216,22 +231,6 @@ uint8_t	read_rtcc_byte( uint8_t address, uint8_t* data)
 uint8_t	write_rtcc_byte( uint8_t address, uint8_t* data)
 {
 	return write_rtcc_array( address, data, 1);
-}
-
-
-void rtc_init()
-{
-	uint8_t	data;
-    uint8_t aux = 0x11;
-    
-	read_rtcc_byte(0,&data);
-	data = data & 0x7F;
-	write_rtcc_byte(0, &data);
-	__delay_ms(2);
-	write_rtcc_byte(7, &aux);
-	__delay_ms(2);
-
-	get_rtcc_datetime( &tiempo );
 }
 
 /**********************************************************************************************/

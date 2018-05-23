@@ -6,7 +6,7 @@ TickType_t xMsToTicks( TickType_t xTimeInMs){
     
     uint32_t xTimeInTicks =0;
     
-    xTimeInTicks = ((uint32_t)xTimeInMs*(uint32_t)configTICK_RATE_HZ)/(uint32_t)1000;
+    xTimeInTicks = ((uint32_t)xTimeInMs*(uint32_t)configTICK_RATE_HZ)/(uint32_t)configTICK_RATE_HZ;
     
     return (TickType_t) xTimeInTicks;
 }
@@ -54,4 +54,8 @@ uint16_t	swapBytes( uint16_t var )
 	var <<= 8;
 	var |= (uint16_t)temp;
 	return	var;
+}
+
+void debugUART1(const char* s){
+    UART1_WriteBuffer(s,strlen(s));
 }

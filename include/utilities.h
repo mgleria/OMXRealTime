@@ -21,6 +21,8 @@ TickType_t xMinToTicks( TickType_t xTimeInMin);
 uint16_t	swapBytes( uint16_t var );
 uint8_t	bcd2dec( uint8_t bcd );
 
+void debugUART1(const char* s);
+
 
 
 #endif	/* UTILITIES_H */
