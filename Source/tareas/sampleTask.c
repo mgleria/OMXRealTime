@@ -1,24 +1,28 @@
 #include    "tareas/sampleTask.h"
 #include    "funciones/memory.h"
 #include    "utilities.h"
+#include    "tmr3.h"
+
 
 static void prvPasiveCallback (TimerHandle_t xTimer);
 static void prvActiveCallback (TimerHandle_t xTimer);
 static void prvDataCallback (TimerHandle_t xTimer);
-static void prvAntireboteCallback (TimerHandle_t xTimer);
+static void prvDebouncingRainCallback (TimerHandle_t xTimer);
 
 static void FSM_SampleTask(uint32_t status);
+static void  sensorsConfig();
 static uint16_t getAccumulatedRain();
 static void setStatusFSM(uint32_t nextStatus);
 static void resetSyncVariables();
+static uint16_t getTemperature(uint16_t adcValue);
 
 //Handlers software timers
 TimerHandle_t xPassiveSamplingTime;
 TimerHandle_t xActiveSamplingTime;
 TimerHandle_t xSampleData;
-TimerHandle_t xAntireboteLluvia;
+TimerHandle_t xRainDebouncing;
 //Tiempos usados en software timers
-TickType_t  xTimePasive, xTimeActive, xTimeData, xTimeAntireboteLluvia;
+TickType_t  xTimePasive, xTimeActive, xTimeData, xTimeRainDebouncing;
 
 TaskHandle_t xSampleHandle;
 
@@ -27,8 +31,9 @@ static muestra_t sample;
 static uint32_t status;
 static bool waitForNotify;
 static uint16_t syncCounter;
-static uint16_t acum_sensor_1;
-static uint16_t acum_sensor_2;
+
+static uint16_t potentiometer;
+static uint16_t temperature;
 
 void debug_enable()
 {
@@ -45,6 +50,8 @@ void startSampleTask(){
                     &xSampleHandle);
     
     softwareTimers_create();
+    sensorsConfig();
+    TMR3_Start();
     
 //    debug_enable();
 }
@@ -125,8 +132,8 @@ static void FSM_SampleTask(uint32_t status){
             break;
         //to-do: Cambiar portMAX_DELAY por el valor apropiado
         case SYNC_SAMPLING:
-//            printf("SYNC_SAMPLING");
-            debugUART1("SYNC_SAMPLING\r\n");
+            printf("SYNC_SAMPLING %d\r\n",syncCounter);
+//            debugUART1("SYNC_SAMPLING\r\n");
             syncEvents = ulTaskNotifyTake( 
                 pdTRUE,  /* Clear the notification value before exiting. */
                 xSegToTicks(T_MUESTREO_DATO_S) ); /* Max Blocking time. */
@@ -137,9 +144,9 @@ static void FSM_SampleTask(uint32_t status){
                     syncCounter++;
                     //Para cada medición sincrónica debe definirse un acumulador
                     //acum_sensor_n += functionToGetSampleSensorN();
-                    acum_sensor_1 += ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
-                    acum_sensor_2 += ADC_Read10bit( ADC_CHANNEL_TEMPERATURE_SENSOR );
-                    printf("syncCounter: %d\r\n",syncCounter);
+                    potentiometer += ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
+                    temperature += ADC_Read10bit( ADC_CHANNEL_TEMPERATURE_SENSOR );
+//                    printf("syncCounter: %d\r\n",syncCounter);
                     break;
                 default:
                     //indicar con algun codigo de error que algo anduvo mal
@@ -155,11 +162,10 @@ static void FSM_SampleTask(uint32_t status){
             //to-do: Hacer una función que me permita escalar esto mejor
             //to-do: corregir nombres acum_sensor_#
             if(syncCounter>0){
-                sample.clima.luzDia = acum_sensor_1/syncCounter;
-//                sample->clima.temper = acum_sensor_2/syncCounter;
-//                printf("acum_sensor_1: %d\r\n",acum_sensor_1);
+                sample.clima.luzDia = potentiometer/syncCounter;
+                sample.clima.temper = getTemperature(temperature/syncCounter);
                 printf("sample.clima.luzDia: %d\r\n",sample.clima.luzDia);
-                printf("acum_sensor_2/syncCounter: %d\r\n",acum_sensor_2/syncCounter);
+                printf("sample.clima.temper: %d\r\n",sample.clima.temper);
             }
             else{
                 //to-do: Ver que se hace en caso de que no se hayan tomado 
@@ -170,6 +176,14 @@ static void FSM_SampleTask(uint32_t status){
 /////////////////////MUESTRAS TOMADAS ASINCRONICAMENTE//////////////////////////
             //to-do: Hacer una función que me permita escalar esto mejor
             sample.clima.lluvia = getAccumulatedRain();
+//            printf("sample.clima.lluvia: %d\r\n",sample.clima.lluvia);
+            printf("TMR3: %d\r\n",TMR3); 
+            printf("TMR2: %d\r\n",TMR2); 
+//            printf("RPINR3: %x\r\n",RPINR3);
+//            printf("PMD1: %x\r\n",PMD1);
+            printf("T3CON: %x\r\n",T3CON);
+            printf("T2CON: %x\r\n",T2CON);
+            
 /////////////////////GUARDANDO MUESTRA EN MEM PERSISENTE////////////////////////
 //            if(putSample(sample)){
 //                //Muestra guardada exitosamente
@@ -185,7 +199,8 @@ static void FSM_SampleTask(uint32_t status){
 }
 
 static uint16_t getAccumulatedRain(){
-    return 0;
+    return TMR3_Counter16BitGet();
+//    return TMR3_SoftwareCounterGet();
 }
 
 static void setStatusFSM(uint32_t nextStatus){
@@ -198,14 +213,23 @@ static void softwareTimers_create(){
     xTimeActive = xSegToTicks(T_MUESTREO_ACTIVO_S);
     xTimeData   = xSegToTicks(T_MUESTREO_DATO_S);
     
-    xTimeAntireboteLluvia = xMsToTicks(T_ANTIREBOTE_LLUVIA_MS);
+    xTimeRainDebouncing = xMsToTicks(T_ANTIREBOTE_LLUVIA_MS);
     
     xPassiveSamplingTime    = xTimerCreate("pasivePeriod",xTimePasive,pdTRUE,0,prvPasiveCallback);
     xActiveSamplingTime     = xTimerCreate("activePeriod",xTimeActive,pdTRUE,0,prvActiveCallback);
     xSampleData             = xTimerCreate("dataPeriod",xTimeData,pdTRUE,0,prvDataCallback) ;
     
-    xAntireboteLluvia       = xTimerCreate("AntireboteLluviaPeriod",xTimeAntireboteLluvia,pdTRUE,0,prvAntireboteCallback) ;
+    xRainDebouncing       = xTimerCreate("rainDebouncingPeriod",xTimeRainDebouncing,pdTRUE,0,prvDebouncingRainCallback) ;
     
+}
+
+void  sensorsConfig(){
+    //Potenciï¿½metro - ADC
+    ADC_SetConfiguration ( ADC_CONFIGURATION_DEFAULT );
+    
+    ADC_ChannelEnable ( ADC_CHANNEL_POTENTIOMETER );
+    ADC_ChannelEnable ( ADC_CHANNEL_TEMPERATURE_SENSOR );
+       
 }
 
 static void prvPasiveCallback (TimerHandle_t xTimer){
@@ -238,7 +262,7 @@ static void prvDataCallback (TimerHandle_t xTimer){
     
 }
 
-static void prvAntireboteCallback (TimerHandle_t xTimer){
+static void prvDebouncingRainCallback (TimerHandle_t xTimer){
     
 }
 
@@ -425,6 +449,14 @@ uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS)
 
 static void resetSyncVariables(){
     syncCounter = 0;
-    acum_sensor_1 = 0;
-    acum_sensor_2 = 0;
+    potentiometer = 0;
+    temperature = 0;
+}
+
+//Función de transferencia del sensor TC1047A embebido en Explorer16/32
+static uint16_t getTemperature(uint16_t adcValue){
+    // VOUT = (10 mV/°C) (Temperature °C) + 500 mV
+    // 3300mV/1024*ADC=(10mV/ºC)*(TºC)+500mV 
+    uint16_t temp = (adcValue*165/512)-50;
+    return temp;
 }

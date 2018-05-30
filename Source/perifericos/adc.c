@@ -1,4 +1,5 @@
 #include <xc.h>
+#include <p24FJ1024GB610.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -91,19 +92,19 @@ uint16_t ADC_Read10bit(ADC_CHANNEL channel)
     AD1CHS = channel ;
 
     // Get an ADC sample
-    AD1CON1bits.SAMP = 1;           //Start sampling
+    _SAMP = 1;           //Start sampling
     for(i=0;i<1000;i++)
     {
         Nop(); //Sample delay, conversion start automatically
     } 
 
-    AD1CON1bits.SAMP = 0;           //Start sampling
+    _SAMP = 0;           //Start sampling
     for(i=0;i<1000;i++)
     {
         Nop(); //Sample delay, conversion start automatically
     }
 
-    while(!AD1CON1bits.DONE);       //Wait for conversion to complete
+    while(!_DONE);       //Wait for conversion to complete
 
     return ADC1BUF0;
 }
@@ -126,10 +127,10 @@ bool ADC_ChannelEnable(ADC_CHANNEL channel)
     switch(channel)
     {
         case ADC_CHANNEL_5:
-            ANSBbits.ANSB5 = PIN_ANALOG ;
+            _ANSB5 = PIN_ANALOG ;
 
         case ADC_CHANNEL_4:
-            ANSBbits.ANSB4 = PIN_ANALOG ;
+            _ANSB4 = PIN_ANALOG ;
             return true ;
 
         default:
@@ -155,13 +156,13 @@ bool ADC_SetConfiguration(ADC_CONFIGURATION configuration)
 {
     if(configuration == ADC_CONFIGURATION_DEFAULT)
     {
-        AD1CON2bits.PVCFG = 0x0 ;
-        AD1CON3bits.ADCS = 0xFF ;
-        AD1CON1bits.SSRC = 0x0;
-        AD1CON3bits.SAMC = 0b10000;
-        AD1CON1bits.FORM = 0b00;
-        AD1CON2bits.SMPI = 0x0;
-        AD1CON1bits.ADON = 1;
+        _PVCFG = 0x0 ;
+        _ADCS = 0xFF ;
+        _SSRC = 0x0;
+        _SAMC = 0b10000;
+        _FORM = 0b00;
+        _SMPI = 0x0;
+        _ADON = 1;
         return true;
     }
 		

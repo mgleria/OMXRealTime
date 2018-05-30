@@ -102,7 +102,7 @@ void vTaskDelay( TickType_t xTicksToDelay );
 //Inicializaci�n software timers
 //static void softwareTimers_init();
 //Funci�n que configura todos los sensores que intervienen el el proceso vTaskSample
-//static void  sensorsConfig();
+
 //Funciones relativas al proceso vTaskSample
 //static void init_sample(muestra_t *muestra);
 //static void assembleSample(muestra_t *muestra);
@@ -139,7 +139,7 @@ uint8_t flagDataUartReady;
 int main( void )
 {
     SYSTEM_Initialize();
-    sensorsConfig();
+    
 //    rtc_init();
 //    vLedInitialise();
     
@@ -356,14 +356,7 @@ void flushComando(uint8_t *comando)
 //   
 //}
 
-void  sensorsConfig(){
-    //Potenci�metro - ADC
-    ADC_SetConfiguration ( ADC_CONFIGURATION_DEFAULT );
-    
-    ADC_ChannelEnable ( ADC_CHANNEL_POTENTIOMETER );
-    ADC_ChannelEnable ( ADC_CHANNEL_TEMPERATURE_SENSOR );
-       
-}
+
 
 
 void SetProcessState( uint8 * reg, uint8 state )

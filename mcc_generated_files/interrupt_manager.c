@@ -70,12 +70,6 @@ void INTERRUPT_Initialize (void)
     //    URXI: U1RX - UART1 Receiver
     //    Priority: 1
         IPC2bits.U1RXIP = 1;
-    //    CCPI: CCP1 - Capture/Compare 1
-    //    Priority: 1
-        IPC15bits.CCP1IP = 1;
-    //    CCTI: CCT1 - Capture/Compare Timer 1
-    //    Priority: 1
-        IPC25bits.CCT1IP = 1;
     //    MICI: MI2C1 - I2C1 Master Events
     //    Priority: 1
         IPC4bits.MI2C1IP = 1;
