@@ -46,6 +46,8 @@
 #define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
 //Para podeer utilizar el mecanismo de notificaciones entre tareas
 #define configUSE_TASK_NOTIFICATIONS    1
+//Mutexes
+#define configUSE_MUTEXES               1
 
 //Software Timers Configgurations
 #define configUSE_TIMERS                1

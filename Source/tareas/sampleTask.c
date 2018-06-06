@@ -1,7 +1,12 @@
+#include <stdio.h>
+
 #include    "tareas/sampleTask.h"
 #include    "funciones/memory.h"
 #include    "utilities.h"
 #include    "tmr3.h"
+
+#include    "FreeRTOS.h"
+#include    "freeRTOS/semphr.h"
 
 
 static void prvPasiveCallback (TimerHandle_t xTimer);
@@ -12,6 +17,7 @@ static void prvDebouncingRainCallback (TimerHandle_t xTimer);
 static void FSM_SampleTask(uint32_t status);
 static void  sensorsConfig();
 static uint16_t getAccumulatedRain();
+static void clearAccumulatedRain();
 static void setStatusFSM(uint32_t nextStatus);
 static void resetSyncVariables();
 static uint16_t getTemperature(uint16_t adcValue);
@@ -21,8 +27,9 @@ TimerHandle_t xPassiveSamplingTime;
 TimerHandle_t xActiveSamplingTime;
 TimerHandle_t xSampleData;
 TimerHandle_t xRainDebouncing;
+
 //Tiempos usados en software timers
-TickType_t  xTimePasive, xTimeActive, xTimeData, xTimeRainDebouncing;
+TickType_t  xTimePasive, xTimeActive, xTimeData, xTimeRainDebouncing, xTimeMutex;
 
 TaskHandle_t xSampleHandle;
 
@@ -34,6 +41,8 @@ static uint16_t syncCounter;
 
 static uint16_t potentiometer;
 static uint16_t temperature;
+
+SemaphoreHandle_t xMutexMemory = NULL;
 
 void debug_enable()
 {
@@ -49,6 +58,7 @@ void startSampleTask(){
                     MAX_PRIORITY,
                     &xSampleHandle);
     
+    xTimeMutex = xMsToTicks(T_ESPERA_MUTEX_MEM_MS);
     softwareTimers_create();
     sensorsConfig();
     TMR3_Start();
@@ -61,6 +71,12 @@ void vTaskSample( void *pvParameters ){
     
 // Seccion de inicializacion
     waitForNotify = false;
+    
+    xMutexMemory = xSemaphoreCreateMutex();
+    if(!xMutexMemory){
+        printf("ERROR en la creación del mutex de Memoria");
+        //El programa no puede seguir, hay que detenerlo.
+    }
     
     setStatusFSM(SYNC_SERVER_TIME); //Descomentar cuando se implemente el estado SYNC_SERVER_TIME
 //    setStatusFSM(ASYNC_SAMPLING);
@@ -159,8 +175,6 @@ static void FSM_SampleTask(uint32_t status){
 //            printf("SAVE_AND_PACKAGE");
             //Preparar la muestra
 /////////////////////MUESTRAS TOMADAS SINCRONICAMENTE///////////////////////////
-            //to-do: Hacer una función que me permita escalar esto mejor
-            //to-do: corregir nombres acum_sensor_#
             if(syncCounter>0){
                 sample.clima.luzDia = potentiometer/syncCounter;
                 sample.clima.temper = getTemperature(temperature/syncCounter);
@@ -176,31 +190,50 @@ static void FSM_SampleTask(uint32_t status){
 /////////////////////MUESTRAS TOMADAS ASINCRONICAMENTE//////////////////////////
             //to-do: Hacer una función que me permita escalar esto mejor
             sample.clima.lluvia = getAccumulatedRain();
-//            printf("sample.clima.lluvia: %d\r\n",sample.clima.lluvia);
-            printf("TMR3: %d\r\n",TMR3); 
-            printf("TMR2: %d\r\n",TMR2); 
-//            printf("RPINR3: %x\r\n",RPINR3);
-//            printf("PMD1: %x\r\n",PMD1);
-            printf("T3CON: %x\r\n",T3CON);
-            printf("T2CON: %x\r\n",T2CON);
+            printf("sample.clima.lluvia: %d\r\n",sample.clima.lluvia);
+            //Limpio el contador por soft del TMR3
+            clearAccumulatedRain();
             
 /////////////////////GUARDANDO MUESTRA EN MEM PERSISENTE////////////////////////
-//            if(putSample(sample)){
-//                //Muestra guardada exitosamente
-//                //to-do?
-//            }
-//            else{
-//                //to-do
-//                //ERROR al guardar la muestra. Que hago?
-//            }
-            setStatusFSM(ASYNC_SAMPLING);
-            break;
+            /* Ver si puedo obtener el semaforo. Si este no está disponible
+             * esperar xxx y volver a probar */
+            if( xSemaphoreTake( xMutexMemory, xTimeMutex ) == pdTRUE )
+            {
+                if(putSample(&sample)){
+                    setSamplesRead(55);
+                    printf("getSamplesRead()->%d\r\n",getSamplesRead());
+                    printf("getSamplesWrite()->%d\r\n",getSamplesWrite());
+                    printf("Muestra guardada exitosamente.\r\n");
+                }
+                else{
+                    printf("ERROR al guardar la muestra.\r\n");
+                }
+                printf("getSample(&sample,0)-> \r\n",getSample(&sample,0));
+                printf("sample.clima.luzDia: %d\r\n",sample.clima.luzDia);
+                printf("sample.clima.temper: %d\r\n",sample.clima.temper);
+                printf("sample.clima.lluvia: %d\r\n",sample.clima.lluvia);
+                
+                /* Terminamos de usar el recurso, por lo que devolvemos el
+                 * mutex */
+                xSemaphoreGive( xMutexMemory );
+                setStatusFSM(ASYNC_SAMPLING);
+                break;
+            }
+            else{
+                printf("ERROR no se pudo tomar el mutex de memoria.\r\n");
+            }
     }
 }
 
 static uint16_t getAccumulatedRain(){
-    return TMR3_Counter16BitGet();
-//    return TMR3_SoftwareCounterGet();
+    /*Se está usando el contador provisto por el driver de TMR3 ya que no se 
+     pudo configurar el TMR3 para que sea un contador de eventos asincronicos
+     como se pretendía*/
+    return TMR3_SoftwareCounterGet();
+}
+
+static void clearAccumulatedRain(){
+    TMR3_SoftwareCounterClear();
 }
 
 static void setStatusFSM(uint32_t nextStatus){

@@ -29,6 +29,8 @@
 #define T_MUESTREO_DATO_S                   1
 #define T_ANTIREBOTE_LLUVIA_MS              100
 
+#define T_ESPERA_MUTEX_MEM_MS               200              
+
 
 /* El siguiente ENUM representa los diferentes estados de la FSM de la tarea */
 typedef enum
