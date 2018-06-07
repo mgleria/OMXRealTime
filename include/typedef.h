@@ -8,6 +8,9 @@
 #ifndef TYPEDEF_H
 #define	TYPEDEF_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 
 //#include "HardwareProfile.h"
 
