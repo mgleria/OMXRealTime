@@ -5,11 +5,59 @@
  * Created on 7 de junio de 2018, 10:19
  */
 #include "tareas/gprsTask.h"
+#include "utilities.h"
 
 uint8_t	gprsProcess( char *grpsDATA );
 void SetProcessState( uint8_t * reg, uint8_t state );
+uint8_t	gprsProcessNEW();
+char gprsBuffer[GPRS_BUFFER_SIZE]={0};
+//    char gprsBuffer2 [GPRS_BUFFER_SIZE]={0};
+
+void vTaskGPRS( void *pvParameters );
+
+
+static uint32_t notification;
+//Handle referenciado en tmr4.c para uso de xTaskNotify()
+TaskHandle_t xGprsHandle;
 
 uint8_t sendCmd = TRUE;
+
+void startGprsTask(){
+    
+    xTaskCreate(    vTaskGPRS,
+                    "vTaskGprs",
+                    1000,
+                    NULL,
+                    MAX_PRIORITY-1, //ACOMODAR prioridades
+                    &xGprsHandle);
+    
+    notification = 0;
+  
+    debugUART1("startGprsTask()");
+}
+
+void vTaskGPRS( void *pvParameters )
+{   
+    #define TASK_PERIOD_MS 1000
+    TickType_t taskDelay;
+    taskDelay = xMsToTicks(TASK_PERIOD_MS);
+    
+    uint16_t contador = 0;
+    debugUART1("Initial section GPRS Task");
+    
+    
+//    SetProcessState(&gprsState,gprsReset);
+    
+    for(;;)
+    {   
+        debugUART1(contador++);
+        debugUART1("\r\n");
+        gprsProcessNEW();
+        vTaskDelay(taskDelay);
+        
+        
+    }
+}
 
 void SetProcessState( uint8_t * reg, uint8_t state )
 {
@@ -62,7 +110,7 @@ uint8_t	gprsProcess( char *grpsDATA )
 			{
                 debugUART1("setContext:\r\n");
 //				UART1_WriteBuffer("setContext",strlen("setContext"));
-                UART2_WriteBuffer(atcmd_setContextPersonal,strlen(atcmd_setContextPersonal));
+                UART2_WriteBuffer(atcmd_setContextClaro,strlen(atcmd_setContextClaro));
 				/*	modo recepcion para espera de la respuesta	*/
 				sendCmd = FALSE;
 			}
@@ -323,5 +371,93 @@ uint8_t	gprsProcess( char *grpsDATA )
             vLedToggleLED(1);
 			break;
     }
+    return	TRUE;
+}
+
+uint8_t	gprsProcessNEW( )
+{
+	/*	estados del proceso	*/
+	switch ( gprsState )
+	{
+	/*	GprsReset: deshabilitaci�n ECHO	*/
+		case( gprsReset ):		
+			if( sendCmd )
+			{
+                debugUART1("GprsReset:\r\n");
+//				UART1_WriteBuffer("GprsReset",strlen("GprsReset"));
+//                UART2_WriteBuffer(atcmd_disableEcho,strlen(atcmd_disableEcho));
+                UART2_WriteBuffer(atcmd_getModemID,strlen(atcmd_getModemID));
+                //SendATCommand((string*)atcmd_disableEcho,gprsBuffer,gprsBuffer,10,0,2);
+				/*	modo recepcion para espera de la respuesta	*/
+				sendCmd = FALSE;
+			}
+			else
+			{
+                notification = ulTaskNotifyTake(   pdTRUE,  
+                                                /* Clear the notification value 
+                                                * before exiting. */
+                                                portMAX_DELAY ); 
+                                                /* Block indefinitely. */
+                
+                if(notification == MDM_RESP_READY_NOTIFICATION){
+                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
+//                    debugUART1("gprsBuffer RSP: ");
+//                    debugUART1(gprsBuffer);        
+//                    debugUART1("\r\n");
+//                    
+//                    sendCmd = TRUE;
+                    if(strstr(gprsBuffer,_OK_))
+                    {
+                        debugUART1("_OK_\n\r");
+                        SetProcessState( &gprsState,setContext );
+                    }
+                    else
+                    {
+                        //strcat(gprsBuffer,"_ERROR_\n\r");
+                        debugUART1("NOT OK: ");
+                        debugUART1(gprsBuffer);
+                    }
+                }
+			}
+			break;
+            
+        case( setContext ):
+			if( sendCmd )
+			{
+                debugUART1("setContext:\r\n");
+//				UART1_WriteBuffer("setContext",strlen("setContext"));
+                UART2_WriteBuffer(atcmd_setContextPersonal,strlen(atcmd_setContextPersonal));
+				/*	modo recepcion para espera de la respuesta	*/
+				sendCmd = FALSE;
+			}
+			else
+			{
+				notification = ulTaskNotifyTake(   pdTRUE,  
+                                                /* Clear the notification value 
+                                                * before exiting. */
+                                                portMAX_DELAY ); 
+                                                /* Block indefinitely. */
+                
+                if(notification == MDM_RESP_READY_NOTIFICATION){
+                    
+                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
+//                    debugUART1("gprsBuffer: ");
+//                    debugUART1(gprsBuffer); 
+                    if(strstr(gprsBuffer,_OK_))
+                    {
+                        debugUART1("_OK_\n\r");
+                        SetProcessState( &gprsState,activateContext );                 
+                    }
+                    else
+                    {
+                        //strcat(gprsBuffer,"_ERROR_\n\r");
+                        debugUART1(gprsBuffer);
+                    }
+                    
+                }
+			}
+			break;
+    }
+    
     return	TRUE;
 }

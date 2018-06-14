@@ -84,6 +84,7 @@ void vTaskModem( void *pvParameters );
 
 #include "tareas/testTask.h"
 #include "tareas/sampleTask.h"
+#include "tareas/gprsTask.h"
 
 //***********************Prototipo de funciones externas************************
 //The vTaskDelay() API function prototype
@@ -128,8 +129,6 @@ TaskHandle_t xModemHandle;
 static const char *pcSensor = "Pot";
 static char cStringBuffer[ mainMAX_STRING_LENGTH ];
 
-uint8_t flagDataUartReady;
-
 //estacion_t estacion;
 
 int main( void )
@@ -139,7 +138,8 @@ int main( void )
 //    rtc_init();
 //    vLedInitialise();
     
-    startSampleTask();
+//    startSampleTask();
+    startGprsTask();
 //    startTestTask();
     
 //    vTraceEnable(TRC_START);
@@ -311,6 +311,7 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
 {
 	( void ) pcTaskName;
 	( void ) pxTask;
+    debugUART1("vApplicationStackOverflowHook");
 
 	/* Run time stack overflow checking is performed if
 	configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook

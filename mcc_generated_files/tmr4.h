@@ -53,6 +53,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include  "FreeRTOS.h"
+
 #ifdef __cplusplus  // Provide C++ Compatibility
 
     extern "C" {
@@ -60,6 +62,8 @@
 #endif
 
 #define TMR4_INTERRUPT_TICKER_FACTOR    1
+
+#define MDM_RESP_READY_NOTIFICATION     2020        
 
 /**
   Section: Interface Routines

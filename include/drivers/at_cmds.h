@@ -111,6 +111,8 @@ extern string	atcmd_socketStatus[];
 
 extern string	atcmd_disableEcho[]                 ;
 
+extern string	atcmd_STN_OFF[]                     ;
+
 //extern string  atcmd_setContextHARDCODED[]          ;
 
 extern string   atcmd_setContextPersonal[]          ;
