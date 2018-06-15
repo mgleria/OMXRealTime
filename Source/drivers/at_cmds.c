@@ -117,4 +117,4 @@ string	atcmd_sListenHARDCODED[]            = "AT#SRECV=1,50\r\n";
 
 string	atcmd_closeSocketHARDCODED[]		= "AT#SH=1\r\n";
 
-string  atcmd_STN_OFF                       = "AT#STIA=0\r\n";
+string  atcmd_STN_OFF[]                     = "AT#STIA=0\r\n";

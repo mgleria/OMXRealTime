@@ -38,7 +38,6 @@
 #include "funciones/eeprom.h"
 #include "funciones/rtcc.h"
 #include "funciones/memory.h"
-#include "procesos/modem.h"
 #include "drivers/at_cmds.h"
 
 #include "timers.h"
@@ -186,43 +185,43 @@ int main( void )
  * Se le da prioridad a los mensajes de GRPS_PROCESS sobre los mensajes de SMS_PROCESS.
  * @return	void
  */
-void vTaskModem( void *pvParameters )
-{
-    uint32_t status;
-    uint16_t receivedBytes, sendedBytes;
-    cmdQueue_t request;
-    uint8_t response[MODEM_BUFFER_SIZE];
-    
-    
-    xModemRequests   = xQueueCreate(REQUEST_QUEUE_SIZE, sizeof(cmdQueue_t));
-    //La cola de respuesta solo contiene el string proveniente del modem
-    xModemResponses  = xQueueCreate(RESPONSE_QUEUE_SIZE, MODEM_BUFFER_SIZE);
-    
-    uint16_t contadorSMS, contadorGPRS, contadorSHELL = 0;
-    
-    uint8_t cmdLenght = 0;
-    
-    receivedBytes, sendedBytes = 0;
-    
-    for(;;)
-    {
-        
-        //gprsProcess();
-        
-        
-        //Si la cola fue creada correctamente
-        if(xModemRequests != NULL){
-            /*Si no hay elementos en la cola xModemRequests, la tarea se bloquea 
-            esperando la llegada de comandos*/
-            if(xQueueReceive( xModemRequests, &( request ), portMAX_DELAY)){
-                //Demora en el envio del comando
-                if(request.delay>0) vTaskDelay(xSegToTicks(request.delay));
-                //Envio del comando a la UART2 (modem)
-                //expexted end of frame
-                cmdLenght = strlen(request.cmd);
-//                sendedBytes = UART2_WriteBuffer(request.cmd, cmdLenght ,request.expextedEndOfFrame);
-            }       
-        }
+//void vTaskModem( void *pvParameters )
+//{
+//    uint32_t status;
+//    uint16_t receivedBytes, sendedBytes;
+//    cmdQueue_t request;
+//    uint8_t response[MODEM_BUFFER_SIZE];
+//    
+//    
+//    xModemRequests   = xQueueCreate(REQUEST_QUEUE_SIZE, sizeof(cmdQueue_t));
+//    //La cola de respuesta solo contiene el string proveniente del modem
+//    xModemResponses  = xQueueCreate(RESPONSE_QUEUE_SIZE, MODEM_BUFFER_SIZE);
+//    
+//    uint16_t contadorSMS, contadorGPRS, contadorSHELL = 0;
+//    
+//    uint8_t cmdLenght = 0;
+//    
+//    receivedBytes, sendedBytes = 0;
+//    
+//    for(;;)
+//    {
+//        
+//        //gprsProcess();
+//        
+//        
+//        //Si la cola fue creada correctamente
+//        if(xModemRequests != NULL){
+//            /*Si no hay elementos en la cola xModemRequests, la tarea se bloquea 
+//            esperando la llegada de comandos*/
+//            if(xQueueReceive( xModemRequests, &( request ), portMAX_DELAY)){
+//                //Demora en el envio del comando
+//                if(request.delay>0) vTaskDelay(xSegToTicks(request.delay));
+//                //Envio del comando a la UART2 (modem)
+//                //expexted end of frame
+//                cmdLenght = strlen(request.cmd);
+////                sendedBytes = UART2_WriteBuffer(request.cmd, cmdLenght ,request.expextedEndOfFrame);
+//            }       
+//        }
 //        //Se despertar� cuando la UART2 termine de recibir la respuesta del modem y notifique
 //        //desde la funci�n CALLBACK de TMR4. 
 //        status = ulTaskNotifyTake(  pdTRUE,  /* Clear the notification value before exiting. */
@@ -270,8 +269,8 @@ void vTaskModem( void *pvParameters )
 //                break;
 //
 //        }
-    }
-}
+//    }
+//}
 
 
 

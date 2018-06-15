@@ -8,13 +8,15 @@
 #ifndef GPRSTASK_H
 #define	GPRSTASK_H
 
+#include    "utilities.h"
 #include    "typedef.h"
 #include    "drivers/at_cmds.h"
+#include    "drivers/modem.h"
 #include    "tmr4.h"
 
-#include "freeRTOS/FreeRTOS.h"
-#include "freeRTOS/task.h"
-#include "freeRTOSConfig.h"
+#include    "freeRTOS/FreeRTOS.h"
+#include    "freeRTOS/task.h"
+#include    "freeRTOSConfig.h"
 
 #define     GPRS_BUFFER_SIZE    120 //Duplicado ojo!
 

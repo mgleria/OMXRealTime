@@ -5,13 +5,12 @@
  * Created on 7 de junio de 2018, 10:19
  */
 #include "tareas/gprsTask.h"
-#include "utilities.h"
 
 uint8_t	gprsProcess( char *grpsDATA );
 void SetProcessState( uint8_t * reg, uint8_t state );
 uint8_t	gprsProcessNEW();
+
 char gprsBuffer[GPRS_BUFFER_SIZE]={0};
-//    char gprsBuffer2 [GPRS_BUFFER_SIZE]={0};
 
 void vTaskGPRS( void *pvParameters );
 
@@ -41,6 +40,7 @@ void vTaskGPRS( void *pvParameters )
     #define TASK_PERIOD_MS 1000
     TickType_t taskDelay;
     taskDelay = xMsToTicks(TASK_PERIOD_MS);
+    setupModem();
     
     uint16_t contador = 0;
     debugUART1("Initial section GPRS Task");
@@ -68,10 +68,6 @@ void SetProcessState( uint8_t * reg, uint8_t state )
 
 uint8_t	gprsProcess( char *grpsDATA )
 {
-
-    char gprsBuffer [GPRS_BUFFER_SIZE]={0};
-//    char gprsBuffer2 [GPRS_BUFFER_SIZE]={0};
-
 	/*	estados del proceso	*/
 	switch ( gprsState )
 	{
@@ -386,10 +382,13 @@ uint8_t	gprsProcessNEW( )
                 debugUART1("GprsReset:\r\n");
 //				UART1_WriteBuffer("GprsReset",strlen("GprsReset"));
 //                UART2_WriteBuffer(atcmd_disableEcho,strlen(atcmd_disableEcho));
-                UART2_WriteBuffer(atcmd_getModemID,strlen(atcmd_getModemID));
-                //SendATCommand((string*)atcmd_disableEcho,gprsBuffer,gprsBuffer,10,0,2);
-				/*	modo recepcion para espera de la respuesta	*/
-				sendCmd = FALSE;
+//                UART2_WriteBuffer(atcmd_getModemID,strlen(atcmd_getModemID));
+                if(SendATCommand((string*)atcmd_getModemID,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                }
+                else printf("ERROR no se pudo enviar el comando al modem.\r\n");
+                    
 			}
 			else
 			{
@@ -409,7 +408,8 @@ uint8_t	gprsProcessNEW( )
                     if(strstr(gprsBuffer,_OK_))
                     {
                         debugUART1("_OK_\n\r");
-                        SetProcessState( &gprsState,setContext );
+//                        SetProcessState( &gprsState,setContext );
+                        SetProcessState( &gprsState,gprsReset );
                     }
                     else
                     {

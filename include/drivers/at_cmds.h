@@ -107,11 +107,13 @@ extern string	atcmd_socketReceive[];
 
 extern string	atcmd_socketStatus[];
 
+extern string	atcmd_STN_OFF[];
+
 /********************PRUEBA COMANDOS HARDCODEADOS******************************/
 
 extern string	atcmd_disableEcho[]                 ;
 
-extern string	atcmd_STN_OFF[]                     ;
+
 
 //extern string  atcmd_setContextHARDCODED[]          ;
 

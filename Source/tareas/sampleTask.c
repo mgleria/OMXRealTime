@@ -29,7 +29,7 @@ TimerHandle_t xSampleData;
 TimerHandle_t xRainDebouncing;
 
 //Tiempos usados en software timers
-TickType_t  xTimePasive, xTimeActive, xTimeData, xTimeRainDebouncing, xTimeMutex;
+TickType_t  xTimePasive, xTimeActive, xTimeData, xTimeRainDebouncing, xTimeMemoryMutex;
 
 TaskHandle_t xSampleHandle;
 
@@ -58,7 +58,7 @@ void startSampleTask(){
                     MAX_PRIORITY,
                     &xSampleHandle);
     
-    xTimeMutex = xMsToTicks(T_ESPERA_MUTEX_MEM_MS);
+    xTimeMemoryMutex = xMsToTicks(T_ESPERA_MUTEX_MEM_MS);
     softwareTimers_create();
     sensorsConfig();
     TMR3_Start();
@@ -196,8 +196,8 @@ static void FSM_SampleTask(uint32_t status){
             
 /////////////////////GUARDANDO MUESTRA EN MEM PERSISENTE////////////////////////
             /* Ver si puedo obtener el semaforo. Si este no está disponible
-             * esperar xxx y volver a probar */
-            if( xSemaphoreTake( xMutexMemory, xTimeMutex ) == pdTRUE )
+             * esperar xTimeMemoryMutex y volver a probar */
+            if( xSemaphoreTake( xMutexMemory, xTimeMemoryMutex ) == pdTRUE )
             {
                 if(putSample(&sample)){
                     setSamplesRead(55);
