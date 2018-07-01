@@ -378,3 +378,8 @@ void	setDeviceSensorEnables( uint8* p )
 //		i2cbus_write( _24LC512_0, INT_ENABLE_SENSOR_3, &data, sizeof (data) );
 		
 }
+
+uint16 isThereSamplesToSend()
+{
+    return getSamplesTotal();
+}

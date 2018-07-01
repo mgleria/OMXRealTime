@@ -129,17 +129,19 @@ extern string	atcmd_configExtendSocketHARDCODED[]	;
 
 extern string	atcmd_socketDialHARDCODED_1[]		;
 
-extern string	atcmd_socketDialHARDCODED_2[]		;
+extern string	atcmd_socketSend[]                  ;
 
-extern string	atcmd_FRAME[]                       ;
+extern string	atcmd_FRAME_1[]                     ;
 
-extern string	atcmd_FRAME2[]                       ;
+extern string	atcmd_FRAME2[]                      ;
 
 extern string	atcmd_EOF[]                         ;
 
 extern string	atcmd_sListenHARDCODED[]            ;
 
 extern string	atcmd_closeSocketHARDCODED[]		;
+
+extern string   atcmd_checkIP[]                     ;
 
 //extern string MsgBuffer[];
 //PARA TRANSMITIR TRAMA FIJA
