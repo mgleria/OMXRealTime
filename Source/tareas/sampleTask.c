@@ -32,11 +32,12 @@ TimerHandle_t xRainDebouncing;
 TickType_t  xTimePasive, xTimeActive, xTimeData, xTimeRainDebouncing, xTimeMemoryMutex;
 
 TaskHandle_t xSampleHandle;
+extern TaskHandle_t xGprsHandle;
 
 static muestra_t sample;
 
 static uint32_t status;
-static bool waitForNotify;
+static bool waitForNotify, SyncServerTime;
 static uint16_t syncCounter;
 
 static uint16_t potentiometer;
@@ -72,14 +73,15 @@ void vTaskSample( void *pvParameters ){
 // Seccion de inicializacion
     waitForNotify = false;
     
+    
     xMutexMemory = xSemaphoreCreateMutex();
     if(!xMutexMemory){
         printf("ERROR en la creación del mutex de Memoria");
         //El programa no puede seguir, hay que detenerlo.
     }
     
-    setStatusFSM(SYNC_SERVER_TIME); //Descomentar cuando se implemente el estado SYNC_SERVER_TIME
-//    setStatusFSM(ASYNC_SAMPLING);
+    setStatusFSM(SYNC_SERVER_TIME); 
+    
         
     // Cuerpo de la tarea
     for( ;; ){
@@ -113,12 +115,28 @@ static void FSM_SampleTask(uint32_t status){
     switch(status){  
         case SYNC_SERVER_TIME:
             debugUART1("SYNC_SERVER_TIME\r\n");
-//            printf("SYNC_SERVER_TIME");
-            //Code to sync RTCC with server
 
-            setStatusFSM(ASYNC_SAMPLING);
-            //Cuando este softTimer expire, se cambia de estado a SYNC_SAMPLING
-            xTimerStart(xPassiveSamplingTime,0);
+            //Chequeo si la estacion ya se registro
+            SyncServerTime = isRegistered();
+            //Si no esta registrado el equipo, aguardo
+            if( !SyncServerTime ){
+                status = ulTaskNotifyTake(  pdTRUE,  portMAX_DELAY ); 
+                
+                if(status == SYNC_SERVER_TIME_NOTIFICATION){
+                    setStatusFSM(ASYNC_SAMPLING);
+                    /*Cuando este softTimer expire, se cambia de estado a
+                    * SYNC_SAMPLING*/
+                    xTimerStart(xPassiveSamplingTime,0);
+                
+                    /*ACA TENGO QUE ESPERAR EL TIEMPO ADECUADO PARA QUE TOME LAS 
+                    * MUESTRAS A LAS HORAS CORRESPONDIENTES*/
+                }
+            }
+            else{
+                setStatusFSM(ASYNC_SAMPLING);
+                //Cuando este softTimer expire, se cambia de estado a SYNC_SAMPLING
+                xTimerStart(xPassiveSamplingTime,0);
+            }
             break;
             
         //to-do: Cambiar portMAX_DELAY por el valor apropiado    
@@ -212,6 +230,11 @@ static void FSM_SampleTask(uint32_t status){
                 printf("sample.clima.luzDia: %d\r\n",sample.clima.luzDia);
                 printf("sample.clima.temper: %d\r\n",sample.clima.temper);
                 printf("sample.clima.lluvia: %d\r\n",sample.clima.lluvia);
+                
+                // Notifico a la tarea GPRS que hay una nueva trama para enviar
+                xTaskNotify(    xGprsHandle,
+                                NEW_SAMPLE_NOTIFICATION,
+                                eSetValueWithOverwrite);
                 
                 /* Terminamos de usar el recurso, por lo que devolvemos el
                  * mutex */

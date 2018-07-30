@@ -90,7 +90,7 @@ void vTaskModem( void *pvParameters );
 void vTaskDelay( TickType_t xTicksToDelay ); 
 
 //***********************Prototipo de funciones propias*************************
-//Funci�n que reemplaza la MACRO provista por freeRTOS para convertir tiempo
+//Funcion que reemplaza la MACRO provista por freeRTOS para convertir tiempo
 //en diferentes unidades a ticks
 
 //Handler de las funciones que se ejecutan cuando los respectivos software 
@@ -128,7 +128,8 @@ TaskHandle_t xModemHandle;
 static const char *pcSensor = "Pot";
 static char cStringBuffer[ mainMAX_STRING_LENGTH ];
 
-//estacion_t estacion;
+/*	Estructura con informacin del equipo	*/
+estacion_t estacion;
 
 int main( void )
 {
