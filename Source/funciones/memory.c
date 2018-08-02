@@ -131,8 +131,8 @@ char	getSample( muestra_t *muestra, char sample )
 		return false;
 	}
 
-//	return	true;
-    return returnValue;
+	return	true;
+//    return returnValue;
 }
 /******************************************************************************/
 /**

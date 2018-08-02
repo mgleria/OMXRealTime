@@ -63,7 +63,7 @@ void vTaskGPRS( void *pvParameters )
 {   
     #define GPRS_TASK_PERIOD_MS     1000
     #define MODEM_WAIT_RESPONSE_MS  250
-    #define MODEM_OFF_TIME_S        10
+    #define MODEM_OFF_TIME_S        15
 //    #define MODEM_RESET_TIME_S      10
 
     TickType_t taskDelay;
@@ -81,7 +81,9 @@ void vTaskGPRS( void *pvParameters )
     
     for(;;)
     {   
+        printf("////////////////////GPRS Task\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\r\n");
     ////////////////////////////////////////////////////////////////////////////
+        
 //        printf("getSamplesTotal(): %d",getSamplesTotal());
 //        printf("getSamplesRead(): %d",getSamplesRead());
 //        printf("getSamplesWrite(): %d \r\n",getSamplesWrite());
@@ -133,7 +135,7 @@ uint8_t	FSM_GprsTask( )
                 
                 /*Si hay muestras pendientes de enviar, armo las tramas y 
                  * postergo el registro*/
-                if( isThereSamplesToSend() ){
+                if( isThereSamplesToSend()>1 ){
                     dataSecuence = muestras;
                 }       
                 //Si NO hay muestras sin enviar, registro la estación
@@ -153,7 +155,7 @@ uint8_t	FSM_GprsTask( )
 			else
 			{
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-                printf("modemResponseNotification: %s\r\n",modemResponseNotification);
+//                printf("modemResponseNotification: %s\r\n",modemResponseNotification);
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
                     attempts++;
@@ -169,7 +171,7 @@ uint8_t	FSM_GprsTask( )
                         debugUART1(gprsBuffer);
                         if(attempts>MAX_ATTEMPTS_NUMBER-1){
                             SetProcessState( &gprsState,gprsReset );
-                            debugUART1("Maximo numero de intentos alcanzado. Reiniciando...");
+                            debugUART1("Maximo numero de intentos alcanzado. Reiniciando...\r\n");
                         }
                     }
                 }
@@ -491,15 +493,18 @@ uint8_t	FSM_GprsTask( )
 			{
                 /*A continuacion de la trama, envio el caracter especial 
                 * EndOfFile (EOF)*/
-//                if(SendATCommand((string*)tramaGPRS,gprsBuffer,gprsBuffer,10,0,2)>0){        
-                if(SendATCommand((string*)atcmd_FRAME2,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)tramaGPRS,gprsBuffer,gprsBuffer,10,0,2)>0){        
+//                if(SendATCommand((string*)atcmd_FRAME2,gprsBuffer,gprsBuffer,10,0,2)>0){
                     if(SendATCommand((string*)atcmd_EOF,gprsBuffer,gprsBuffer,10,0,2)>0){
                         /*	modo recepcion para espera de la respuesta	*/
                         sendCmd = FALSE;
                     }
                     else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_EOF);
                 }
-                else printf("ERROR no se pudo enviar la trama\r\n %s \r\nal modem.\r\n",tramaGPRS);
+                else {
+                    printf("ERROR no se pudo enviar la trama\r\n %s \r\nal modem.\r\n",tramaGPRS);
+                    asm("nop");
+                }
                 
                 debugUART1("Trama: ");
                 debugUART1(tramaGPRS);
@@ -511,6 +516,7 @@ uint8_t	FSM_GprsTask( )
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    attempts++;
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);                 
                     if(strstr(gprsBuffer,"SRING"))
                     {		
@@ -526,6 +532,10 @@ uint8_t	FSM_GprsTask( )
                     {
                         debugUART1("WAITING SRING:  ");
                         debugUART1(gprsBuffer);
+                        if(attempts>MAX_ATTEMPTS_NUMBER-1){
+                            SetProcessState( &gprsState,gprsReset );
+                            debugUART1("Maximo numero de intentos alcanzado. Reiniciando...");
+                        }
                     }   
                 }
                 else{
@@ -565,19 +575,19 @@ uint8_t	FSM_GprsTask( )
                         setDeviceSensorEnables( p + 6 ); //7
 						setDeviceDateTime( p + 13 );    //14
                         debugUART1("Configuracion de sensores y RTCC actualizada.\r\n");
+                        processServerResponse();
                                                                    
                     }
-//                    else if(strstr(gprsBuffer,"004F"))
-//                    {
-//                        debugUART1("Rta SERVER: 004F\r\n");
-//                        processServerResponse();  
-//                    }
+                    else if(strstr(gprsBuffer,"004F"))
+                    {
+                        debugUART1("Rta SERVER: 004F\r\n");
+                        processServerResponse();  
+                    }
                     else{
                         debugUART1("Respuesta del server desconocida\r\n");
                         debugUART1(gprsBuffer);
                         SetProcessState( &gprsState, gprsReset);
                     }
-                    processServerResponse();
                 }
                 else{
                     printf("TIMEOUT MDM RESPONSE. State:%s ",getStateName(gprsState));
@@ -817,9 +827,9 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
 void prepareSample(trama_muestra_t *tramaMuestra, muestra_t *muestraAlmacenada)
 {
     //	copia los datos a la trama - estacion
-    tramaMuestra->cmd = muestraAlmacenada->cmd;
-    tramaMuestra->tipo = muestraAlmacenada->tipo;  //estacion.tipo; //configDevice.type = 0;
-    tramaMuestra->num_serie = muestraAlmacenada->num_serie; //swapBytes( estacion.num_serie ); //configDevice.serial = 0;
+    tramaMuestra->cmd = muestras;
+    tramaMuestra->tipo = estacion.tipo; //configDevice.type = 3;
+    tramaMuestra->num_serie = swapBytes( estacion.num_serie ); //configDevice.serial = 9998;
     tramaMuestra->hora = bcd2dec( muestraAlmacenada->hora );
     tramaMuestra->min = bcd2dec( muestraAlmacenada->minutos );
     tramaMuestra->dia = bcd2dec( muestraAlmacenada->dia );
@@ -977,15 +987,19 @@ void	setDeviceDateTime( char * s )
 
 void    processServerResponse()
 {
+    printMemoryPointers();
     /*Si la trama anterior fue una muestra o configuracion,
     y si tengo muestras pendientes de enviar*/
     if(isThereSamplesToSend()) {
         dataSecuence = muestras;
         setServerFrame(dataSecuence,nextSample);
         SetProcessState(&gprsState, socketSend);
-        debugUART1("Setting next frame to send.\r\n");
+        debugUART1("Setting next data frame to send.\r\n");
     }
     else{ 
+        
+//        asm("nop");
+        /*Si no tengo muestras pendientes de enviar y no estoy registrado*/
         if(!isRegistered()){
             //No se registró. Procede a registrarse.
             dataSecuence = registro;
@@ -993,6 +1007,7 @@ void    processServerResponse()
             debugUART1("Sending register frame.\r\n");
             SetProcessState(&gprsState, socketSend);
         }
+        /*Si estoy registrado y la muestra anterior fue 'registro'*/
         else if( dataSecuence == registro){
             //La trama anterior fue de registro, ahora tiene que mandar de configuracion
             //Notifico a Sample que ya tengo la hora del servidor
@@ -1001,7 +1016,7 @@ void    processServerResponse()
             dataSecuence = configuracion;
             setServerFrame(dataSecuence,nextSample);
             SetProcessState(&gprsState, socketSend);
-            debugUART1("Frame registro sended. Preparing configuration frame.\r\n");
+            debugUART1("Frame registro sended. Sending configuration frame.\r\n");
         }
         else{
             //No hay muestras pendientes por enviar
@@ -1016,3 +1031,4 @@ char isRegistered()
 {
     return registered;
 }
+

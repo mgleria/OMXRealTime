@@ -45,12 +45,16 @@ static uint16_t temperature;
 
 SemaphoreHandle_t xMutexMemory = NULL;
 
+#define     RESET_MEMORY     1
+
 void debug_enable()
 {
     __C30_UART=1;
 }
 
 void startSampleTask(){
+    
+    if(RESET_MEMORY) resetSamplesPtr();
     
     xTaskCreate(    vTaskSample,
                     "vTaskSample",
@@ -65,6 +69,8 @@ void startSampleTask(){
     TMR3_Start();
     
 //    debug_enable();
+    
+    debugUART1("startSampleTask()\r\n");
 }
 
 void vTaskSample( void *pvParameters ){
@@ -81,10 +87,13 @@ void vTaskSample( void *pvParameters ){
     }
     
     setStatusFSM(SYNC_SERVER_TIME); 
+    debugUART1("Initial section Sample Task\r\n");
     
         
     // Cuerpo de la tarea
     for( ;; ){
+//        printf("--------------------Sample Task--------------------\r\n");
+        printf("////////////////////Sample Task\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\r\n");
         
         if(waitForNotify){
             //Se bloquea la tarea a la espera de nuevas notificaciones que llegarán desde
@@ -117,7 +126,8 @@ static void FSM_SampleTask(uint32_t status){
             debugUART1("SYNC_SERVER_TIME\r\n");
 
             //Chequeo si la estacion ya se registro
-            SyncServerTime = isRegistered();
+//            SyncServerTime = isRegistered();
+            SyncServerTime = true;
             //Si no esta registrado el equipo, aguardo
             if( !SyncServerTime ){
                 status = ulTaskNotifyTake(  pdTRUE,  portMAX_DELAY ); 
@@ -166,7 +176,7 @@ static void FSM_SampleTask(uint32_t status){
             break;
         //to-do: Cambiar portMAX_DELAY por el valor apropiado
         case SYNC_SAMPLING:
-            printf("SYNC_SAMPLING %d\r\n",syncCounter);
+            printf("SYNC_SAMPLING %d\r",syncCounter);
 //            debugUART1("SYNC_SAMPLING\r\n");
             syncEvents = ulTaskNotifyTake( 
                 pdTRUE,  /* Clear the notification value before exiting. */
@@ -215,21 +225,26 @@ static void FSM_SampleTask(uint32_t status){
 /////////////////////GUARDANDO MUESTRA EN MEM PERSISENTE////////////////////////
             /* Ver si puedo obtener el semaforo. Si este no está disponible
              * esperar xTimeMemoryMutex y volver a probar */
+            uint8 resultPutSample = 0;
+            char resultGetSample = 0;
+            muestra_t returnedSample;
             if( xSemaphoreTake( xMutexMemory, xTimeMemoryMutex ) == pdTRUE )
             {
-                if(putSample(&sample)){
-                    setSamplesRead(55);
-                    printf("getSamplesRead()->%d\r\n",getSamplesRead());
-                    printf("getSamplesWrite()->%d\r\n",getSamplesWrite());
+                resultPutSample = putSample(&sample);
+                printMemoryPointers();
+                printf("resultPutSample->%d.\r\n",resultPutSample);
+                if(resultPutSample){
                     printf("Muestra guardada exitosamente.\r\n");
                 }
                 else{
                     printf("ERROR al guardar la muestra.\r\n");
                 }
-                printf("getSample(&sample,0)-> \r\n",getSample(&sample,0));
-                printf("sample.clima.luzDia: %d\r\n",sample.clima.luzDia);
-                printf("sample.clima.temper: %d\r\n",sample.clima.temper);
-                printf("sample.clima.lluvia: %d\r\n",sample.clima.lluvia);
+                resultGetSample = getSample(&returnedSample,0);
+                printf("getSample(&sample,0)->%s \r\n",resultGetSample);
+                printf("sample.clima.luzDia: %d\r\n",returnedSample.clima.luzDia);
+                printf("sample.clima.temper: %d\r\n",returnedSample.clima.temper);
+                printf("sample.clima.lluvia: %d\r\n",returnedSample.clima.lluvia);
+                printMemoryPointers();
                 
                 // Notifico a la tarea GPRS que hay una nueva trama para enviar
                 xTaskNotify(    xGprsHandle,
