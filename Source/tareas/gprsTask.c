@@ -14,13 +14,14 @@ void    SetProcessState( uint8_t * reg, uint8_t state );
 uint8_t	FSM_GprsTask();
 
 void    prepareSample(trama_muestra_t *tramaMuestra, muestra_t *muestraAlmacenada);
-uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS);
+uint8_t buildHexFrame(char *trama, char *tramaGPRS, uint8 frameSize);
 char	setServerFrame( uint8_t frameType, uint8_t whichSample );
 void    cleanDataGPRSBuffer();
 const char* getStateName(enum GPRS_STATE state);
 void	setDeviceDateTime( char * s );
 void    processServerResponse();
 char    isRegistered();
+void    removePaddingBytes(char *tramaGPRS,uint8 paddingPosition, uint8 frameSize);
 
 //Buffer de comunicación entrante y saliente con el modem
 static char gprsBuffer[GPRS_BUFFER_SIZE]={0};
@@ -569,7 +570,8 @@ uint8_t	FSM_GprsTask( )
                     char *p;
                     
                     if(p = strstr(gprsBuffer,"024F")) //Quiza deberia chequear solo el encabezado de la trama para evitar falsos positivos
-                    {   
+                    {
+                        updateMemoryReadPointer();
                         debugUART1("Rta SERVER: 024F\r\n");
                         //Corrijo la config de sensores y la fecha-hora 
                         setDeviceSensorEnables( p + 6 ); //7
@@ -580,6 +582,7 @@ uint8_t	FSM_GprsTask( )
                     }
                     else if(strstr(gprsBuffer,"004F"))
                     {
+                        updateMemoryReadPointer();
                         debugUART1("Rta SERVER: 004F\r\n");
                         processServerResponse();  
                     }
@@ -740,9 +743,9 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
 	muestra_t muestraAlmacenada;
     trama_muestra_t tramaMuestra;
 	trama_config_t configFrame;
-//	trama_inicio_t tramaInicio;
+	trama_inicio_t tramaInicio;
 
-//	extern rtcc_t tiempo;
+	extern rtcc_t tiempo;
 
 	switch( frameType )
 	{
@@ -753,67 +756,64 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
             }
             else{
                 prepareSample(&tramaMuestra, &muestraAlmacenada);
-                prepareSampleToSend(&tramaMuestra,tramaGPRS);
+                buildHexFrame((char*)&tramaMuestra,tramaGPRS, sizeof(trama_muestra_t));
+                /*Tenemos 1 byte de padding que eliminar*/
+                removePaddingBytes(tramaGPRS,42,sizeof(trama_muestra_t)*2);
             }
             break;
 
 		case( configuracion ): //Revisar el struct estacion y cuando se inicia
-//			configFrame.cmd = frameType;
-//			configFrame.tipo = estacion.tipo;
-//			configFrame.num_serie = swapBytes( estacion.num_serie );
-//			configFrame.reservado1 = 0x0101;						//	Numero de grupo
-//			configFrame.reservado2 = 0xFFFF;						//	Libre
-//			configFrame.capMemoria = swapBytes( (uint16)(MAX_SAMPLES) );			//	Capacidad de memoria
-//			configFrame.tiempoProm = 0x00;							//	Tiempo Promedio
-//			configFrame.periodo = 0x0A;								//	Periodo
+			configFrame.cmd = frameType;
+			configFrame.tipo = estacion.tipo;
+			configFrame.num_serie = swapBytes( estacion.num_serie );
+			configFrame.reservado1 = 0x0101;                            //	Numero de grupo
+			configFrame.reservado2 = 0xFFFF;                            //	Libre
+			configFrame.capMemoria = swapBytes( (uint16)(MAX_SAMPLES) );//	Capacidad de memoria
+			configFrame.tiempoProm = 0x00;                              //	Tiempo Promedio
+			configFrame.periodo = 0x0A;                                 //	Periodo
 //            
-//			MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_1, &configFrame.sensorHab1 );
-//			MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_2, &configFrame.sensorHab2 );
-//			MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_3, &configFrame.sensorHab3 );
-//			configFrame.nullE = NULL;								//	para indicar fin de trama
-//
-//			strncpy( (char*)&tramaGPRS, (char*)&string_cabecera, strlen((char*)&string_cabecera) );
-//			n = 0;	m = (char*)&configFrame;
-//			while( n < (sizeof(trama_config_t)-1) )
-//				sprintf( (char*)t + (2*n++), (const char*)"%02X", (*m++) );
-//			strcat( (char*)tramaGPRS, (char*)&string_cierre );
+			MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_1, &configFrame.sensorHab1 );
+			MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_2, &configFrame.sensorHab2 );
+			MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_3, &configFrame.sensorHab3 );
+
+			buildHexFrame((char*)&configFrame,tramaGPRS,sizeof(configFrame));
+            /*Hay que eliminar un byte de padding*/
+            removePaddingBytes(tramaGPRS, 30, sizeof(configFrame)*2);
             
             //Envío hardcodeado una trama de registro
-            strcpy(tramaGPRS,atcmd_FRAME_1);
+//            strcpy(tramaGPRS,atcmd_FRAME_1);
 			break;
 
 		case( registro ):
-			//	copia los datos a la trama - estacion
-//			tramaInicio.cmd = frameType;
-//			tramaInicio.tipo = estacion.tipo;
-//			tramaInicio.num_serie = swapBytes( estacion.num_serie );
-//			tramaInicio.hora = bcd2dec( tiempo.hora );
-//			tramaInicio.min = bcd2dec( tiempo.minutos );
-//			tramaInicio.dia = bcd2dec( tiempo.dia );
-//			tramaInicio.mes = bcd2dec( tiempo.mes );
-//			tramaInicio.anio = bcd2dec( tiempo.anio );
-//			tramaInicio.alarmaMuestras = 0;
-//			tramaInicio.tiempoMedicion = 0;
-//			tramaInicio.inicioMuestras = bcd2dec( estacion.InicioMuestras );
-//			tramaInicio.pEscritura = swapBytes( getSamplesWrite() );
-//			tramaInicio.pLectura = swapBytes( getSamplesRead() );
-//			tramaInicio.dAlmacenados = swapBytes( getSamplesTotal() );
-//			tramaInicio.pMaxMin = 0;
-//			tramaInicio.periodo = 0x0A;
-////			i2cbus_read( _24LC512_0, INT_ENABLE_SENSOR_1, &tramaInicio.sensorHab1, sizeof(tramaInicio.sensorHab1) );
-////			i2cbus_read( _24LC512_0, INT_ENABLE_SENSOR_2, &tramaInicio.sensorHab2, sizeof(tramaInicio.sensorHab2) );
-////			i2cbus_read( _24LC512_0, INT_ENABLE_SENSOR_3, &tramaInicio.sensorHab3, sizeof(tramaInicio.sensorHab3) );
-//			/*	caracter nulo para indicar fin de trama	*/
-//			tramaInicio.nullE = NULL;
-//
-//			strncpy( (char*)&tramaGPRS, (char*)&string_cabecera, strlen((char*)&string_cabecera) );
-//			n = 0;	m = (char*)&tramaInicio;
-//			while( n < sizeof(trama_inicio_t)-1 )
-//				sprintf( (char*)t + (2*n++), (const char*)"%02X", (*m++) );
-//			strcat( (char*)tramaGPRS, (char*)&string_cierre );
+			tramaInicio.cmd = frameType;
+			tramaInicio.tipo = estacion.tipo;
+			tramaInicio.num_serie = swapBytes( estacion.num_serie );
+			tramaInicio.hora = bcd2dec( tiempo.hora );
+			tramaInicio.min = bcd2dec( tiempo.minutos );
+			tramaInicio.dia = bcd2dec( tiempo.dia );
+			tramaInicio.mes = bcd2dec( tiempo.mes );
+			tramaInicio.anio = bcd2dec( tiempo.anio );
+			tramaInicio.alarmaMuestras = 0;
+			tramaInicio.tiempoMedicion = 0;
+			tramaInicio.inicioMuestras = bcd2dec( estacion.InicioMuestras );
+			tramaInicio.pEscritura = swapBytes( getSamplesWrite() );
+			tramaInicio.pLectura = swapBytes( getSamplesRead() );
+			tramaInicio.dAlmacenados = swapBytes( getSamplesTotal() );
+			tramaInicio.pMaxMin = 0;
+			tramaInicio.periodo = 0x0A;
+            
+            MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_1, &tramaInicio.sensorHab1 );
+			MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_2, &tramaInicio.sensorHab2 );
+			MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_3, &tramaInicio.sensorHab3 );
+            
+            buildHexFrame((char*)&tramaInicio, tramaGPRS, sizeof(trama_inicio_t));
+            
+            /*En el caso de esta trama, tenemos 2 bytes de padding que eliminar*/
+            removePaddingBytes(tramaGPRS,26,sizeof(trama_inicio_t)*2);
+            removePaddingBytes(tramaGPRS,48,sizeof(trama_inicio_t)*2);
             
             //Envío hardcodeado una trama de configuracion
-            strcpy(tramaGPRS,atcmd_FRAME_3);
+//            strcpy(tramaGPRS,atcmd_FRAME_3);
 			break;
 
 		default:
@@ -821,6 +821,7 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
 			return	FALSE;
 		}
 	}
+    printf("tramaGPRS:\r\n%s\r\n",tramaGPRS);
 	return	TRUE;
 }
 
@@ -899,46 +900,26 @@ void prepareSample(trama_muestra_t *tramaMuestra, muestra_t *muestraAlmacenada)
     tramaMuestra->sensorHab1 = muestraAlmacenada->sensorHab1;
     tramaMuestra->sensorHab2 = muestraAlmacenada->sensorHab2;
     tramaMuestra->sensorHab3 = muestraAlmacenada->sensorHab3;
-    tramaMuestra->nullE = muestraAlmacenada->nullE;
 }
 
-uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS)
+uint8_t buildHexFrame(char *trama, char *tramaHex, uint8 frameSize)
 {
-    uint8_t n,k;
-    
+    uint8_t n,k; 
     char *p = NULL; char *t = NULL;
-//    const char string_cabecera[] = "";
 //    const char string_cierre[] = "\x001A";
-
-//    char *t = tramaGPRS + strlen((char*)&string_cabecera);
-      
-    // Armo el buffer a transmitir: concatenado de cadenas cabecera, datos y cierre.
-    // @todo quitar el caracter null de fin de trama ya que se controla la cantidad con sizeof
-//    strncpy( (char*)&tramaGPRS, (char*)&string_cabecera, strlen((char*)&string_cabecera) );
+    const char string_cierre[] = "\x00";
 
     n = 0;
-	t = tramaGPRS;
-    p = (char*)tramaMuestra;
+	t = tramaHex;
+    p = trama;
     
-    
-//    printf("sizeof(trama_muestra_t): %d\r\n",sizeof(trama_muestra_t));
-    
-    while( n < sizeof(trama_muestra_t)-2 ){ //No agarra el byte nullE
+    while( n < frameSize ){ 
         sprintf( (char*)t + (2*n), (const char*)"%02X", *(p+n));
         n++;
 //        printf("n:%d | (char*)t+(2*n):%s\r\n",n,(char*)t + (2*n));
     }
-    
+    strcat( (char*)tramaHex, (char*)&string_cierre );
 //    printf("n*2:%d | (char*)t+(2*(n-1)):%s\r\n",n*2,(char*)t+(2*(n-1)));
-    
-//No es necesario el caracter de fin de trama porque el estado 'putData' lo pone
-//    strncpy( tramaGPRS + n*2, string_cierre, strlen(string_cierre) );
-    
-    
-    //Para eliminar el byte de padding generado al comienzo del struct viento
-    for(k=42;k<116;k++){
-        tramaGPRS[k]=tramaGPRS[k+2];
-    }
 
     return true;        
 }
@@ -1032,3 +1013,11 @@ char isRegistered()
     return registered;
 }
 
+void removePaddingBytes(char *tramaGPRS,uint8 paddingPosition, uint8 frameSize)
+{
+    int k;
+    //Para eliminar el byte de padding generado al comienzo del struct viento
+    for(k=paddingPosition;k<frameSize;k++){
+        tramaGPRS[k]=tramaGPRS[k+2];
+    }
+}
