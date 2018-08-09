@@ -29,20 +29,23 @@ TimerHandle_t xSampleData;
 TimerHandle_t xRainDebouncing;
 
 //Tiempos usados en software timers
-TickType_t  xTimePasive, xTimeActive, xTimeData, xTimeRainDebouncing, xTimeMutex;
+TickType_t  xTimePasive, xTimeActive, xTimeData, xTimeRainDebouncing, xTimeMemoryMutex;
 
 TaskHandle_t xSampleHandle;
+extern TaskHandle_t xGprsHandle;
 
 static muestra_t sample;
 
 static uint32_t status;
-static bool waitForNotify;
+static bool waitForNotify, SyncServerTime;
 static uint16_t syncCounter;
 
 static uint16_t potentiometer;
 static uint16_t temperature;
 
 SemaphoreHandle_t xMutexMemory = NULL;
+
+#define     RESET_MEMORY     1
 
 void debug_enable()
 {
@@ -51,6 +54,8 @@ void debug_enable()
 
 void startSampleTask(){
     
+    if(RESET_MEMORY) resetSamplesPtr();
+    
     xTaskCreate(    vTaskSample,
                     "vTaskSample",
                     1000,
@@ -58,12 +63,14 @@ void startSampleTask(){
                     MAX_PRIORITY,
                     &xSampleHandle);
     
-    xTimeMutex = xMsToTicks(T_ESPERA_MUTEX_MEM_MS);
+    xTimeMemoryMutex = xMsToTicks(T_ESPERA_MUTEX_MEM_MS);
     softwareTimers_create();
     sensorsConfig();
     TMR3_Start();
     
 //    debug_enable();
+    
+    debugUART1("startSampleTask()\r\n");
 }
 
 void vTaskSample( void *pvParameters ){
@@ -72,17 +79,21 @@ void vTaskSample( void *pvParameters ){
 // Seccion de inicializacion
     waitForNotify = false;
     
+    
     xMutexMemory = xSemaphoreCreateMutex();
     if(!xMutexMemory){
         printf("ERROR en la creación del mutex de Memoria");
         //El programa no puede seguir, hay que detenerlo.
     }
     
-    setStatusFSM(SYNC_SERVER_TIME); //Descomentar cuando se implemente el estado SYNC_SERVER_TIME
-//    setStatusFSM(ASYNC_SAMPLING);
+    setStatusFSM(SYNC_SERVER_TIME); 
+    debugUART1("Initial section Sample Task\r\n");
+    
         
     // Cuerpo de la tarea
     for( ;; ){
+//        printf("--------------------Sample Task--------------------\r\n");
+        printf("////////////////////Sample Task\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\r\n");
         
         if(waitForNotify){
             //Se bloquea la tarea a la espera de nuevas notificaciones que llegarán desde
@@ -113,12 +124,29 @@ static void FSM_SampleTask(uint32_t status){
     switch(status){  
         case SYNC_SERVER_TIME:
             debugUART1("SYNC_SERVER_TIME\r\n");
-//            printf("SYNC_SERVER_TIME");
-            //Code to sync RTCC with server
 
-            setStatusFSM(ASYNC_SAMPLING);
-            //Cuando este softTimer expire, se cambia de estado a SYNC_SAMPLING
-            xTimerStart(xPassiveSamplingTime,0);
+            //Chequeo si la estacion ya se registro
+//            SyncServerTime = isRegistered();
+            SyncServerTime = true;
+            //Si no esta registrado el equipo, aguardo
+            if( !SyncServerTime ){
+                status = ulTaskNotifyTake(  pdTRUE,  portMAX_DELAY ); 
+                
+                if(status == SYNC_SERVER_TIME_NOTIFICATION){
+                    setStatusFSM(ASYNC_SAMPLING);
+                    /*Cuando este softTimer expire, se cambia de estado a
+                    * SYNC_SAMPLING*/
+                    xTimerStart(xPassiveSamplingTime,0);
+                
+                    /*ACA TENGO QUE ESPERAR EL TIEMPO ADECUADO PARA QUE TOME LAS 
+                    * MUESTRAS A LAS HORAS CORRESPONDIENTES*/
+                }
+            }
+            else{
+                setStatusFSM(ASYNC_SAMPLING);
+                //Cuando este softTimer expire, se cambia de estado a SYNC_SAMPLING
+                xTimerStart(xPassiveSamplingTime,0);
+            }
             break;
             
         //to-do: Cambiar portMAX_DELAY por el valor apropiado    
@@ -148,7 +176,7 @@ static void FSM_SampleTask(uint32_t status){
             break;
         //to-do: Cambiar portMAX_DELAY por el valor apropiado
         case SYNC_SAMPLING:
-            printf("SYNC_SAMPLING %d\r\n",syncCounter);
+            printf("SYNC_SAMPLING %d\r",syncCounter);
 //            debugUART1("SYNC_SAMPLING\r\n");
             syncEvents = ulTaskNotifyTake( 
                 pdTRUE,  /* Clear the notification value before exiting. */
@@ -196,22 +224,32 @@ static void FSM_SampleTask(uint32_t status){
             
 /////////////////////GUARDANDO MUESTRA EN MEM PERSISENTE////////////////////////
             /* Ver si puedo obtener el semaforo. Si este no está disponible
-             * esperar xxx y volver a probar */
-            if( xSemaphoreTake( xMutexMemory, xTimeMutex ) == pdTRUE )
+             * esperar xTimeMemoryMutex y volver a probar */
+            uint8 resultPutSample = 0;
+            char resultGetSample = 0;
+            muestra_t returnedSample;
+            if( xSemaphoreTake( xMutexMemory, xTimeMemoryMutex ) == pdTRUE )
             {
-                if(putSample(&sample)){
-                    setSamplesRead(55);
-                    printf("getSamplesRead()->%d\r\n",getSamplesRead());
-                    printf("getSamplesWrite()->%d\r\n",getSamplesWrite());
+                resultPutSample = putSample(&sample);
+                printMemoryPointers();
+                printf("resultPutSample->%d.\r\n",resultPutSample);
+                if(resultPutSample){
                     printf("Muestra guardada exitosamente.\r\n");
                 }
                 else{
                     printf("ERROR al guardar la muestra.\r\n");
                 }
-                printf("getSample(&sample,0)-> \r\n",getSample(&sample,0));
-                printf("sample.clima.luzDia: %d\r\n",sample.clima.luzDia);
-                printf("sample.clima.temper: %d\r\n",sample.clima.temper);
-                printf("sample.clima.lluvia: %d\r\n",sample.clima.lluvia);
+                resultGetSample = getSample(&returnedSample,0);
+                printf("getSample(&sample,0)->%s \r\n",resultGetSample);
+                printf("sample.clima.luzDia: %d\r\n",returnedSample.clima.luzDia);
+                printf("sample.clima.temper: %d\r\n",returnedSample.clima.temper);
+                printf("sample.clima.lluvia: %d\r\n",returnedSample.clima.lluvia);
+                printMemoryPointers();
+                
+                // Notifico a la tarea GPRS que hay una nueva trama para enviar
+                xTaskNotify(    xGprsHandle,
+                                NEW_SAMPLE_NOTIFICATION,
+                                eSetValueWithOverwrite);
                 
                 /* Terminamos de usar el recurso, por lo que devolvemos el
                  * mutex */
@@ -356,128 +394,6 @@ void assembleSample(muestra_t *muestra)
     
     muestra->clima.luzDia = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
    
-}
-
-void prepareSample(trama_muestra_t *tramaMuestra, muestra_t *muestraAlmacenada)
-{
-    //	copia los datos a la trama - estacion
-    tramaMuestra->cmd = muestraAlmacenada->cmd;
-    tramaMuestra->tipo = muestraAlmacenada->tipo;  //estacion.tipo; //configDevice.type = 0;
-    tramaMuestra->num_serie = muestraAlmacenada->num_serie; //swapBytes( estacion.num_serie ); //configDevice.serial = 0;
-    tramaMuestra->hora = bcd2dec( muestraAlmacenada->hora );
-    tramaMuestra->min = bcd2dec( muestraAlmacenada->minutos );
-    tramaMuestra->dia = bcd2dec( muestraAlmacenada->dia );
-    tramaMuestra->mes = bcd2dec( muestraAlmacenada->mes );
-    tramaMuestra->anio = bcd2dec( muestraAlmacenada->anio );
-    tramaMuestra->signal = muestraAlmacenada->senial;
-//    #ifdef	USE_HIH6131
-    #if !defined	USE_HIH6131
-    tramaMuestra->clima.temper = muestraAlmacenada->clima.temper | 0x8000;
-    tramaMuestra->clima.hum = muestraAlmacenada->clima.hum | 0x8000;
-    #else
-    tramaMuestra->clima.temper = muestraAlmacenada->clima.temper;
-    tramaMuestra->clima.hum = muestraAlmacenada->clima.hum;
-    #endif
-    tramaMuestra->clima.presion = muestraAlmacenada->clima.presion;
-    tramaMuestra->clima.lluvia = muestraAlmacenada->clima.lluvia;
-    tramaMuestra->clima.radiacionSolar = muestraAlmacenada->clima.radiacionSolar;
-    //	el modelo de pluviometro chino se guarda con la mascara->
-//    #if	defined	(__OMX_S_C__)
-//    tramaMuestra->clima.lluvia |= 0x4000;		
-//    #endif
-    #if	defined	(__OMX_T__)
-    tramaMuestra->clima.radiacionSolar |= 0x8000;
-    tramaMuestra->clima.lluvia |= 0x8000;
-    #endif
-    #ifdef	USE_RK200
-    tramaMuestra->clima.radiacionSolar |= 0x4000;
-    #endif
-    #if	defined	(__OMX_S__)	||	defined	(__OMX_S_C__) ||  defined	(__OMX_T__)
-    tramaMuestra->clima.viento.direccionP = muestraAlmacenada->clima.viento.direccionP;
-    tramaMuestra->clima.viento.velocidadP = muestraAlmacenada->clima.viento.velocidadP;
-    tramaMuestra->clima.viento.direccionM = muestraAlmacenada->clima.viento.direccionM;
-    tramaMuestra->clima.viento.velocidadM = muestraAlmacenada->clima.viento.velocidadM;
-    tramaMuestra->clima.luzDia = muestraAlmacenada->clima.luzDia;
-    tramaMuestra->clima.tempSuelo1 = muestraAlmacenada->clima.tempSuelo1;
-    tramaMuestra->clima.humSuelo1 = muestraAlmacenada->clima.humSuelo1;
-//    tramaMuestra->clima.tempSuelo2 = muestraAlmacenada->clima.tempSuelo2 | 0x4000;
-    tramaMuestra->clima.tempSuelo2 = muestraAlmacenada->clima.tempSuelo2;
-    tramaMuestra->clima.humSuelo2 = muestraAlmacenada->clima.humSuelo2;
-    tramaMuestra->clima.tempSuelo3 = muestraAlmacenada->clima.tempSuelo3;
-    tramaMuestra->clima.humSuelo3 = muestraAlmacenada->clima.humSuelo3;
-    tramaMuestra->clima.humHoja = muestraAlmacenada->clima.humHoja;
-    tramaMuestra->clima.tempHoja = muestraAlmacenada->clima.tempHoja;
-    #elif   defined (__OMX_N__)
-    //tramaMuestra->clima.luzDia = muestraAlmacenada->clima.luzDia;
-    //tramaMuestra->clima.radiacionSolar = muestraAlmacenada->clima.radiacionSolar;
-    tramaMuestra->clima.tempSuelo1 = muestraAlmacenada->clima.tempSuelo1;
-    tramaMuestra->clima.humSuelo1 = muestraAlmacenada->clima.humSuelo1;
-    tramaMuestra->clima.tempSuelo2 = muestraAlmacenada->clima.tempSuelo2;
-    tramaMuestra->clima.humSuelo2 = muestraAlmacenada->clima.humSuelo2;
-    tramaMuestra->clima.nivel = muestraAlmacenada->clima.nivel;               //Muestra nivel
-    tramaMuestra->clima.humSuelo3 = muestraAlmacenada->clima.humSuelo3;
-    tramaMuestra->clima.humHoja = muestraAlmacenada->clima.humHoja;
-    tramaMuestra->clima.tempHoja = muestraAlmacenada->clima.tempHoja;
-    #endif
-
-    #if	defined	(__OMX_T__)
-    tramaMuestra->clima.tempSuelo2 += 0x4000;
-    #endif
-
-    #if	defined	(__OMX_S__) 
-    tramaMuestra->corriente1 = muestraAlmacenada->corriente1;
-    tramaMuestra->corriente2 = muestraAlmacenada->corriente2;
-    #endif
-    tramaMuestra->bateria = muestraAlmacenada->bateria;
-    tramaMuestra->periodo = muestraAlmacenada->periodo;
-    tramaMuestra->sensorHab1 = muestraAlmacenada->sensorHab1;
-    tramaMuestra->sensorHab2 = muestraAlmacenada->sensorHab2;
-    tramaMuestra->sensorHab3 = muestraAlmacenada->sensorHab3;
-    tramaMuestra->nullE = muestraAlmacenada->nullE;
-}
-
-uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS)
-{
-//    printf("prepareSampleToSend()\r\n");
-    uint8_t n,k;
-    
-    char *p = NULL; char *t = NULL;
-//    const char string_cabecera[] = "";
-//    const char string_cierre[] = "\x001A";
-
-//    char *t = tramaGPRS + strlen((char*)&string_cabecera);
-    
-    
-    
-    // Armo el buffer a transmitir: concatenado de cadenas cabecera, datos y cierre.
-    // @todo quitar el caracter null de fin de trama ya que se controla la cantidad con sizeof
-//    strncpy( (char*)&tramaGPRS, (char*)&string_cabecera, strlen((char*)&string_cabecera) );
-
-    n = 0;
-	t = tramaGPRS;
-    p = (char*)tramaMuestra;
-    
-    
-//    printf("sizeof(trama_muestra_t): %d\r\n",sizeof(trama_muestra_t));
-    
-    while( n < sizeof(trama_muestra_t)-2 ){ //No agarra el byte nullE
-        sprintf( (char*)t + (2*n), (const char*)"%02X", *(p+n));
-        n++;
-//        printf("n:%d | (char*)t+(2*n):%s\r\n",n,(char*)t + (2*n));
-    }
-    
-//    printf("n*2:%d | (char*)t+(2*(n-1)):%s\r\n",n*2,(char*)t+(2*(n-1)));
-    
-//No es necesario el caracter de fin de trama porque hay el estado 'putData' lo hace
-//    strncpy( tramaGPRS + n*2, string_cierre, strlen(string_cierre) );
-    
-    
-    //Para eliminar el byte de padding generado al comienzo del struct viento
-    for(k=42;k<116;k++){
-        tramaGPRS[k]=tramaGPRS[k+2];
-    }
-
-    return true;        
 }
 
 static void resetSyncVariables(){

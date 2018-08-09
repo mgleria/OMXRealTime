@@ -59,3 +59,9 @@ uint16_t	swapBytes( uint16_t var )
 void debugUART1(const char* s){
     UART1_WriteBuffer(s,strlen(s));
 }
+
+void printMemoryPointers()
+{
+    printf("%-8s%-8s%-8s\n", "Total", "Read", "Write"); 
+    printf("%-8d%-8d%-8d\n", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
+}

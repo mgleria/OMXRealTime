@@ -8,22 +8,20 @@
 #ifndef MODEM_H
 #define	MODEM_H
 
+#include    <stdio.h>
+
 #include	"sistema/HardwareProfile.h"
-//#include	"sistema/systemState.h"
-//#include	"drivers/uart_driver.h"
+#include    "utilities.h"
+#include    "uart2.h"
 
-#if	defined	(USE_GPRS)	||	defined	(USE_SMS)
+#include "freeRTOS/FreeRTOS.h"
+#include "freeRTOS/semphr.h"
+//#include "freeRTOSConfig.h"
 
-/*	DEFINIR AQUI EL PERIODO EN EL QUE SE LLAMA A LA TAREA	*/
-#ifndef	MODEM_TASK_TICK
-#define	MODEM_TASK_TICK		0.100
-//#warning	Se define por defecto el periodo de la tarea modemTask a MODEM_TASK_TICK
-//#else
-//#warning	Se define el periodo de la tarea modemTask a MODEM_TASK_TICK
-#endif
+
 
 /*	DEFINICIONES DE TIEMPOS	*/
-#define	MODEM_CMD_TIMEOUT	(unsigned int)(10.0/MODEM_TASK_TICK)
+#define	T_ESPERA_MUTEX_MODEM_MS     500
 
 /*	DEFiNICIONES DE PINES DE CONTROL	*/
 #define	MODEM_POWER(s)		{(TRISXbits.TRISXx = 0); (LATXbits.LATXx = s);}
@@ -90,20 +88,20 @@ typedef struct
 
 
 /**********************************************************************************************/
-/*	Funciones prototipo globales	*/
-void    vTaskModem( void *pvParameters );
-
-void	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d, uint8 f );
-void	setConexionProcessTick();
-void	uart_modem_interrupt( void );
-
-/*	tarea para el manejo del hardware en comun entre gprs y gps */
-char	conexion( void );
+/**
+ * \brief
+ * Envia un comando al modem si es que este no está ocupado atendiendo otro proceso.
+ * @param text	cadena de texto que contiene el comando.
+ * @param tx	puntero al buffer donde queda el comando almacenado hasta ser enviado.
+ * @param rx	puntero al buffer donde se almacena/n la/s respuesta/s al comando.
+ * @param t		tiempo de espera (s) maximo de espera de la/s respuesta/s. 
+ * @param d		tiempo de demora (s) en enviar el comando al modem.
+ * @param f		numero de respuestas esperadas.
+ */
+int16_t	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d, uint8 f );
 
 /*	para poder configurar por donde se desea salir con las funciones printf, ... */
 extern char usr_stdout;
-
-#endif	//	USE_xxxx
 
 #endif	/* MODEM_H */
 
