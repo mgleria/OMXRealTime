@@ -94,8 +94,6 @@ void	write_int_eeprom_array( uint16 address, char* array, uint8 size );
 void	resetSamplesPtr( void );
 void	setDeviceSensorEnables( uint8*	p );
 
-uint16  isThereSamplesToSend();
-
 /*	macros */
 //#define	read_int_eeprom_byte( address )			Read_b_eep( address )
 //#define	write_int_eeprom_byte( address, data )	Write_b_eep( address, data )

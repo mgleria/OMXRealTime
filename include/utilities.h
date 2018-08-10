@@ -23,8 +23,6 @@ uint8_t	bcd2dec( uint8_t bcd );
 
 void debugUART1(const char* s);
 
-void    printMemoryPointers();
-
 
 
 #endif	/* UTILITIES_H */

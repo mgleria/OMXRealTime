@@ -49,7 +49,8 @@
 
 #include <xc.h>
 #include "tmr4.h"
-#include "task.h"
+
+extern uint8_t flagDataUartReady;
 
 /**
   Section: Data Type Definitions
@@ -67,8 +68,6 @@
   Remarks:
     None.
 */
-
-extern TaskHandle_t xGprsHandle;
 
 typedef struct _TMR_OBJ_STRUCT
 {
@@ -90,10 +89,10 @@ void TMR4_Initialize (void)
 {
     //TMR4 0; 
     TMR4 = 0x0000;
-    //Period = 0.25 s; Frequency = 16000000 Hz; PR4 15625; 
-    PR4 = 0x3D09;
-    //TCKPS 1:256; T32 16 Bit; TON enabled; TSIDL disabled; TCS FOSC/2; TECS SOSC; TGATE disabled; 
-    T4CON = 0x8030;
+    //Period = 0.25 s; Frequency = 16000000 Hz; PR4 62500; 
+    PR4 = 0xF424;
+    //TCKPS 1:64; T32 16 Bit; TON enabled; TSIDL disabled; TCS FOSC/2; TECS SOSC; TGATE disabled; 
+    T4CON = 0x8020;
 
     
     IFS1bits.T4IF = false;
@@ -152,7 +151,7 @@ uint16_t TMR4_Counter16BitGet( void )
 
 void __attribute__ ((weak)) TMR4_CallBack(void)
 {
-    xTaskNotifyFromISR(xGprsHandle,MDM_RESP_READY_NOTIFICATION,eSetValueWithOverwrite,NULL);
+    flagDataUartReady = 1;
 }
 
 void TMR4_Start( void )

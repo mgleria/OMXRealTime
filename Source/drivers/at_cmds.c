@@ -7,12 +7,12 @@
 
 /**********************************************************************************************/
 /*	Respuestas generales a cualquier comando	*/
-string	_OK_[]          = "\r\nOK";
-string	_ERROR_[]       = "\r\nERROR\r\n";
-string	_TIMEOUT_[]     = "\r\nTIMEOUT\r\n";
-string	_NOCARRIER_[]   = "\r\nNO CARRIER\r\n";
-string	_SRING_[]       = "SRING";
-string  _OVERFLOW_[]    = "BUFFER_OVERFLOW";
+string	_OK_[]		=	"\r\nOK";
+string	_ERROR_[]	=	"\r\nERROR\r\n";
+string	_TIMEOUT_[] =	"\r\nTIMEOUT\r\n";
+string	_NOCARRIER_[] =	"\r\nNO CARRIER\r\n";
+string	_SRING_[] =	"SRING";
+string  _OVERFLOW_[] = "BUFFER_OVERFLOW";
 
 /*	Formato de mensaje	*/
 string	atcmd_msgCheckFormat[]			=	"AT+CMGF?\r\n";
@@ -79,7 +79,7 @@ string	atcmd_sendData[]				="AT#SSEND=1\r\n";
 
 
 /*	Socket status	*/
-string	atcmd_socketStatus[]			=	"AT#SS=1\r";
+string	atcmd_socketStatus[]					=	"AT#SS=1\r";
 
 /*	Close a Socket	*/
 string	atcmd_closeSocket[]				=	"AT#SH=1\r\n";
@@ -93,9 +93,9 @@ string	atresp_getSignal[]				=	"+CSQ:";
 
 string	atcmd_disableEcho[]                 = "ATE0\r\n";
 
-string  atcmd_setContextClaro[]             = "AT+CGDCONT=1,\"IP\",igprs.claro.com.ar,\"0.0.0.0\",0,0\r\n";
+string  atcmd_setContextClaro[]         = "AT+CGDCONT=1,\"IP\",igprs.claro.com.ar,\"0.0.0.0\",0,0\r\n";
 
-string  atcmd_setContextPersonal[]          = "AT+CGDCONT=1,\"IP\",internet.personal.com,\"0.0.0.0\",0,0\r\n";
+string  atcmd_setContextPersonal[]         = "AT+CGDCONT=1,\"IP\",internet.personal.com,\"0.0.0.0\",0,0\r\n";
 
 string	atcmd_activateContextHARDCODED[]    = "AT#SGACT=1,1\r\n";
 
@@ -105,11 +105,9 @@ string	atcmd_configExtendSocketHARDCODED[]	= "AT#SCFGEXT=1,1,1,0,0,0\r";
 
 string	atcmd_socketDialHARDCODED_1[]		= "AT#SD=1,0,4545,www.omixom.com,0,0,1\r";
 
-string	atcmd_socketSend[]                  = "AT#SSEND=1\r";
+string	atcmd_socketDialHARDCODED_2[]		= "AT#SSEND=1\r";
 
-string	atcmd_FRAME_1[]                     = "0403270E0E0310220701000009016501650000000ABF2000";
-
-string	atcmd_FRAME_3[]                     = "0303270E0101FFFF03F0000ABF2000";
+string	atcmd_FRAME[]                       = "040327090E0310220701000009016501650000000ABF2000";
 
 string	atcmd_FRAME2[]                      = "01032707160A110C110B008000800020734414000400000000000000001D002180000000000000000000000000000000000000EA010AFF6300";
 
@@ -118,9 +116,3 @@ string	atcmd_EOF[]                         = "\x1A"; //<SUB> (substitute) ascii 
 string	atcmd_sListenHARDCODED[]            = "AT#SRECV=1,50\r\n";
 
 string	atcmd_closeSocketHARDCODED[]		= "AT#SH=1\r\n";
-
-string  atcmd_STN_OFF[]                     = "AT#STIA=0\r\n";
-
-string  atcmd_checkIP[]                     = "AT#CGPADDR=1\r\n";
-
-string  atcmd_initialConfig[]               = "AT&K0;E0;V1\r";

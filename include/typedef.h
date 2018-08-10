@@ -8,9 +8,6 @@
 #ifndef TYPEDEF_H
 #define	TYPEDEF_H
 
-#include <stdbool.h>
-#include <stdint.h>
-
 
 //#include "HardwareProfile.h"
 
@@ -102,7 +99,7 @@ typedef struct
 	uint8			sensorHab2;			//	55
 	uint8			sensorHab3;			//	56
 	char			nullE;				//	57
-	char			_reserved_[4];		//	reserved to complete 64 bytes
+	char			_reserved_[6];		//	reserved to complete 64 bytes
 }muestra_t;								//	64 bytes
 
 /**********************************************************************************************/

@@ -100,36 +100,39 @@ char	getSample( muestra_t *muestra, char sample )
 	if( !samplesTotal )
 		return false;
 	
-//	samplesRead += (sint16)sample;			//	proxima muestra
-//	if( samplesRead >= MAX_SAMPLES )
-//		samplesRead = 0;
-//
-//	/*	si pE >= pL y no hay overfloat	*/
-//	if( (samplesWrite >= samplesRead) && (samplesTotal != MAX_SAMPLES) )
-//		samplesTotal = samplesWrite - samplesRead;
-//	/*	si pE < pL o hay overfloat	*/
-//	else
-//		samplesTotal = (samplesWrite + MAX_SAMPLES) - samplesRead;
+	samplesRead += (sint16)sample;			//	proxima muestra
+	if( samplesRead >= MAX_SAMPLES )
+		samplesRead = 0;
+
+	/*	si pE >= pL y no hay overfloat	*/
+	if( (samplesWrite >= samplesRead) && (samplesTotal != MAX_SAMPLES) )
+		samplesTotal = samplesWrite - samplesRead;
+	/*	si pE < pL o hay overfloat	*/
+	else
+		samplesTotal = (samplesWrite + MAX_SAMPLES) - samplesRead;
 	
 	/*	carga la direccion desde donde se va a leer	*/
-	auto uint16 read_address = (samplesRead - (SAMPLES_BLOCK_SIZE * memNumber)) * SAMPLES_SIZE;
+	auto uint16 read_address = (samplesRead - (SAMPLES_BLOCK_SIZE * memNumber)) * sizeof(muestra_t);
 	read_address += SAMPLES_START_ADD;
+    
+	if( samplesTotal )						//	si hay muestras almacenadas
+        returnValue = MCHP_24LCxxx_Read_array(memDevice,read_address,(uint8_t*)muestra,sizeof(muestra_t));
+//		returnValue = MCHP_24LCxxx_Read_array(memDevice,read_address,(uint8_t*)muestra,sizeof(muestra_t));
+//        i2cbus_read( memDevice, read_address, (char*)muestra, (uint16)sizeof(muestra_t) );
 
-    returnValue = MCHP_24LCxxx_Read_array(memDevice,read_address,(uint8_t*)muestra,SAMPLES_SIZE);
+	//	actualiza los valores en la RAM del RTCC
+	write_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
+	write_rtcc_array( SAMPLES_WRITE_ADDRESS, (char*)&samplesWrite, sizeof(samplesWrite) );
+	write_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
 
-//	//	actualiza los valores en la RAM del RTCC
-//	write_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
-//	write_rtcc_array( SAMPLES_WRITE_ADDRESS, (char*)&samplesWrite, sizeof(samplesWrite) );
-//	write_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
-//
-//	if( !samplesTotal )
-//	{
-//		samplesLoss = 0;
-//		return false;
-//	}
+	if( !samplesTotal )
+	{
+		samplesLoss = 0;
+		return false;
+	}
 
-	return	true;
-//    return returnValue;
+//	return	true;
+    return returnValue;
 }
 /******************************************************************************/
 /**
@@ -143,22 +146,25 @@ uint8 putSample( muestra_t* muestra )
 {
 	uint8_t r1,r2;
 	uint8_t intentos = 0;
-	uint8_t	readed[SAMPLES_SIZE];
+	uint8_t	readed[sizeof(muestra_t)];
     
     uint8_t memDevice = _24LC512_0;
     uint8_t memNumber = 0;
+    
+    uint8_t sizeMuestra = sizeof(muestra_t);
 
-	//	Lee los valores de punteros desde la RAM del RTCC
+	//	actualiza los valores de punteros desde la RAM del RTCC
 	read_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
 	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (char*)&samplesWrite, sizeof(samplesWrite) );
 	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
     
-    // Calcula el nùmero de memoria donde debe escribir
+    // actualiza el nùmero de memoria donde debe escribir
     memNumber = (uint8_t)(samplesWrite / SAMPLES_BLOCK_SIZE);
     memDevice += memNumber * 2;
     
-	/*	Calcula la direccion donde se va a guardar la muestra	*/
-	auto uint16 write_address = (samplesWrite - (SAMPLES_BLOCK_SIZE * memNumber)) * SAMPLES_SIZE;
+        
+	/*	carga la direccion donde se va a guardar la muestra	*/
+	auto uint16 write_address = (samplesWrite - (SAMPLES_BLOCK_SIZE * memNumber)) * sizeof(muestra_t);
 	write_address += SAMPLES_START_ADD;
       
 	
@@ -170,8 +176,8 @@ uint8 putSample( muestra_t* muestra )
 	do
 	{
 		/*	guarda la muestra	*/
-        r1 = MCHP_24LCxxx_Write_array(memDevice,write_address,(uint8_t*)muestra,SAMPLES_SIZE);
-//		i2cbus_write( memDevice, write_address, (char*)muestra, SAMPLES_SIZE );
+        r1 = MCHP_24LCxxx_Write_array(memDevice,write_address,(uint8_t*)muestra,sizeof(muestra_t));
+//		i2cbus_write( memDevice, write_address, (char*)muestra, sizeof(muestra_t) );
 		/*	lee lo que acaba de guardar	*/
         __delay_ms(2);
 		r2 = MCHP_24LCxxx_Read_array(memDevice, write_address,readed,sizeof(readed));
@@ -179,15 +185,14 @@ uint8 putSample( muestra_t* muestra )
         
         
 //        s = i2cbus_read( memDevice, write_address, readed, sizeof(readed) );
-	}while( strncmp( (char*)muestra,(char*)readed, SAMPLES_SIZE ) && ((intentos++) < MAX_ATTEMPS) );
+	}while( strncmp( (char*)muestra,(char*)readed, sizeof(muestra_t) ) && ((intentos++) < MAX_ATTEMPS) );
 
 	/*	si se superan los intentos retorna un false	*/
 	if( intentos >= MAX_ATTEMPS )
 		return false;
     #undef	MAX_ATTEMPS
 
-	/*	si el puntero de escritura llega a la maxima direccion de almacenamiento
-     * comienzo de nuevo	*/
+	/*	si el puntero de escritura llega a la maxima direccion de almacenamiento	*/
 	if( (++samplesWrite) >= MAX_SAMPLES )
 		samplesWrite = 0;
 
@@ -372,35 +377,4 @@ void	setDeviceSensorEnables( uint8* p )
         MCHP_24LCxxx_Write_byte( _24LC512_0, INT_ENABLE_SENSOR_3, &data);
 //		i2cbus_write( _24LC512_0, INT_ENABLE_SENSOR_3, &data, sizeof (data) );
 		
-}
-
-uint16 isThereSamplesToSend()
-{
-    return getSamplesTotal();
-}
-
-void updateMemoryReadPointer()
-{
-    auto uint8 memDevice = _24LC512_0;
-    auto uint8 memNumber = 0; 
-    
-	//	actualiza los valores desde la RAM del RTCC
-	read_rtcc_array( SAMPLES_READ_ADDRESS, (uint8_t*)&samplesRead, sizeof(samplesRead) );
-	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (uint8_t*)&samplesWrite, sizeof(samplesWrite) );
-	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (uint8_t*)&samplesTotal, sizeof(samplesTotal) );
-    
-    samplesRead += 1;			//	proxima muestra
-	if( samplesRead >= MAX_SAMPLES )
-		samplesRead = 0;
-
-	/*	si pE >= pL y no hay overfloat	*/
-	if( (samplesWrite >= samplesRead) && (samplesTotal != MAX_SAMPLES) )
-		samplesTotal = samplesWrite - samplesRead;
-	/*	si pE < pL o hay overfloat	*/
-	else
-		samplesTotal = (samplesWrite + MAX_SAMPLES) - samplesRead;
-    
-    //	actualiza los valores en la RAM del RTCC
-	write_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
-	write_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
 }

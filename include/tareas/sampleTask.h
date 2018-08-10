@@ -15,7 +15,6 @@
 #include    "perifericos/adc.h"
 #include    "perifericos/led.h"
 #include    "utilities.h"
-#include    "tareas/gprsTask.h"
 
 #include "freeRTOS/FreeRTOS.h"
 #include "freeRTOS/timers.h"
@@ -30,9 +29,7 @@
 #define T_MUESTREO_DATO_S                   1
 #define T_ANTIREBOTE_LLUVIA_MS              100
 
-#define T_ESPERA_MUTEX_MEM_MS               200
-
-#define SYNC_SERVER_TIME_NOTIFICATION       4040
+#define T_ESPERA_MUTEX_MEM_MS               200              
 
 
 /* El siguiente ENUM representa los diferentes estados de la FSM de la tarea */
@@ -60,6 +57,14 @@ typedef enum
     CLOSE_SAMPLE        
 } EVENT_ID;
 
+typedef enum
+{
+	muestras = 1,
+	reservado,
+	configuracion,
+	registro
+}putDataSecuence_t;
+
 void vTaskSample( void *pvParameters );
 void startSampleTask();
 
@@ -71,6 +76,9 @@ uint16_t	swapBytes( uint16_t var );
 
 void init_sample(muestra_t *muestra);
 void assembleSample(muestra_t *muestra);
+
+void prepareSample(trama_muestra_t *tramaMuestra, muestra_t *muestraAlmacenada);
+uint8_t prepareSampleToSend(trama_muestra_t *tramaMuestra, char *tramaGPRS);
 
 static void softwareTimers_create();
 

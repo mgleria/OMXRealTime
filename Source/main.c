@@ -38,6 +38,7 @@
 #include "funciones/eeprom.h"
 #include "funciones/rtcc.h"
 #include "funciones/memory.h"
+#include "procesos/modem.h"
 #include "drivers/at_cmds.h"
 
 #include "timers.h"
@@ -64,9 +65,14 @@ string model[] = "OMX-N";
 
 string version[] = "2.00";
 
+
+
 #define mainMAX_STRING_LENGTH				( 20 )
 #define bufLen                              ( 15 )
 #define DEFAULT_STACK_SIZE                  (1000)  
+
+
+
 
 //***********************Prototipo de tareas************************************
 
@@ -78,15 +84,37 @@ void vTaskModem( void *pvParameters );
 
 #include "tareas/testTask.h"
 #include "tareas/sampleTask.h"
-#include "tareas/gprsTask.h"
 
 //***********************Prototipo de funciones externas************************
 //The vTaskDelay() API function prototype
 void vTaskDelay( TickType_t xTicksToDelay ); 
 
 //***********************Prototipo de funciones propias*************************
-void setEstacionConfig();
-void setDeviceConfig();
+//Funci�n que reemplaza la MACRO provista por freeRTOS para convertir tiempo
+//en diferentes unidades a ticks
+
+//Handler de las funciones que se ejecutan cuando los respectivos software 
+//timers expiran
+//static void prvPasiveCallback (TimerHandle_t xTimer);
+//static void prvActiveCallback (TimerHandle_t xTimer);
+//static void prvDataCallback (TimerHandle_t xTimer);
+//static void prvAntireboteCallback (TimerHandle_t xTimer);
+//Inicializaci�n software timers
+//static void softwareTimers_init();
+//Funci�n que configura todos los sensores que intervienen el el proceso vTaskSample
+
+//Funciones relativas al proceso vTaskSample
+//static void init_sample(muestra_t *muestra);
+//static void assembleSample(muestra_t *muestra);
+//MOVIENDO LAS FUNCIONES PROPIAS DE LAS TAREAS A ARCHIVOS SEPARADOS.
+////////////////////////////
+
+
+
+uint8_t	gprsProcess( char *grpsDATA );
+
+
+
 
 //******************************Globales****************************************
 
@@ -100,28 +128,22 @@ QueueHandle_t   xModemResponses;
 TaskHandle_t xShellHandle;
 TaskHandle_t xModemHandle;
 
-//uint8 sendCmd=TRUE;
+uint8 sendCmd=TRUE;
 static const char *pcSensor = "Pot";
 static char cStringBuffer[ mainMAX_STRING_LENGTH ];
 
-/*	Estructura con informacin del equipo	*/
-estacion_t estacion;
-configDevice_t configDevice;
+uint8_t flagDataUartReady;
 
-/*	fecha y hora del sistema. Definida en ext_rtcc.c	*/
-extern rtcc_t tiempo;
-
+//estacion_t estacion;
 
 int main( void )
 {
     SYSTEM_Initialize();
     
-    rtc_init();
+//    rtc_init();
 //    vLedInitialise();
-    setEstacionConfig();
     
     startSampleTask();
-    startGprsTask();
 //    startTestTask();
     
 //    vTraceEnable(TRC_START);
@@ -168,43 +190,43 @@ int main( void )
  * Se le da prioridad a los mensajes de GRPS_PROCESS sobre los mensajes de SMS_PROCESS.
  * @return	void
  */
-//void vTaskModem( void *pvParameters )
-//{
-//    uint32_t status;
-//    uint16_t receivedBytes, sendedBytes;
-//    cmdQueue_t request;
-//    uint8_t response[MODEM_BUFFER_SIZE];
-//    
-//    
-//    xModemRequests   = xQueueCreate(REQUEST_QUEUE_SIZE, sizeof(cmdQueue_t));
-//    //La cola de respuesta solo contiene el string proveniente del modem
-//    xModemResponses  = xQueueCreate(RESPONSE_QUEUE_SIZE, MODEM_BUFFER_SIZE);
-//    
-//    uint16_t contadorSMS, contadorGPRS, contadorSHELL = 0;
-//    
-//    uint8_t cmdLenght = 0;
-//    
-//    receivedBytes, sendedBytes = 0;
-//    
-//    for(;;)
-//    {
-//        
-//        //gprsProcess();
-//        
-//        
-//        //Si la cola fue creada correctamente
-//        if(xModemRequests != NULL){
-//            /*Si no hay elementos en la cola xModemRequests, la tarea se bloquea 
-//            esperando la llegada de comandos*/
-//            if(xQueueReceive( xModemRequests, &( request ), portMAX_DELAY)){
-//                //Demora en el envio del comando
-//                if(request.delay>0) vTaskDelay(xSegToTicks(request.delay));
-//                //Envio del comando a la UART2 (modem)
-//                //expexted end of frame
-//                cmdLenght = strlen(request.cmd);
-////                sendedBytes = UART2_WriteBuffer(request.cmd, cmdLenght ,request.expextedEndOfFrame);
-//            }       
-//        }
+void vTaskModem( void *pvParameters )
+{
+    uint32_t status;
+    uint16_t receivedBytes, sendedBytes;
+    cmdQueue_t request;
+    uint8_t response[MODEM_BUFFER_SIZE];
+    
+    
+    xModemRequests   = xQueueCreate(REQUEST_QUEUE_SIZE, sizeof(cmdQueue_t));
+    //La cola de respuesta solo contiene el string proveniente del modem
+    xModemResponses  = xQueueCreate(RESPONSE_QUEUE_SIZE, MODEM_BUFFER_SIZE);
+    
+    uint16_t contadorSMS, contadorGPRS, contadorSHELL = 0;
+    
+    uint8_t cmdLenght = 0;
+    
+    receivedBytes, sendedBytes = 0;
+    
+    for(;;)
+    {
+        
+        //gprsProcess();
+        
+        
+        //Si la cola fue creada correctamente
+        if(xModemRequests != NULL){
+            /*Si no hay elementos en la cola xModemRequests, la tarea se bloquea 
+            esperando la llegada de comandos*/
+            if(xQueueReceive( xModemRequests, &( request ), portMAX_DELAY)){
+                //Demora en el envio del comando
+                if(request.delay>0) vTaskDelay(xSegToTicks(request.delay));
+                //Envio del comando a la UART2 (modem)
+                //expexted end of frame
+                cmdLenght = strlen(request.cmd);
+//                sendedBytes = UART2_WriteBuffer(request.cmd, cmdLenght ,request.expextedEndOfFrame);
+            }       
+        }
 //        //Se despertar� cuando la UART2 termine de recibir la respuesta del modem y notifique
 //        //desde la funci�n CALLBACK de TMR4. 
 //        status = ulTaskNotifyTake(  pdTRUE,  /* Clear the notification value before exiting. */
@@ -252,8 +274,8 @@ int main( void )
 //                break;
 //
 //        }
-//    }
-//}
+    }
+}
 
 
 
@@ -293,7 +315,6 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
 {
 	( void ) pcTaskName;
 	( void ) pxTask;
-    debugUART1("vApplicationStackOverflowHook");
 
 	/* Run time stack overflow checking is performed if
 	configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
@@ -316,39 +337,6 @@ void flushComando(uint8_t *comando)
     }
 }
 
-void setDeviceConfig()
-{
-    configDevice.type = 3;
-    configDevice.serial = 9998;
-    configDevice.fw_version = 1;
-    configDevice.factoryReset = 0x55;
-}
-
-void setEstacionConfig()
-{
-    setDeviceConfig();
-    /*	actualiza las variables del RTCC	*/
-	get_rtcc_datetime( &tiempo );
-
-	/*	lee la configuracion del equipo */
-	estacion.tipo = configDevice.type;
-	estacion.num_serie = configDevice.serial;
-	estacion.hora = tiempo.hora;		//	getTimeDate(_HOUR_);
-	estacion.min = tiempo.minutos;		//	getTimeDate(_MIN_);
-	estacion.dia = tiempo.dia;			//	getTimeDate(_DAY_);
-	estacion.mes = tiempo.mes;			//	getTimeDate(_MON_);
-	estacion.anio = tiempo.anio;		//	getTimeDate(_YEAR_);
-	estacion.InicioMuestras = (estacion.min & 0xF0) + 9;	//	enviado en formato BCD
-	estacion.intentosConex = getConnAttempts();
-	estacion.dAlmacenados = getSamplesTotal();
-	estacion.pEscritura = getSamplesWrite();
-	estacion.pLectura = getSamplesRead();
-	estacion.fw_version = configDevice.fw_version;
-
-	/*	tipo de reset del equipo */
-	estacion.tiporeset = RCON;
-}
-
 
 
 //static void assembleSample(muestra_t *muestra)
@@ -367,3 +355,348 @@ void setEstacionConfig()
 //    muestra->clima.luzDia = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
 //   
 //}
+
+
+
+
+void SetProcessState( uint8 * reg, uint8 state )
+{
+	*reg = state;
+	sendCmd = TRUE;
+}
+
+/*	enumeracion de los posibles estados en el manejo del gprs	*/
+	static enum
+	{
+		noCommand = 0,				//!	no se ejecuta ningun comando
+		gprsReset,					//!	reinicio del proceso GPRS
+		initModem,					//!	inicializacion del modem
+		getModemID,					//!	consulta identificacion de la revision del modem
+		getMSN,						//!	consulta en numero de serie del fabricante
+		getIMSI,					//!	consulta el numero de identificacion del abonado
+		getIMEI,					//!	consulta el numero de identificacion serie del modem
+		getSignal,					//!	consulta el nivel de se�al
+		ipAddress,					//!	consulta la direccion de IP al modem
+		setContext,					//!	configura el contexto
+        activateContext,			//!	Activa el contexto previamente configurado
+        configSocket,               //!	Configurar el socket
+        configExtendSocket,         //!	Configuraci�n extendida el socket
+        socketDial,                 //!	Apertura del socket
+        socketDial_2,                
+		socketStatus,               //!Nuevo estado para saber el estado del socket
+		closeSocket,				//!	cierra el puerto de conexion con la red
+		sendData,					//!	envia los datos almacenados usando el protocolo configurado
+		putData,					//!	coloca los datos dentro del protocolo
+        receiveData,				//Recibe datos desde el servido
+		gprsWaitReset,				//!	estado para esperar el reinicio del equipo
+        finalStateToggleLed,
+	}gprsState = gprsReset, prev_gprsState = 0xFF;
+    
+#define     GPRS_BUFFER_SIZE    120 //Duplicado ojo!
+uint8_t	gprsProcess( char *grpsDATA )
+{
+
+    char gprsBuffer [GPRS_BUFFER_SIZE]={0};
+//    char gprsBuffer2 [GPRS_BUFFER_SIZE]={0};
+
+	/*	estados del proceso	*/
+	switch ( gprsState )
+	{
+	/*	GprsReset: deshabilitaci�n ECHO	*/
+		case( gprsReset ):		
+			if( sendCmd )
+			{
+                debugUART1("GprsReset:\r\n");
+//				UART1_WriteBuffer("GprsReset",strlen("GprsReset"));
+                UART2_WriteBuffer(atcmd_disableEcho,strlen(atcmd_disableEcho));
+                //SendATCommand((string*)atcmd_disableEcho,gprsBuffer,gprsBuffer,10,0,2);
+				/*	modo recepcion para espera de la respuesta	*/
+				sendCmd = FALSE;
+			}
+			else
+			{                
+                UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
+                debugUART1("gprsBuffer: ");
+                debugUART1(gprsBuffer);                
+				if(strstr(gprsBuffer,_OK_))
+                {
+                    UART1_WriteBuffer("_OK_\n\r",strlen("_OK_\n\r"));
+                    SetProcessState( &gprsState,setContext );
+                }
+                else
+                {
+                   //strcat(gprsBuffer,"_ERROR_\n\r");
+                   UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                }			
+			}
+			break;
+	
+//         /*	Request Revision	*/
+		case( setContext ):
+			if( sendCmd )
+			{
+                debugUART1("setContext:\r\n");
+//				UART1_WriteBuffer("setContext",strlen("setContext"));
+                UART2_WriteBuffer(atcmd_setContextPersonal,strlen(atcmd_setContextPersonal));
+				/*	modo recepcion para espera de la respuesta	*/
+				sendCmd = FALSE;
+			}
+			else
+			{
+				//YA QUE LA RESPUESTA ES POR EJEMPLO<CR><LF>10.00.146<CR><LF>OK<CR><LF>
+				//VERIFICAMOS SI EL OK ESTA EN EL STRING RECIBIDO
+				UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
+                debugUART1("gprsBuffer: ");
+                debugUART1(gprsBuffer); 
+				if(strstr(gprsBuffer,_OK_))
+                {
+                    UART1_WriteBuffer("_OK_\n\r",strlen("_OK_\n\r"));
+                    SetProcessState( &gprsState,activateContext );                 
+                }
+                else
+                {
+                    //strcat(gprsBuffer,"_ERROR_\n\r");
+                    UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                }    
+			}
+			break;
+			/*	Active Context	*/
+		case( activateContext ):
+			if( sendCmd )
+			{
+                debugUART1("activateContext:\r\n");
+//                UART1_WriteBuffer("activateContext",strlen("activateContext"));
+                UART2_WriteBuffer(atcmd_activateContextHARDCODED,strlen(atcmd_activateContextHARDCODED));			
+				/*	modo recepcion para espera de la respuesta	*/
+				sendCmd = FALSE;
+			}
+			else
+			{
+                UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
+                debugUART1("gprsBuffer: ");
+                debugUART1(gprsBuffer); 
+				if(strstr(gprsBuffer,_OK_))
+				{
+                    /*COMO NOS DEVUELVE LA DIRECCI�N IP, DEBEMOS TOMARLA Y ALMACERNARLA*/			
+                    UART1_WriteBuffer("_OK_\n\r",strlen("_OK_\n\r"));
+                    SetProcessState( &gprsState,configSocket );
+				}
+                else
+                {
+                    //strcat(gprsBuffer,"_ERROR_\n\r");
+                    UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                }
+			}
+			break;
+			
+		/*	Configuraci�n de Socket	*/
+		case( configSocket ):
+			if( sendCmd )
+			{
+                debugUART1("configSocket:\r\n");
+//				UART1_WriteBuffer("configSocket",strlen("configSocket"));
+                UART2_WriteBuffer(atcmd_configSocketHARDCODED,strlen(atcmd_configSocketHARDCODED));			
+				/*	modo recepcion para espera de la respuesta	*/
+				sendCmd = FALSE;
+			}
+			else
+			{
+                      
+				UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
+                debugUART1("gprsBuffer: ");
+                debugUART1(gprsBuffer); 
+				if(strstr(gprsBuffer,_OK_))
+				{
+					 /*COMO NOS DEVUELVE LA DIRECCI�N IP, DEBEMOS TOMARLA Y ALMACERNARLA*/			
+                    UART1_WriteBuffer("_OK_\n\r",strlen("_OK_\n\r"));
+					SetProcessState( &gprsState, configExtendSocket);
+				}
+                else
+                {
+                    //strcat(gprsBuffer,"_ERROR_\n\r");
+                    UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                }
+			}
+			break;
+            
+			/*	Configuraci�n de Socket	*/
+		case( configExtendSocket ):
+			if( sendCmd )
+			{	
+                debugUART1("configExtendSocket:\r\n");
+//				UART1_WriteBuffer("configExtendSocket",strlen("configExtendSocket"));
+                UART2_WriteBuffer(atcmd_configExtendSocketHARDCODED,strlen(atcmd_configExtendSocketHARDCODED));			
+				/*	modo recepcion para espera de la respuesta	*/
+				sendCmd = FALSE;
+			}
+			else
+			{
+				UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);                 
+				if(strstr(gprsBuffer,_OK_))
+				{
+					 /*COMO NOS DEVUELVE LA DIRECCI�N IP, DEBEMOS TOMARLA Y ALMACERNARLA*/			
+                    UART1_WriteBuffer("_OK_\n\r",strlen("_OK_\n\r"));
+					SetProcessState( &gprsState, socketDial);
+				}
+                else
+                {
+                    //strcat(gprsBuffer,"_ERROR_\n\r");
+                    UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                }
+			}
+			break;  
+			/*	Dial Socket	*/
+		case( socketDial ):
+			if( sendCmd )
+			{	
+                debugUART1("socketDial:\r\n");
+//                UART1_WriteBuffer("socketDial",strlen("socketDial"));
+                UART2_WriteBuffer(atcmd_socketDialHARDCODED_1,strlen(atcmd_socketDialHARDCODED_1));			
+				/*	modo recepcion para espera de la respuesta	*/
+				sendCmd = FALSE;
+			}
+			else
+			{           
+				UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);                 
+				if(strstr(gprsBuffer,_OK_))
+				{
+					 /*COMO NOS DEVUELVE LA DIRECCI�N IP, DEBEMOS TOMARLA Y ALMACERNARLA*/			
+                    UART1_WriteBuffer("_OK_\n\r",strlen("_OK_\n\r"));
+					SetProcessState( &gprsState, socketDial_2);
+				}
+                else
+                {
+                    //strcat(gprsBuffer,"_ERROR_\n\r");
+                    UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                }			
+			}
+			break;
+        case( socketDial_2 ):
+			if( sendCmd )
+			{	
+                debugUART1("socketDial_2:\r\n");
+//                UART1_WriteBuffer("socketDial_2",strlen("socketDial_2"));
+                UART2_WriteBuffer(atcmd_socketDialHARDCODED_2,strlen(atcmd_socketDialHARDCODED_2));			
+				/*	modo recepcion para espera de la respuesta	*/
+				sendCmd = FALSE;
+			}
+			else
+			{   
+                UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);                 
+				if(strstr(gprsBuffer,">"))
+				{		
+                    UART1_WriteBuffer("> Recibido\r\n",strlen("> Recibido\r\n"));
+					SetProcessState( &gprsState, putData);
+				}
+                else
+                {
+                    //strcat(gprsBuffer,"_ERROR_\n\r");
+                    UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                }			
+			}
+			break;			
+				/*	Add Data to Socket	
+			 * Pide la proxima trama que se tiene que enviar el servidor. Estas pueden ser 
+			 * registro, configuracion o muestras. En caso de ser muestras, cuando no haya 
+			 * mas para enviar la funcion getServerFrame() devuelve un NULL.
+			 */
+		case( putData ):
+			if( sendCmd )
+			{
+                debugUART1("putData:\r\n");
+
+                UART2_WriteBuffer(grpsDATA,strlen(grpsDATA)); //FRAME pasado por parametro
+                
+//                UART2_WriteBuffer(atcmd_FRAME2,strlen(atcmd_FRAME2));
+                
+				UART2_WriteBuffer(atcmd_EOF,strlen(atcmd_EOF)); //Fin de trama
+                
+                debugUART1("Trama: ");
+                debugUART1(grpsDATA);
+                debugUART1("\r\n");
+
+				sendCmd = FALSE;
+			}
+			else
+			{		
+                UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);                 
+				if(strstr(gprsBuffer,"SRING"))
+                {		
+                    UART1_WriteBuffer("SRING Recibido\r\n",strlen("SRING Recibido\r\n"));
+					SetProcessState( &gprsState, receiveData);
+				}
+                else
+                {
+                    //strcat(gprsBuffer,"_ERROR_\n\r");
+                    UART1_WriteBuffer("WAITING SRING:  ",strlen("WAITING SRING:  "));
+                    UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                }
+			}
+			break;		
+			/*	Receive data  */
+		case( receiveData ):
+			if( sendCmd )
+			{
+                debugUART1("receiveData:\r\n");
+//                UART1_WriteBuffer("receiveData",strlen("receiveData"));
+                UART2_WriteBuffer(atcmd_sListenHARDCODED,strlen(atcmd_sListenHARDCODED));			
+				/*	modo recepcion para espera de la respuesta	*/
+				sendCmd = FALSE;
+			}
+			else
+			{	               
+                UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
+                debugUART1("Rta SERVER: ");
+                UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                debugUART1("\r\n");
+                
+				if(strstr(gprsBuffer,"024F"))
+                {		
+                    debugUART1("Rta SERVER: 024F\r\n");
+                    SetProcessState( &gprsState, closeSocket);
+                }
+                else
+                {
+                    //strcat(gprsBuffer,"_ERROR_\n\r");
+                    UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                }
+            }
+            break;
+			
+        /*	Close a Socket	
+         * Cierra el puerto de comunicacion con el servidor.
+         */
+		case( closeSocket ):
+            if( sendCmd )
+			{	
+                debugUART1("closeSocket:\r\n");
+//                UART1_WriteBuffer("closeSocket",strlen("closeSocket"));
+                UART2_WriteBuffer(atcmd_closeSocketHARDCODED,strlen(atcmd_closeSocketHARDCODED));			
+				/*	modo recepcion para espera de la respuesta	*/
+				sendCmd = FALSE;
+			}
+			else
+			{           
+				UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);                 
+				if(strstr(gprsBuffer,_OK_))
+//                if(strstr(UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE),_OK_))
+				{
+					 /*COMO NOS DEVUELVE LA DIRECCI�N IP, DEBEMOS TOMARLA Y ALMACERNARLA*/			
+                    UART1_WriteBuffer("_OK_\n\r",strlen("_OK_\n\r"));
+					SetProcessState( &gprsState, configExtendSocket);
+				}
+                else
+                {
+                    //strcat(gprsBuffer,"_ERROR_\n\r");
+                    UART1_WriteBuffer(gprsBuffer,strlen(gprsBuffer));
+                }			
+			}
+			break;
+        
+        case(finalStateToggleLed):
+            debugUART1("finalStateToggleLed:\r\n");
+            vLedToggleLED(1);
+			break;
+    }
+    return	TRUE;
+}
