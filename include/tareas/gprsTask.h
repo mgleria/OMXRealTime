@@ -25,6 +25,12 @@
 #define     GPRS_BUFFER_SIZE            120 //Duplicado ojo!
 #define     NEW_SAMPLE_NOTIFICATION     3030
 #define     MAX_ATTEMPTS_NUMBER         10
+#define     FRAME_HEADER_SIZE           4
+
+#define     _024F                       1
+#define     _004F                       2
+#define     _024E                       3
+#define     _004E                       4
 
 /*	enumeracion de los posibles estados en el manejo del gprs	*/
 	static enum GPRS_STATE
@@ -53,6 +59,16 @@
         configuracion,
         registro
     }putDataSecuence_t;
+    
+    typedef enum
+    {
+        h024F = 1,
+        h004F,
+        h024E,
+        h004E
+    }headerOptions_t;
+    
+    
     
     
     

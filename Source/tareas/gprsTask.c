@@ -20,15 +20,19 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample );
 void    cleanDataGPRSBuffer();
 const char* getStateName(enum GPRS_STATE state);
 void	setDeviceDateTime( char * s );
-void    processServerResponse();
+uint8    getNextDataSecuence();
 char    isRegistered();
 char    registerInProcess();
 const char* getFrameType(uint8 frameType);
 void    removePaddingBytes(char *tramaGPRS,uint8 paddingPosition, uint8 frameSize);
 void    cleanBufferTail(uint8 frameSize);
+headerOptions_t getHeaderIndex(const char* header);
 
 //Buffer de comunicación entrante y saliente con el modem
 static char gprsBuffer[GPRS_BUFFER_SIZE]={0};
+static char header[FRAME_HEADER_SIZE]={0};
+static headerOptions_t headerIndex; 
+
 //Buffer donde se almacena la trama de datos generada para enviar al modem
 static char tramaGPRS[GPRS_BUFFER_SIZE] = {0};
 
@@ -142,7 +146,7 @@ uint8_t	FSM_GprsTask( )
                 
                 /*Si hay muestras pendientes de enviar, armo las tramas y 
                  * postergo el registro*/
-                if( isThereSamplesToSend()>0 ){
+                if( isThereSamplesToSend()){
                     dataSecuence = muestras;
                 }       
                 //Si NO hay muestras sin enviar, registro la estación
@@ -567,45 +571,49 @@ uint8_t	FSM_GprsTask( )
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
+                    /*Esto es para comparar solo con el encabezado de la trama
+                     asi se evitan falsos positivos*/
+                    strncpy(gprsBuffer,header,sizeof(header));
+                    headerIndex = getHeaderIndex(header);
+                    
                     printf("Rta SERVER: %s\r\n",gprsBuffer);
+                    printf("dataSecuence: %s\r\n",getFrameType(dataSecuence));                   
+                    printf("Header Rta SERVER: %s\r\n",header);
                     
-                    char *p;
-                    
-                    printf("dataSecuence: %s\r\n",getFrameType(dataSecuence));
-  
-                    if(p = strstr(gprsBuffer,"024F")) //Quiza deberia chequear solo el encabezado de la trama para evitar falsos positivos
-                    {
-                        if(dataSecuence == muestras) 
-                            updateMemoryReadPointer();
-                        else{
-                            if(dataSecuence == registro)
-                                registering = true;
-                        }
-                            
-                        debugUART1("Rta SERVER: 024F\r\n");
-                        //Corrijo la config de sensores y la fecha-hora 
-                        setDeviceSensorEnables( p + 6 ); //7
-						setDeviceDateTime( p + 13 );    //14
-                        debugUART1("Configuracion de sensores y RTCC actualizada.\r\n");
-                        processServerResponse();
-                                                                   
+                    switch(headerIndex){
+                        case h024F:
+                            //Corrijo la config de sensores y la fecha-hora 
+                            setDeviceSensorEnables( gprsBuffer + 6 ); //7
+                            setDeviceDateTime( gprsBuffer + 13 );    //14
+                            printf("Configuracion de sensores y RTCC actualizada.\r\n");
+                        //El siguiente codigo se ejecutara para 024F y 004F
+                        case h004F:
+                            if(dataSecuence == muestras) 
+                                updateMemoryReadPointer();
+                            else{
+                                if(dataSecuence == registro)
+                                    registering = true;
+                            }
+                            dataSecuence = getNextDataSecuence(); 
+                            break;
+                        case h004E:
+                        case h024E:
+                            //Quiza sea innecesario...
+//                            setServerFrame(dataSecuence,lastSample);
+                            break;
+                        default:
+                            printf("Respuesta del server desconocida.\r\nReiniciando FSM...");   
                     }
-                    else if(strstr(gprsBuffer,"004F"))
-                    {
-                        if(dataSecuence == muestras) 
-                            updateMemoryReadPointer();
-                        else{
-                            if(dataSecuence == registro)
-                                registering = true;
-                        }
-                        debugUART1("Rta SERVER: 004F\r\n");
-                        processServerResponse();  
+                    //Si dataSecuence es diferente de cero, tengo algo por enviar
+                    if(dataSecuence){
+                        setServerFrame(dataSecuence,lastSample);
+                        printf("Building a %s frame.\r\n",getFrameType(dataSecuence));
+                        SetProcessState(&gprsState, socketSend);
                     }
                     else{
-                        debugUART1("Respuesta del server desconocida\r\n");
-                        debugUART1(gprsBuffer);
-                        SetProcessState( &gprsState, gprsReset);
-                    }
+                        SetProcessState(&gprsState, closeSocket);
+                        debugUART1("No more frames. Closing socket...\r\n");
+                    }      
                 }
                 else{
                     printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
@@ -993,47 +1001,48 @@ void	setDeviceDateTime( char * s )
 	set_rtcc_datetime( &t );
 }
 
-void    processServerResponse()
+uint8    getNextDataSecuence()
 {
     
     /*Si la trama anterior fue una muestra o configuracion,
     y si tengo muestras pendientes de enviar*/
     if(isThereSamplesToSend() && !registerInProcess()) {
-        dataSecuence = muestras;
-        setServerFrame(dataSecuence,nextSample);
-        SetProcessState(&gprsState, socketSend);
-        debugUART1("Setting next data frame to send.\r\n");
+        return muestras;
+//        setServerFrame(dataSecuence,nextSample);
+//        SetProcessState(&gprsState, socketSend);
+//        debugUART1("Setting next data frame to send.\r\n");
     }
     else{ 
-        
-//        asm("nop");
         /*Si no tengo muestras pendientes de enviar y no estoy registrado*/
         if(registerInProcess()){
             //No se registró. Procede a registrarse.
-            dataSecuence = registro;
-            setServerFrame(dataSecuence,nextSample);
-            debugUART1("Sending register frame.\r\n");
-            SetProcessState(&gprsState, socketSend);
+            return configuracion;
+//            setServerFrame(dataSecuence,nextSample);
+//            debugUART1("Sending config frame.\r\n");
+//            SetProcessState(&gprsState, socketSend);
         }
         /*Si estoy registrado y la muestra anterior fue 'registro'*/
         else if(!isRegistered()){
+            return registro;
+            
             //La trama anterior fue de registro, ahora tiene que mandar de configuracion
             //Notifico a Sample que ya tengo la hora del servidor
 //            xTaskNotify(xGprsHandle, SYNC_SERVER_TIME_NOTIFICATION,eSetValueWithOverwrite);
             
-            registered = true; /* Esto tendria que hacerlo cuando reciba 
-                                confirmacion del server de haber recibido
-                                la trama de configuracion*/
-            registering = false;
-            dataSecuence = configuracion;
-            setServerFrame(dataSecuence,nextSample);
-            SetProcessState(&gprsState, socketSend);
-            debugUART1("Frame registro sended. Sending configuration frame.\r\n");
+//            registered = true; /* Esto tendria que hacerlo cuando reciba 
+//                                confirmacion del server de haber recibido
+//                                la trama de configuracion*/
+//            registering = false;
+//            dataSecuence = configuracion;
+//            setServerFrame(dataSecuence,nextSample);
+//            SetProcessState(&gprsState, socketSend);
+//            debugUART1("Frame registro sended. Sending configuration frame.\r\n");
         }
         else{
             //No hay muestras pendientes por enviar
-            SetProcessState(&gprsState, closeSocket);
-            debugUART1("No more frames. Closing socket...\r\n");
+//            SetProcessState(&gprsState, closeSocket);
+//            debugUART1("No more frames. Closing socket...\r\n");
+            return 0;
         }
     }
     
@@ -1075,4 +1084,29 @@ const char* getFrameType(uint8 frameType)
         case configuracion: return "CONFIGURACION";
         default: return "WRONG_FRAME_TYPE";
     }
+}
+
+headerOptions_t getHeaderIndex(const char* header)
+{    
+    if (strcmp(header, "024F") == 0) 
+    {
+        return h024F;
+    } 
+    else if (strcmp(header, "004F") == 0)
+    {
+      return h004F;
+    }
+    else if (strcmp(header, "004E") == 0)
+    {
+      return h004E;
+    }
+    else if (strcmp(header, "024E") == 0)
+    {
+      return h024E;
+    }
+    /* more else if clauses */
+    else /* default: */
+    {
+        return 0;
+    }   
 }
