@@ -64,14 +64,9 @@ string model[] = "OMX-N";
 
 string version[] = "2.00";
 
-
-
 #define mainMAX_STRING_LENGTH				( 20 )
 #define bufLen                              ( 15 )
 #define DEFAULT_STACK_SIZE                  (1000)  
-
-
-
 
 //***********************Prototipo de tareas************************************
 
@@ -90,27 +85,8 @@ void vTaskModem( void *pvParameters );
 void vTaskDelay( TickType_t xTicksToDelay ); 
 
 //***********************Prototipo de funciones propias*************************
-//Funci�n que reemplaza la MACRO provista por freeRTOS para convertir tiempo
-//en diferentes unidades a ticks
-
-//Handler de las funciones que se ejecutan cuando los respectivos software 
-//timers expiran
-//static void prvPasiveCallback (TimerHandle_t xTimer);
-//static void prvActiveCallback (TimerHandle_t xTimer);
-//static void prvDataCallback (TimerHandle_t xTimer);
-//static void prvAntireboteCallback (TimerHandle_t xTimer);
-//Inicializaci�n software timers
-//static void softwareTimers_init();
-//Funci�n que configura todos los sensores que intervienen el el proceso vTaskSample
-
-//Funciones relativas al proceso vTaskSample
-//static void init_sample(muestra_t *muestra);
-//static void assembleSample(muestra_t *muestra);
-//MOVIENDO LAS FUNCIONES PROPIAS DE LAS TAREAS A ARCHIVOS SEPARADOS.
-////////////////////////////
-
-
-
+void setEstacionConfig();
+void setDeviceConfig();
 
 //******************************Globales****************************************
 
@@ -128,16 +104,28 @@ TaskHandle_t xModemHandle;
 static const char *pcSensor = "Pot";
 static char cStringBuffer[ mainMAX_STRING_LENGTH ];
 
-//estacion_t estacion;
+/*	Estructura con informacin del equipo	*/
+estacion_t estacion;
+configDevice_t configDevice;
+
+/*	fecha y hora del sistema. Definida en ext_rtcc.c	*/
+extern rtcc_t tiempo;
+
+#define     RESET_MEMORY     1
 
 int main( void )
 {
     SYSTEM_Initialize();
     
-//    rtc_init();
+    rtc_init();
 //    vLedInitialise();
+    setEstacionConfig();
     
-//    startSampleTask();
+    if(RESET_MEMORY) resetSamplesPtr();
+    
+    printMemoryPointers();
+    
+    startSampleTask();
     startGprsTask();
 //    startTestTask();
     
@@ -333,21 +321,35 @@ void flushComando(uint8_t *comando)
     }
 }
 
+void setDeviceConfig()
+{
+    configDevice.type = 3;
+    configDevice.serial = 9998;
+    configDevice.fw_version = 1;
+    configDevice.factoryReset = 0x55;
+}
 
+void setEstacionConfig()
+{
+    setDeviceConfig();
+    /*	actualiza las variables del RTCC	*/
+	get_rtcc_datetime( &tiempo );
 
-//static void assembleSample(muestra_t *muestra)
-//{
-//    
-////    rtcc_t rtcc;
-////    
-////    get_rtcc_datetime(&rtcc);
-////    
-////    muestra->anio = rtcc.anio;
-////    muestra->mes = rtcc.mes;
-////    muestra->dia = rtcc.dia;
-////    muestra->hora = rtcc.hora;
-////    muestra->minutos = rtcc.minutos;
-//    
-//    muestra->clima.luzDia = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
-//   
-//}
+	/*	lee la configuracion del equipo */
+	estacion.tipo = configDevice.type;
+	estacion.num_serie = configDevice.serial;
+	estacion.hora = tiempo.hora;		//	getTimeDate(_HOUR_);
+	estacion.min = tiempo.minutos;		//	getTimeDate(_MIN_);
+	estacion.dia = tiempo.dia;			//	getTimeDate(_DAY_);
+	estacion.mes = tiempo.mes;			//	getTimeDate(_MON_);
+	estacion.anio = tiempo.anio;		//	getTimeDate(_YEAR_);
+	estacion.InicioMuestras = (estacion.min & 0xF0) + 9;	//	enviado en formato BCD
+	estacion.intentosConex = getConnAttempts();
+	estacion.dAlmacenados = getSamplesTotal();
+	estacion.pEscritura = getSamplesWrite();
+	estacion.pLectura = getSamplesRead();
+	estacion.fw_version = configDevice.fw_version;
+
+	/*	tipo de reset del equipo */
+	estacion.tiporeset = RCON;
+}

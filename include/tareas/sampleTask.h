@@ -15,6 +15,7 @@
 #include    "perifericos/adc.h"
 #include    "perifericos/led.h"
 #include    "utilities.h"
+#include    "tareas/gprsTask.h"
 
 #include "freeRTOS/FreeRTOS.h"
 #include "freeRTOS/timers.h"
@@ -24,12 +25,14 @@
 #define	SAMPLETASK_H
 
 //Software TIMERS
-#define T_MUESTREO_PASIVO_S                 20
+#define T_MUESTREO_PASIVO_S                 50
 #define T_MUESTREO_ACTIVO_S                 10
 #define T_MUESTREO_DATO_S                   1
 #define T_ANTIREBOTE_LLUVIA_MS              100
 
-#define T_ESPERA_MUTEX_MEM_MS               200              
+#define T_ESPERA_MUTEX_MEM_MS               200
+
+#define SYNC_SERVER_TIME_NOTIFICATION       4040
 
 
 /* El siguiente ENUM representa los diferentes estados de la FSM de la tarea */

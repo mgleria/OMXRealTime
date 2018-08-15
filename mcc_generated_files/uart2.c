@@ -162,8 +162,6 @@ void UART2_Initialize (void)
 */
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _U2TXInterrupt ( void )
 { 
-//    vLedToggleLED(0);
-    
     if(uart2_obj.txStatus.s.empty)
     {
         IEC1bits.U2TXIE = false;
@@ -196,8 +194,7 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _U2TXInterrupt ( void )
 
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _U2RXInterrupt( void )
 {
-//    UART2_Write(U2RXREG);
-//    vLedToggleLED(1);
+
 
     while((U2STAbits.URXDA == 1))
     {

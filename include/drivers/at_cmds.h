@@ -135,6 +135,8 @@ extern string	atcmd_FRAME_1[]                     ;
 
 extern string	atcmd_FRAME2[]                      ;
 
+extern string   atcmd_FRAME_3[]                     ;
+
 extern string	atcmd_EOF[]                         ;
 
 extern string	atcmd_sListenHARDCODED[]            ;
@@ -142,6 +144,8 @@ extern string	atcmd_sListenHARDCODED[]            ;
 extern string	atcmd_closeSocketHARDCODED[]		;
 
 extern string   atcmd_checkIP[]                     ;
+
+extern string   atcmd_initialConfig[]               ;
 
 //extern string MsgBuffer[];
 //PARA TRANSMITIR TRAMA FIJA

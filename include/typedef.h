@@ -101,8 +101,7 @@ typedef struct
 	uint8			sensorHab1;			//	54
 	uint8			sensorHab2;			//	55
 	uint8			sensorHab3;			//	56
-	char			nullE;				//	57
-	char			_reserved_[6];		//	reserved to complete 64 bytes
+	char			_reserved_[5];		//	reserved to complete 64 bytes
 }muestra_t;								//	64 bytes
 
 /**********************************************************************************************/
@@ -166,7 +165,6 @@ typedef struct
 	uint8				sensorHab1;		//	54
 	uint8				sensorHab2;		//	55
 	uint8				sensorHab3;		//	56
-	char				nullE;			//	para indicar fin de trama
 }trama_muestra_t;						//	57 caracteres en total
 
 /**********************************************************************************************/
@@ -195,7 +193,6 @@ typedef struct
 	uint8				sensorHab1;		//	21
 	uint8				sensorHab2;		//	22
 	uint8				sensorHab3;		//	23
-	char				nullE;			//	para indicar fin de trama
 }trama_inicio_t;						//	tamaño: 24 caracteres
 
 /**********************************************************************************************/
@@ -215,7 +212,6 @@ typedef struct
 	uint8				sensorHab1;		//	12
 	uint8				sensorHab2;		//	13
 	uint8				sensorHab3;		//	14
-	char				nullE;			//	para indicar fin de trama
 }trama_config_t;						//	tamaño: 15 caracteres
 
 /**********************************************************************************************/
