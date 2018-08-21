@@ -65,3 +65,16 @@ void printMemoryPointers()
     printf("%-8s%-8s%-8s\n", "Total", "Read", "Write"); 
     printf("%-8d%-8d%-8d\n", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
 }
+
+char *findNthCharacterOcurrence(const char *src,const char ch, uint8_t n)
+{
+    char *p = src;
+    int count;
+    for (count = 0; ; ++count) {
+        p = strchr(p, ch);
+        if (!p || count == n)
+            break;
+        p++;
+    }
+    return p;
+}

@@ -12,65 +12,80 @@ TaskHandle_t xTestHandle;
  */
 void vTaskTest( void *pvParameters )
 {
-    #define TASK_PERIOD_MS 3000
+    #define TASK_PERIOD_MS 5000
     TickType_t taskDelay;
     taskDelay = xMsToTicks(TASK_PERIOD_MS);
-    muestra_t muestra;
-    static uint16_t potentiometer;
-    static uint16_t temperature;
-    uint8 resultPutSample = -1;
     
-    sensorsConfig();
-    TMR3_Start();
+    //Buffer de comunicación entrante y saliente con el modem
+    static char gprsBuffer[GPRS_BUFFER_SIZE]={0};
+    static char header[FRAME_HEADER_SIZE]={0};
+    static headerOptions_t headerIndex; 
     
-    init_sample(&muestra);
+    const char ch = '\n';
+    char *ret;
+
     
-//    printMemoryPointers();
-    printf("sizeof(muestra_t):%d\r\n",sizeof(muestra_t));
-    printf("sizeof(trama_muestra_t):%d\r\n",sizeof(trama_muestra_t));
-    printf("sizeof(trama_config_t):%d\r\n",sizeof(trama_config_t));
-    printf("sizeof(trama_inicio_t):%d\r\n",sizeof(trama_inicio_t));
     
     //Loop principal
     for(;;)
     {
-        potentiometer = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
-        temperature = ADC_Read10bit( ADC_CHANNEL_TEMPERATURE_SENSOR );
-        muestra.clima.luzDia = potentiometer;
-        muestra.clima.temper = getTemperature(temperature);
-        muestra.clima.lluvia = getAccumulatedRain();
+        strcpy(gprsBuffer,"\r\n#SRECV: 1,17\r\n024F004900003230303831383133303300\r\n\r\nOK\r\n\r\n");
         
-        printf("sample.clima.luzDia: %d\r\n",muestra.clima.luzDia);
-        printf("sample.clima.temper: %d\r\n",muestra.clima.temper);
-        printf("sample.clima.lluvia: %d\r\n",muestra.clima.lluvia);
-        
-        //Limpio el contador por soft del TMR3
-        clearAccumulatedRain();
-        
-        resultPutSample = putSample(&muestra);
-//        printMemoryPointers();
-        if(resultPutSample){
-            printf("Muestra guardada exitosamente:%d\r\n",resultPutSample);
-        }
-        else{
-            printf("ERROR al guardar la muestra:%d\r\n",resultPutSample);
-        }       
-        
-        printf("TRAMA TIPO MUESTRA\r\n");
-        setServerFrame(muestras,0);
-        
-        vTaskDelay(taskDelay); 
-        
-        printf("TRAMA TIPO REGISTRO\r\n");
-        setServerFrame(registro,0);
-        
-        vTaskDelay(taskDelay); 
-        
-        printf("TRAMA TIPO CONFIGURACION\r\n");
-        setServerFrame(configuracion,0);
+        ret = findNthCharacterOcurrence(gprsBuffer,ch,1);
+
+        //                    strncpy(header,++ret,sizeof(header));
+        strncpy(header,++ret,FRAME_HEADER_SIZE-1);
+        headerIndex = getHeaderIndex(header);
+
+        printf("Rta SERVER: %s\r\n",gprsBuffer);                   
+        printf("Header Rta SERVER: %s\r\n",header);
+        printf("###########\r\n");
+        printf("headerIndex: %d\r\n",headerIndex);
         
 //        Espera arbitraria para dormir la tarea        
-        vTaskDelay(taskDelay);         
+        vTaskDelay(taskDelay);
+        
+        strcpy(gprsBuffer,"\r\n#SRECV: 1,17\r\n024E004900003230303831383133303300\r\n\r\nOK\r\n\r\n");
+        ret = findNthCharacterOcurrence(gprsBuffer,ch,1);
+
+        //                    strncpy(header,++ret,sizeof(header));
+        strncpy(header,++ret,FRAME_HEADER_SIZE-1);
+        headerIndex = getHeaderIndex(header);
+
+        printf("Rta SERVER: %s\r\n",gprsBuffer);                   
+        printf("Header Rta SERVER: %s\r\n",header);
+        printf("###########\r\n");
+        printf("headerIndex: %d\r\n",headerIndex);
+        
+        vTaskDelay(taskDelay);
+        
+        strcpy(gprsBuffer,"\r\n#SRECV: 1,17\r\n004F004900003230303831383133303300\r\n\r\nOK\r\n\r\n");
+        ret = findNthCharacterOcurrence(gprsBuffer,ch,1);
+
+        //                    strncpy(header,++ret,sizeof(header));
+        strncpy(header,++ret,FRAME_HEADER_SIZE-1);
+        headerIndex = getHeaderIndex(header);
+
+        printf("Rta SERVER: %s\r\n",gprsBuffer);                   
+        printf("Header Rta SERVER: %s\r\n",header);
+        printf("###########\r\n");
+        printf("headerIndex: %d\r\n",headerIndex);
+        
+        vTaskDelay(taskDelay);
+        
+        strcpy(gprsBuffer,"\r\n#SRECV: 1,17\r\n004E004900003230303831383133303300\r\n\r\nOK\r\n\r\n");
+        ret = findNthCharacterOcurrence(gprsBuffer,ch,1);
+
+        //                    strncpy(header,++ret,sizeof(header));
+        strncpy(header,++ret,FRAME_HEADER_SIZE-1);
+        headerIndex = getHeaderIndex(header);
+
+        printf("Rta SERVER: %s\r\n",gprsBuffer);                   
+        printf("Header Rta SERVER: %s\r\n",header);
+        printf("###########\r\n");
+        printf("headerIndex: %d\r\n",headerIndex);
+        
+        vTaskDelay(taskDelay);
     }
 }
 

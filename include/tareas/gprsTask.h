@@ -25,7 +25,7 @@
 #define     GPRS_BUFFER_SIZE            120 //Duplicado ojo!
 #define     NEW_SAMPLE_NOTIFICATION     3030
 #define     MAX_ATTEMPTS_NUMBER         10
-#define     FRAME_HEADER_SIZE           4
+#define     FRAME_HEADER_SIZE           5
 
 #define     _024F                       1
 #define     _004F                       2

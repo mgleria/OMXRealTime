@@ -245,20 +245,21 @@ static void FSM_SampleTask(uint32_t status){
 //                printf("sample.clima.lluvia: %d\r\n",returnedSample.clima.lluvia);
 //                printMemoryPointers();
                 
-                // Notifico a la tarea GPRS que hay una nueva trama para enviar
+                /* Terminamos de usar el recurso, por lo que devolvemos el
+                 * mutex */
+                xSemaphoreGive( xMutexMemory );
+                
+                 // Notifico a la tarea GPRS que hay una nueva trama para enviar
                 xTaskNotify(    xGprsHandle,
                                 NEW_SAMPLE_NOTIFICATION,
                                 eSetValueWithOverwrite);
                 
-                /* Terminamos de usar el recurso, por lo que devolvemos el
-                 * mutex */
-                xSemaphoreGive( xMutexMemory );
                 setStatusFSM(ASYNC_SAMPLING);
-                break;
             }
             else{
                 printf("ERROR no se pudo tomar el mutex de memoria.\r\n");
             }
+            break;
     }
 }
 

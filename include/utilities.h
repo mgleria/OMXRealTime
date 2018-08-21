@@ -25,6 +25,7 @@ void debugUART1(const char* s);
 
 void    printMemoryPointers();
 
+char *findNthCharacterOcurrence(const char *src,const char ch, uint8_t n);
 
 
 #endif	/* UTILITIES_H */

@@ -477,7 +477,7 @@ uint8_t	FSM_GprsTask( )
 			else
 			{   
                /* Aguarda por respuesta completa del modem */
-                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
+                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay*2 ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
@@ -573,26 +573,43 @@ uint8_t	FSM_GprsTask( )
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     /*Esto es para comparar solo con el encabezado de la trama
                      asi se evitan falsos positivos*/
-                    strncpy(gprsBuffer,header,sizeof(header));
+                    const char ch = '\n';
+                    char *ret;
+   
+                    ret = findNthCharacterOcurrence(gprsBuffer,ch,1);
+                    
+//                    strncpy(header,++ret,sizeof(header));
+                    strncpy(header,++ret,FRAME_HEADER_SIZE-1);
                     headerIndex = getHeaderIndex(header);
                     
                     printf("Rta SERVER: %s\r\n",gprsBuffer);
                     printf("dataSecuence: %s\r\n",getFrameType(dataSecuence));                   
                     printf("Header Rta SERVER: %s\r\n",header);
+                    printf("headerIndex: %d\r\n",headerIndex);
+                    printf("###########\r\n");
                     
                     switch(headerIndex){
                         case h024F:
                             //Corrijo la config de sensores y la fecha-hora 
-                            setDeviceSensorEnables( gprsBuffer + 6 ); //7
-                            setDeviceDateTime( gprsBuffer + 13 );    //14
+                            setDeviceSensorEnables( ret + 6 ); //7
+                            setDeviceDateTime( ret + 13 );    //14
                             printf("Configuracion de sensores y RTCC actualizada.\r\n");
+                            if(dataSecuence == registro){
+                                registering = true;
+                                registered = false;
+                            }
+                                
+                            
                         //El siguiente codigo se ejecutara para 024F y 004F
                         case h004F:
                             if(dataSecuence == muestras) 
                                 updateMemoryReadPointer();
                             else{
-                                if(dataSecuence == registro)
-                                    registering = true;
+                                if(dataSecuence == configuracion){
+                                    registered = true;
+                                    registering = false;
+                                }
+                                    
                             }
                             dataSecuence = getNextDataSecuence(); 
                             break;
@@ -640,6 +657,7 @@ uint8_t	FSM_GprsTask( )
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    TMR4_Stop();
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);                 
                     if(strstr(gprsBuffer,_OK_))
                     {			
@@ -670,6 +688,9 @@ uint8_t	FSM_GprsTask( )
             if(sampleReadyNotification == NEW_SAMPLE_NOTIFICATION){
                 SetProcessState( &gprsState, connectionStatus);
             }
+            else{
+                printf("ERROR: se esperaba %d como notificacion pero se recibio %zu.\r\n",NEW_SAMPLE_NOTIFICATION,sampleReadyNotification);
+            }
             break;
         
    
@@ -692,45 +713,46 @@ uint8_t	FSM_GprsTask( )
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    TMR4_Stop();
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     //Si tengo IP, la respuesta es de la forma ?xxx.yyy.zzz.www?
                     if((!(strstr(gprsBuffer,"AT")))&&(strlen(gprsBuffer)<40)){    
                     //NO TIENE IP, ES DECIR NO ESTOY CONECTADO			
-                        if( setServerFrame( dataSecuence, lastSample ) ){
+                        if( isThereSamplesToSend() ){
                             //NO ESTOY CONECTADO Y TENGO QUE MANDAR MUESTRAS, ACTIVO CONTEXTO
+                            printf("Sin IP y nueva muestra por enviar...\r\n");
+                            dataSecuence = muestras;
+                            setServerFrame(dataSecuence,lastSample);
                             SetProcessState( &gprsState, activateContext);	
-                            printf("connectionStatus -> activateContext \r\n");
                         }
                         else{
                             printf("connectionStatus sin IP y sin muestras pendientes\r\n");
                             SetProcessState( &gprsState, waitForNewRequests);
-                            printf("connectionStatus -> waitForNewRequests \r\n");
                         }
                     }
                     else if(strlen(gprsBuffer)>40){
                     //TENGO IP, ESTOY CONECTADO
-                        if( setServerFrame( dataSecuence, lastSample ) ) {	
+                        if( isThereSamplesToSend() ) {	
                         //TENGO MUESTRAS PARA ENVIAR
-                            SetProcessState( &gprsState, putData);
-                            printf("connectionStatus -> putData \r\n");
+                            printf("Con IP y nueva muestra por enviar...\r\n");
+                            dataSecuence = muestras;
+                            setServerFrame(dataSecuence,lastSample);
+                            SetProcessState( &gprsState, socketDial);
                         }
                         else {
                         //NO TENGO MUESTRAS PARA ENVIAR
-                            SetProcessState( &gprsState,waitForNewRequests);
                             printf("connectionStatus con IP sin muestras para enviar \r\n");
-                            printf("connectionStatus -> waitForNewRequests \r\n");
+                            SetProcessState( &gprsState,waitForNewRequests);
                         }
                     }   
                     else if( strstr( (char*)gprsBuffer, (string*)_NOCARRIER_ ) ) {
                         printf("connectionStatus NOCARRIER \r\n");
                         SetProcessState( &gprsState, gprsReset);
-                        printf("connectionStatus -> gprsReset \r\n");
                     }
                     else{
                         debugUART1("Estado de conexion indeterminado\r\n");
                         debugUART1(gprsBuffer);
                         SetProcessState( &gprsState, gprsReset);
-                        printf("connectionStatus -> gprsReset \r\n");
                     }
                 }
                 else{
@@ -856,7 +878,7 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
 			return	FALSE;
 		}
 	}
-    printf("tramaGPRS:\r\n%s(%s)\r\n",tramaGPRS,getFrameType(dataSecuence));
+    printf("tramaGPRS:\r\n%s(%s)\r\n",tramaGPRS,getFrameType(frameType));
 	return	TRUE;
 }
 
@@ -1082,7 +1104,9 @@ const char* getFrameType(uint8 frameType)
         case muestras: return "MUESTRAS";
         case registro: return "REGISTRO";
         case configuracion: return "CONFIGURACION";
-        default: return "WRONG_FRAME_TYPE";
+        default: 
+            printf("Unexpected frameType:%d\r\n",frameType);
+            return "WRONG_FRAME_TYPE";
     }
 }
 
