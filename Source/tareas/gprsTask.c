@@ -170,6 +170,7 @@ uint8_t	FSM_GprsTask( )
 //                printf("modemResponseNotification: %s\r\n",modemResponseNotification);
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    TMR4_Stop();
                     attempts++;
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     if(strstr(gprsBuffer,_OK_))
@@ -209,6 +210,7 @@ uint8_t	FSM_GprsTask( )
 				modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    TMR4_Stop();
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     if(strstr(gprsBuffer,_OK_)){
                         debugUART1("_OK_\n\r");
@@ -248,6 +250,7 @@ uint8_t	FSM_GprsTask( )
 				modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    TMR4_Stop();
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     if(strstr(gprsBuffer,_OK_)){
                         debugUART1("_OK_\n\r");
@@ -288,7 +291,7 @@ uint8_t	FSM_GprsTask( )
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-                    
+                    TMR4_Stop();
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     if(strstr(gprsBuffer,_OK_))
                     {
@@ -326,6 +329,7 @@ uint8_t	FSM_GprsTask( )
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    TMR4_Stop();
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     if(strstr(gprsBuffer,_OK_))
                     {
@@ -362,6 +366,7 @@ uint8_t	FSM_GprsTask( )
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    TMR4_Stop();
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     if(strstr(gprsBuffer,_OK_))
                     {
@@ -396,7 +401,7 @@ uint8_t	FSM_GprsTask( )
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-                    
+                    TMR4_Stop();
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     if(strstr(gprsBuffer,_OK_)) {
 //                        saveIPaddress( (char*)gprsBuffer );
@@ -445,6 +450,7 @@ uint8_t	FSM_GprsTask( )
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    TMR4_Stop();
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     if(strstr(gprsBuffer,_OK_))
                     {
@@ -480,6 +486,7 @@ uint8_t	FSM_GprsTask( )
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay*2 ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    TMR4_Stop();
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     if(strstr(gprsBuffer,">"))
                     {
@@ -525,6 +532,7 @@ uint8_t	FSM_GprsTask( )
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    TMR4_Stop();
                     attempts++;
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);                 
                     if(strstr(gprsBuffer,"SRING"))
@@ -570,6 +578,7 @@ uint8_t	FSM_GprsTask( )
                 modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
                 
                 if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
+                    TMR4_Stop();
                     UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
                     /*Esto es para comparar solo con el encabezado de la trama
                      asi se evitan falsos positivos*/

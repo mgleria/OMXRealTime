@@ -116,6 +116,7 @@ static void FSM_SampleTask(uint32_t status){
        
     uint32_t asyncEvents;
     uint32_t syncEvents;
+    rtcc_t rtcc;
     
     /*Los cambios de estado ocurren en los callback de los timers o en otras
      funciones externas*/
@@ -220,6 +221,15 @@ static void FSM_SampleTask(uint32_t status){
             //Limpio el contador por soft del TMR3
             clearAccumulatedRain();
             
+/////////////////////////////////TIMESTAMP//////////////////////////////////////            
+                  
+            get_rtcc_datetime(&rtcc);
+
+            sample.anio = rtcc.anio;
+            sample.mes = rtcc.mes;
+            sample.dia = rtcc.dia;
+            sample.hora = rtcc.hora;
+            sample.minutos = rtcc.minutos;        
 /////////////////////GUARDANDO MUESTRA EN MEM PERSISENTE////////////////////////
             /* Ver si puedo obtener el semaforo. Si este no está disponible
              * esperar xTimeMemoryMutex y volver a probar */
