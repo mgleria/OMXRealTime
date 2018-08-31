@@ -406,3 +406,15 @@ void updateMemoryReadPointer()
     
     printMemoryPointers();
 }
+
+void printDeviceSensorEnables(){
+    uint8 aux;
+    
+    MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_1, &aux );
+    printf("INT_ENABLE_SENSOR_1:%d\r\n",aux);
+    MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_2, &aux );
+    printf("INT_ENABLE_SENSOR_2:%d\r\n",aux);
+    MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_3, &aux );
+    printf("INT_ENABLE_SENSOR_3:%d\r\n",aux);
+    
+}

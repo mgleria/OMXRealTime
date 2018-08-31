@@ -129,6 +129,8 @@ extern string	atcmd_configExtendSocketHARDCODED[]	;
 
 extern string	atcmd_socketDialHARDCODED_1[]		;
 
+extern string   atcmd_socketDialHARDCODED_2[]       ;
+
 extern string	atcmd_socketSend[]                  ;
 
 extern string	atcmd_FRAME_1[]                     ;

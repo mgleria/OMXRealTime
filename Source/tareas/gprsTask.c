@@ -584,11 +584,12 @@ uint8_t	FSM_GprsTask( )
                      asi se evitan falsos positivos*/
                     const char ch = '\n';
                     char *ret;
-   
+                    
                     ret = findNthCharacterOcurrence(gprsBuffer,ch,1);
+                    ret++;//La posicion siguiente a la segunda ocurrencia de \n
                     
 //                    strncpy(header,++ret,sizeof(header));
-                    strncpy(header,++ret,FRAME_HEADER_SIZE-1);
+                    strncpy(header,ret,FRAME_HEADER_SIZE-1);
                     headerIndex = getHeaderIndex(header);
                     
                     printf("Rta SERVER: %s\r\n",gprsBuffer);
@@ -599,10 +600,12 @@ uint8_t	FSM_GprsTask( )
                     
                     switch(headerIndex){
                         case h024F:
+                            printDeviceSensorEnables();
                             //Corrijo la config de sensores y la fecha-hora 
                             setDeviceSensorEnables( ret + 6 ); //7
                             setDeviceDateTime( ret + 13 );    //14
                             printf("Configuracion de sensores y RTCC actualizada.\r\n");
+                            printDeviceSensorEnables();
                             if(dataSecuence == registro){
                                 registering = true;
                                 registered = false;
@@ -628,7 +631,8 @@ uint8_t	FSM_GprsTask( )
 //                            setServerFrame(dataSecuence,lastSample);
                             break;
                         default:
-                            printf("Respuesta del server desconocida.\r\nReiniciando FSM...");   
+                            printf("Respuesta del server desconocida.\r\nReiniciando FSM...");
+                            SetProcessState(&gprsState, gprsReset);
                     }
                     //Si dataSecuence es diferente de cero, tengo algo por enviar
                     if(dataSecuence){
@@ -830,6 +834,9 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
 			MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_2, &configFrame.sensorHab2 );
 			MCHP_24LCxxx_Read_byte( _24LC512_0, INT_ENABLE_SENSOR_3, &configFrame.sensorHab3 );
             
+            printf("Building config frame\r\n");
+            printDeviceSensorEnables();
+            
 //            configFrame.cmd = 0x11;
 //			configFrame.tipo = 0x11;
 //			configFrame.num_serie = 0x1111;
@@ -973,7 +980,7 @@ uint8_t buildHexFrame(char *trama, char *tramaHex, uint8 frameSize)
     uint8_t n,k; 
     char *p = NULL; char *t = NULL;
 //    const char string_cierre[] = "\x001A";
-    const char string_cierre[] = "\x00";
+    const char string_cierre[] = "";
 
     n = 0;
 	t = tramaHex;

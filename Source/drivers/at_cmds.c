@@ -105,6 +105,9 @@ string	atcmd_configExtendSocketHARDCODED[]	= "AT#SCFGEXT=1,1,1,0,0,0\r";
 
 string	atcmd_socketDialHARDCODED_1[]		= "AT#SD=1,0,4545,www.omixom.com,0,0,1\r";
 
+//EPEC Server
+string	atcmd_socketDialHARDCODED_2[]		= "AT#SD=1,0,44380,\"190.96.112.114\",0,0,1\r";
+
 string	atcmd_socketSend[]                  = "AT#SSEND=1\r";
 
 string	atcmd_FRAME_1[]                     = "0403270E0E0310220701000009016501650000000ABF2000";

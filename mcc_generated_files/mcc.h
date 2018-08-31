@@ -52,10 +52,10 @@
 #include "traps.h"
 #include "uart1.h"
 #include "uart2.h"
-#include "i2c1.h"
+#include "tmr2.h"
 #include "tmr3.h"
 #include "tmr4.h"
-#include "tmr2.h"
+#include "i2c1.h"
 
 #define _XTAL_FREQ  32000000UL
 
