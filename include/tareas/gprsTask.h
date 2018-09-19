@@ -12,7 +12,7 @@
 #include    "typedef.h"
 #include    "drivers/at_cmds.h"
 #include    "drivers/modem.h"
-#include    "tmr4.h"
+//#include    "tmr4.h"
 #include    "funciones/memory.h"
 #include    "funciones/rtcc.h"
 #include    "funciones/eeprom.h"

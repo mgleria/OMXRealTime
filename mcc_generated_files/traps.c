@@ -62,14 +62,15 @@ static uint16_t TRAPS_error_code = -1;
  * 
  * @param code error code
  */
-void __attribute__((naked, noreturn, weak)) TRAPS_halt_on_error(uint16_t code)
+uint16_t __attribute__((naked, noreturn, weak)) TRAPS_halt_on_error(uint16_t code)
 {
     TRAPS_error_code = code;
 #ifdef __DEBUG    
     __builtin_software_breakpoint();
     /* If we are in debug mode, cause a software breakpoint in the debugger */
 #endif
-    while(1);
+//    while(1);
+    return code;
     
 }
 

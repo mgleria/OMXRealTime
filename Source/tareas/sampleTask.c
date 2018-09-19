@@ -203,9 +203,9 @@ static void FSM_SampleTask(uint32_t status){
             //Preparar la muestra
 /////////////////////MUESTRAS TOMADAS SINCRONICAMENTE///////////////////////////
             if(syncCounter>0){
-                sample.clima.luzDia = potentiometer/syncCounter;
+                sample.clima.hum = potentiometer/syncCounter;
                 sample.clima.temper = getTemperature(temperature/syncCounter);
-                printf("sample.clima.luzDia: %d\r\n",sample.clima.luzDia);
+                printf("sample.clima.hum: %d\r\n",sample.clima.hum);
                 printf("sample.clima.temper: %d\r\n",sample.clima.temper);
             }
             else{
@@ -250,7 +250,7 @@ static void FSM_SampleTask(uint32_t status){
                 }
                 resultGetSample = getSample(&returnedSample,0);
 //                printf("getSample(&sample,0)->%s \r\n",resultGetSample);
-//                printf("sample.clima.luzDia: %d\r\n",returnedSample.clima.luzDia);
+//                printf("sample.clima.hum: %d\r\n",returnedSample.clima.hum);
 //                printf("sample.clima.temper: %d\r\n",returnedSample.clima.temper);
 //                printf("sample.clima.lluvia: %d\r\n",returnedSample.clima.lluvia);
 //                printMemoryPointers();
@@ -389,7 +389,7 @@ void assembleSample(muestra_t *muestra)
 //    muestra->hora = rtcc.hora;
 //    muestra->minutos = rtcc.minutos;
     
-    muestra->clima.luzDia = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
+    muestra->clima.hum = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
    
 }
 

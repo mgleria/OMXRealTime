@@ -12,7 +12,6 @@
 
 #include	"sistema/HardwareProfile.h"
 #include    "utilities.h"
-#include    "uart2.h"
 
 #include "freeRTOS/FreeRTOS.h"
 #include "freeRTOS/semphr.h"

@@ -22,6 +22,9 @@
 ///*FreeRTOS Include*/
 //#include "semphr.h" 
 
+/*EZBL Include*/
+#include "ezbl.h"
+
 
 /* Demo application includes. */
 #include "perifericos/lcd.h"
@@ -111,23 +114,41 @@ configDevice_t configDevice;
 /*	fecha y hora del sistema. Definida en ext_rtcc.c	*/
 extern rtcc_t tiempo;
 
+/*Macro para resetear los punteros de memoria en cada inicio de la app*/
 #define     RESET_MEMORY     1
 
 int main( void )
 {
     SYSTEM_Initialize();
     
-    rtc_init();
-//    vLedInitialise();
-    setEstacionConfig();
     
-    if(RESET_MEMORY) resetSamplesPtr();
     
-    printMemoryPointers();
+//    unsigned long ledBlinkTimer;
+//    ledBlinkTimer = NOW_32();
+//    
+//    while(1){
+//        // Every half second toggle an LED (1 Hz blink rate) to indicate we are alive
+//        if(NOW_32() - ledBlinkTimer > NOW_sec/2u)
+//        {
+//            LEDToggle(0x01);
+//            ledBlinkTimer += NOW_sec/2u;
+//            ClrWdt();
+//        }
+//    }
+        
     
-    startSampleTask();
-    startGprsTask();
-//    startTestTask();
+    
+//    rtc_init();
+////    vLedInitialise();
+//    setEstacionConfig();
+    
+//    if(RESET_MEMORY) resetSamplesPtr();
+    
+//    printMemoryPointers();
+    
+//    startSampleTask();
+//    startGprsTask();
+    startTestTask();
     
 //    vTraceEnable(TRC_START);
     

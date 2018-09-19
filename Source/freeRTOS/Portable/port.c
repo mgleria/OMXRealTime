@@ -321,7 +321,18 @@ __attribute__(( weak )) void vApplicationSetupTickTimerInterrupt( void )
 const uint32_t ulCompareMatch = ( ( configCPU_CLOCK_HZ / portTIMER_PRESCALE ) / configTICK_RATE_HZ ) - 1;
 
 	/* Prescale of 8. */
-	T1CON = 0;
+	T1CON = 0; /*
+             * TON = 0 --> Stops 16-bit Timer1 
+             * TSIDL = 0 --> Continues module operation in Idle mode
+             * TECS<1:0> = 00 --> SOSC 
+             * TGATE = 0 --> Gated time accumulation is disabled
+             * TCKPS<1:0> = 00 --> Timer1 Input Clock Prescale Select bits 1:1
+             * TSYNC --> Ignored when TCS = 0
+             * TCS = 0 --> Timer1 Clock Source Select bit Internal clock (FOSC/2)
+             */
+    
+//    T1CONbits.TCKPS = 0b01; // TCKPS<1:0> = 01 --> Prescale Select bits 1:8
+    
 	TMR1 = 0;
 
 	PR1 = ( uint16_t ) ulCompareMatch;
