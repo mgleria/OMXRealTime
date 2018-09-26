@@ -82,6 +82,6 @@ typedef enum
     None.
 
 */
-uint16_t __attribute__((naked, noreturn, weak)) TRAPS_halt_on_error(uint16_t code);
+void __attribute__((naked, noreturn, weak)) TRAPS_halt_on_error(uint16_t code);
 
 #endif

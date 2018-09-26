@@ -99,8 +99,5 @@ typedef struct
  */
 int16_t	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d, uint8 f );
 
-/*	para poder configurar por donde se desea salir con las funciones printf, ... */
-extern char usr_stdout;
-
 #endif	/* MODEM_H */
 

@@ -31,7 +31,7 @@
 #include "perifericos/adc.h"
 #include "perifericos/led.h"
 #include "tmr2.h"
-#include "uart1.h"
+//#include "uart1.h"
 #include "i2c1.h"
 
 #include "mcc.h"
@@ -119,8 +119,29 @@ extern rtcc_t tiempo;
 
 int main( void )
 {
+    unsigned int ret=0;
     SYSTEM_Initialize();
     
+    EZBL_BootloaderInit();
+     
+     __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
+
+    IOCPUFbits.IOCPF4 = 1;      // Turn on weak pull up on U2RX so no spurious data arrives if nobody connected
+    _U2RXR  = 10;               // U2RX on RP10
+    _RP17R  = _RPOUT_U2TX;
+
+    __builtin_write_OSCCONL(OSCCON | 0x40); // lock   PPS
+ 
+    while(1){
+//        UART2_Write(0x55);
+        EZBL_printf("Hola\n\n");
+    }
+    
+//    U2TXREG = 'b';
+    
+    ret = EZBL_FIFOWriteStr(EZBL_STDOUT,"from Main: EZBL_FIFOWriteStr");
+    
+    ret = EZBL_printf("from Main: EZBL_printf");
     
     
 //    unsigned long ledBlinkTimer;
@@ -298,7 +319,9 @@ void vTaskShell( void *pvParameters ){
             //Detengo el TMR2 que inici� al final de _U1RXInterrupt().
             TMR2_Stop();
             //Leemos el comando recibido por la UART
-            bytesRecibidos = UART1_ReadBuffer(comando,MAX_COMMAND_LENGHT);
+            
+            //bytesRecibidos = UART1_ReadBuffer(comando,MAX_COMMAND_LENGHT);
+            
             //Si se recibi� algo, procesamos el comando para obtener una respuesta
             if(bytesRecibidos>0) {
                 bytesRecibidos=0;
@@ -306,7 +329,8 @@ void vTaskShell( void *pvParameters ){
                 //Env�o la respuesta por la UART hacia la PC.
 //                stringToIntArray(respuestaUART,respuesta);
                 sizeRespuesta = strlen(respuesta);
-                bytesEnviados = UART1_WriteBuffer(respuesta,sizeRespuesta);
+                
+                //bytesEnviados = UART1_WriteBuffer(respuesta,sizeRespuesta);
             }
             //Si se envi� la respuesta, se suspende la tarea hasta que llegue el pr�ximo comando.
             flushComando(comando); 

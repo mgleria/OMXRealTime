@@ -11,6 +11,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <xc.h>
+#include <p24FJ1024GB610.h>
+
+
+
 /*** ADC Channel Definitions *****************************************/
 #define ADC_CHANNEL_POTENTIOMETER ADC_CHANNEL_5
 #define ADC_CHANNEL_TEMPERATURE_SENSOR ADC_CHANNEL_4

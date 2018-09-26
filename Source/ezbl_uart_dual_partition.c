@@ -112,7 +112,7 @@ void EZBL_BootloaderInit(void)
     EZBL_COM_TX = 0;
 
     // Initialize I/O pins and NOW timekeeping API (requires 1 16-bit hardware timer)
-    InitializeBoard();
+//    InitializeBoard(); --> Esto se esta haciendo desde SYSTEM_Initialize();
 
     // Now that the clock, UART, and NOW timer are initialized, return if device
     // is programmed for Single Partition mode. This Bootloader is for Dual

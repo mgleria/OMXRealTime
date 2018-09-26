@@ -232,8 +232,6 @@ void SYSTEM_Initialize(void)
     InitializeBoard(); //Esto no es parte de MCC
     
     I2C1_Initialize();
-    UART1_Initialize();
-    TMR3_Initialize();
     TMR2_Initialize();
 }
 
@@ -270,14 +268,22 @@ unsigned long InitializeBoard(void)
     // - Outputs bits in TRIS registers are all set as inputs because the PPS or
     //   UART2 hardware overrides it.
     //
-    // Function     Explorer 16 PIM Header      PIC24FJ1024GB610 Device Pins
-    // UART2        PIM#, PICtail#, name        PIC#, name
-    // U2RX  (in)     49, 34, RF4/PMPA9/U2RX      49, RP10/PMA9/RF4
-    // U2TX  (out)    50, 36, RF5/PMPA8/U2TX      50, RP17/PMA8/RF5
-    IOCPUFbits.IOCPF12 = 1;      // Turn on weak pull up on U2RX so no spurious data arrives if nobody connected
-//    IOCPUF = 0x100C;            // Turn on weak pull up on U2RX (MCC)    
-    _U2RXR  = 0x0020;           // RF12->UART2:U2RX;
-    _RP31R  = _RPOUT_U2TX;      // RF13->UART2:U2TX;
+    // Function     Explorer 16 PIM Header          PIC24FJ1024GB610 Device Pins
+    // UART2        PIM#, PICtail#, name            PIC#, name
+    // U2RX  (in)     40, 51, RPI32/CTED7/PMA18/RF12      40, RPI32/CTED7/PMA18/RF12
+    // U2TX  (out)    39, 52, RP31/RF13                   39, RP31/RF13
+//    IOCPUFbits.IOCPF12 = 1;      // Turn on weak pull up on U2RX so no spurious data arrives if nobody connected
+////    IOCPUF = 0x100C;            // Turn on weak pull up on U2RX (MCC)    
+//    _U2RXR  = 0x0020;           // RF12->UART2:U2RX;
+//    _RP31R  = _RPOUT_U2TX;      // RF13->UART2:U2TX;
+//    if(EZBL_COMBaud <= 0)       // If auto-baud enabled, delay our UART initialization so MCP2221A POR timer and init
+//    {                           // is complete before we start listening. POR timer max spec is 140ms, so MCP2221A TX
+//        NOW_Wait(140u*NOW_ms);  // pin glitching could occur long after we have enabled our UART without this forced delay.
+//    }
+//    EZBL_COMBootIF = UART_Reset(2, FCY, EZBL_COMBaud, 1);
+    IOCPUFbits.IOCPF4 = 1;      // Turn on weak pull up on U2RX so no spurious data arrives if nobody connected
+    _U2RXR  = 10;               // U2RX on RP10
+    _RP17R  = _RPOUT_U2TX;      // U2TX on RP17
     if(EZBL_COMBaud <= 0)       // If auto-baud enabled, delay our UART initialization so MCP2221A POR timer and init
     {                           // is complete before we start listening. POR timer max spec is 140ms, so MCP2221A TX
         NOW_Wait(140u*NOW_ms);  // pin glitching could occur long after we have enabled our UART without this forced delay.

@@ -1,5 +1,6 @@
 #include "tareas/testTask.h"
 #include "tareas/sampleTask.h"
+#include <libpic30.h>
 
 #include "ezbl.h"
 
@@ -31,6 +32,8 @@ void vTaskTest( void *pvParameters )
 //    const char ch = '\n';
 //    char *ret;
 //    
+    __C30_UART=2;
+    
     unsigned long ledBlinkTimer;
     ledBlinkTimer = NOW_32();
 
@@ -38,6 +41,8 @@ void vTaskTest( void *pvParameters )
     UBaseType_t uxHighWaterMark1;
     
     heapFree = xPortGetFreeHeapSize();
+    
+    uint8_t RxBuffer[100] = {0};
     
     
     
@@ -77,7 +82,14 @@ void vTaskTest( void *pvParameters )
         
         LEDToggle(0x01);
         
-        uxHighWaterMark1 = uxTaskGetStackHighWaterMark( NULL );  
+        uxHighWaterMark1 = uxTaskGetStackHighWaterMark( NULL );
+        
+        EZBL_printf("////////////////////Sample Task\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\r\n");
+        
+        EZBL_FIFOWriteStr(EZBL_STDOUT,"PRUEBA EZBL_FIFOWriteStr()");
+        
+        if(EZBL_FIFORead(RxBuffer,EZBL_STDIN,100))
+            EZBL_printf("\nECHO:%s",RxBuffer);
         
         ClrWdt();
         

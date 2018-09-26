@@ -1,9 +1,3 @@
-#include <xc.h>
-#include <p24FJ1024GB610.h>
-
-#include <stdint.h>
-#include <stdbool.h>
-
 #include "perifericos/adc.h"
 
 #define PIN_ANALOG      1
