@@ -123,39 +123,9 @@ int main( void )
     SYSTEM_Initialize();
     
     EZBL_BootloaderInit();
-     
-     __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
-
-    IOCPUFbits.IOCPF4 = 1;      // Turn on weak pull up on U2RX so no spurious data arrives if nobody connected
-    _U2RXR  = 10;               // U2RX on RP10
-    _RP17R  = _RPOUT_U2TX;
-
-    __builtin_write_OSCCONL(OSCCON | 0x40); // lock   PPS
- 
-    while(1){
-//        UART2_Write(0x55);
-        EZBL_printf("Hola\n\n");
-    }
     
-//    U2TXREG = 'b';
-    
-    ret = EZBL_FIFOWriteStr(EZBL_STDOUT,"from Main: EZBL_FIFOWriteStr");
-    
-    ret = EZBL_printf("from Main: EZBL_printf");
-    
-    
-//    unsigned long ledBlinkTimer;
-//    ledBlinkTimer = NOW_32();
-//    
-//    while(1){
-//        // Every half second toggle an LED (1 Hz blink rate) to indicate we are alive
-//        if(NOW_32() - ledBlinkTimer > NOW_sec/2u)
-//        {
-//            LEDToggle(0x01);
-//            ledBlinkTimer += NOW_sec/2u;
 //            ClrWdt();
-//        }
-//    }
+
         
     
     

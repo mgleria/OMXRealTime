@@ -42,21 +42,14 @@
     TERMS.
 */
 
-#define FCY         16000000ul      // Changing this automatically changes the PLL settings to run at this target frequency
-
 #include <xc.h>
+#include "mcc.h"
 #include "../ezbl_integration/ezbl.h"
 
 // Set flash page erase size = 0x800 program addresses = 3072 Flash bytes/1024 instruction words/512 Flash double words.
 // PIC24FJ1024GB610/GA610 family devices implement 0x800; dsPIC33EP64GS506, dsPIC33EP128GS808, PIC24FJ256GB412/GA412 family devices implement 0x400.
 // Single Partition bootloaders don't have to define this as it is automatically obtained by ezbl_tools.jar and inserted in the .gld linker script.
 EZBL_SetSYM(EZBL_ADDRESSES_PER_SECTOR, 0x800);
-
-
-
-//const unsigned int EZBL_i2cSlaveAddr = 0x60;          // Define I2C Slave Address that this Bootloader will listen/respond to, applicable only if I2C_Reset() is called
-EZBL_FIFO *EZBL_COMBootIF __attribute__((persistent));  // Pointer to RX FIFO to check activity on for bootloading
-const long EZBL_COMBaud = 115200;
 
 //// Configuration bits: selected in the GUI
 //
@@ -122,8 +115,7 @@ const long EZBL_COMBaud = 115200;
 // These defaults place all (or almost all) in the Bootloader project as this
 // is the safest from a bootloader-bricking standpoint.
 #if defined(EZBL_BOOT_PROJECT)  // Compiling for a Bootloader Project
-    EZBL_SET_CONF(_FSEC, BWRP_OFF & BSS_OFF & BSEN_OFF & GWRP_OFF & GSS_OFF & CWRP_OFF & CSS_DIS & AIVTDIS_DISABLE)
-            
+    EZBL_SET_CONF(_FSEC, BWRP_OFF & BSS_OFF & BSEN_OFF & GWRP_OFF & GSS_OFF & CWRP_OFF & CSS_DIS & AIVTDIS_DISABLE)           
     EZBL_SET_CONF(_FOSCSEL, FNOSC_FRC & PLLMODE_PLL96DIV2 & IESO_OFF)
     EZBL_SET_CONF(_FOSC, POSCMD_XT & OSCIOFCN_ON & SOSCSEL_ON & PLLSS_PLL_PRI & IOL1WAY_OFF & FCKSM_CSECME)
     EZBL_SET_CONF(_FWDT, WDTPS_PS1024 & FWPSA_PR32 & SWON & WINDIS_OFF & WDTCMX_LPRC & WDTCLK_LPRC)
@@ -131,9 +123,9 @@ const long EZBL_COMBaud = 115200;
     EZBL_SET_CONF(_FICD, PGX2 & JTAGEN_OFF & BTSWP_ON)
     EZBL_SET_CONF(_FDEVOPT1, ALTCMPI_DISABLE & TMPRPIN_OFF & SOSCHP_ON & ALTVREF_ALTVREFDIS)
     #if defined(__DUAL_PARTITION)
-    EZBL_SET_CONF(_FBOOT, BTMODE_DUAL)    // FBOOT = 0xFFFF = Signal Partition mode; 0xFFFE = Ordinary Dual Partition mode; 0xFFFD = Protected Dual Partition mode
+        EZBL_SET_CONF(_FBOOT, BTMODE_DUAL)    // FBOOT = 0xFFFF = Signal Partition mode; 0xFFFE = Ordinary Dual Partition mode; 0xFFFD = Protected Dual Partition mode
     #endif
-#else   // Compiling for an Application Project (EZBL_BOOT_PROJECT is not defined)
+    #else   // Compiling for an Application Project (EZBL_BOOT_PROJECT is not defined)
     //EZBL_SET_CONF_FBTSEQ(4094)          // FBTSEQ is set at run time - should not be defined explicitly unless you need to reset back to a max value. If doing so, define it in the App project, not the Bootloader.
 #endif  // Goes to: #if defined(EZBL_BOOT_PROJECT)
 
@@ -224,15 +216,30 @@ void leds_Initialize()
     *((volatile unsigned char *)&ANSA)  = 0x00;
 }
 
+void TMR4_Initialize()
+{
+    // Initialize/select 16-bit hardware timer for NOW time keeping/scheduling
+    // APIs. This call selects the hardware timer resource (can be TMR1-TMR6 or
+    // CCP1-CCP8, if available) and the _Tx/_CCTxInterrupt gets automatically
+    // implemented by code in ezbl_lib.a.
+    NOW_Reset(TMR4, FCY);
+}
+
 void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
     INTERRUPT_Initialize();
-    
-    InitializeBoard(); //Esto no es parte de MCC
-    
     I2C1_Initialize();
     TMR2_Initialize();
+    
+    //Esto no ha sido modificado o no ha sido modificado por MCC
+    UART2_Initialize(); //Creado desde MCC pero modificado.
+    OSCILLATOR_Initialize(); //EVALUAR crearlo desde MCC. Ver config_words tmb.
+    TMR4_Initialize(); //EVALUAR crearlo desde MCC
+    buttons_Initialize(); //EVALUAR crearlo desde MCC
+    leds_Initialize(); //EVALUAR crearlo desde MCC
+    
+    //InitializeBoard(); 
 }
 
 /**
@@ -259,54 +266,13 @@ void SYSTEM_Initialize(void)
 // @return: FCY clock speed we just configured the processor for
 unsigned long InitializeBoard(void)
 {
-//    EZBL_KeepSYM(EZBL_TrapHandler);
-    
-    OSCILLATOR_Initialize();
-    
-    #if defined(XPRJ_uart) || defined(XPRJ_default) || defined(EZBL_INIT_UART)    // XPRJ_* definitions defined by MPLAB X on command line based on Build Configuration. If you need this interface always, you can alternatively define a project level EZBL_INIT_UART macro.    // Configure UART2 pins as UART.
-    // - Pin names are with respect to the PIC.
-    // - Outputs bits in TRIS registers are all set as inputs because the PPS or
-    //   UART2 hardware overrides it.
-    //
-    // Function     Explorer 16 PIM Header          PIC24FJ1024GB610 Device Pins
-    // UART2        PIM#, PICtail#, name            PIC#, name
-    // U2RX  (in)     40, 51, RPI32/CTED7/PMA18/RF12      40, RPI32/CTED7/PMA18/RF12
-    // U2TX  (out)    39, 52, RP31/RF13                   39, RP31/RF13
-//    IOCPUFbits.IOCPF12 = 1;      // Turn on weak pull up on U2RX so no spurious data arrives if nobody connected
-////    IOCPUF = 0x100C;            // Turn on weak pull up on U2RX (MCC)    
-//    _U2RXR  = 0x0020;           // RF12->UART2:U2RX;
-//    _RP31R  = _RPOUT_U2TX;      // RF13->UART2:U2TX;
-//    if(EZBL_COMBaud <= 0)       // If auto-baud enabled, delay our UART initialization so MCP2221A POR timer and init
-//    {                           // is complete before we start listening. POR timer max spec is 140ms, so MCP2221A TX
-//        NOW_Wait(140u*NOW_ms);  // pin glitching could occur long after we have enabled our UART without this forced delay.
-//    }
-//    EZBL_COMBootIF = UART_Reset(2, FCY, EZBL_COMBaud, 1);
-    IOCPUFbits.IOCPF4 = 1;      // Turn on weak pull up on U2RX so no spurious data arrives if nobody connected
-    _U2RXR  = 10;               // U2RX on RP10
-    _RP17R  = _RPOUT_U2TX;      // U2TX on RP17
-    if(EZBL_COMBaud <= 0)       // If auto-baud enabled, delay our UART initialization so MCP2221A POR timer and init
-    {                           // is complete before we start listening. POR timer max spec is 140ms, so MCP2221A TX
-        NOW_Wait(140u*NOW_ms);  // pin glitching could occur long after we have enabled our UART without this forced delay.
-    }
-    EZBL_COMBootIF = UART_Reset(2, FCY, EZBL_COMBaud, 1);
-    #endif
-
-
-    // Initialize/select 16-bit hardware timer for NOW time keeping/scheduling
-    // APIs. This call selects the hardware timer resource (can be TMR1-TMR6 or
-    // CCP1-CCP8, if available) and the _Tx/_CCTxInterrupt gets automatically
-    // implemented by code in ezbl_lib.a.
-    NOW_Reset(TMR4, FCY);
-    
-    buttons_Initialize();
-    
-    leds_Initialize();
-    
+    /*
+     * El contenido de esta funcion fue llevado directamente  a 
+     * SYSTEM_Initialize() para evitar duplicación semántica.
+     */
     // Report 16 MIPS on PIC24F
     return FCY;
 }
-
-
 
 /**
  End of File

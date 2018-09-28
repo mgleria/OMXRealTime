@@ -27,7 +27,7 @@ BOOTID_OTHER  = "dual flash partition device"
 # integer.
 APPID_VER_MAJOR = 0
 APPID_VER_MINOR = 1
-APPID_VER_BUILD = 132
+APPID_VER_BUILD = 141
 
 APPID_VER_BUILD_INC = 1
 

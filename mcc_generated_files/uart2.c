@@ -45,7 +45,15 @@
 /**
   Section: Included Files
 */
+#include "mcc.h"
 #include "uart2.h"
+#include "../ezbl_integration/ezbl.h"
+
+/**
+  Section: EZBL definitios
+*/
+EZBL_FIFO *EZBL_COMBootIF __attribute__((persistent));  // Pointer to RX FIFO to check activity on for bootloading
+const long EZBL_COMBaud = 115200;
 
 /**
   Section: UART2 APIs
@@ -53,22 +61,29 @@
 
 void UART2_Initialize(void)
 {
-/**    
-     Set the UART2 module to the options selected in the user interface.
-     Make sure to set LAT bit corresponding to TxPin as high before UART initialization
+/**
+ * Esta función de inicialización fue sobreescrita para utilizar la API de EZBL.
+ * Si se requiere modificar algo a nivel MCC, tener cuidado de no pisar esto.
+ * 
 */
-    // STSEL 1; IREN disabled; PDSEL 8N; UARTEN disabled; RTSMD disabled; USIDL disabled; WAKE disabled; ABAUD disabled; LPBACK disabled; BRGH enabled; URXINV disabled; UEN TX_RX; 
-    U2MODE = (0x0008 & ~(1<<15));  // disabling UARTEN bit   
-    // UTXISEL0 TX_ONE_CHAR; UTXINV disabled; OERR NO_ERROR_cleared; URXISEL RX_ONE_CHAR; UTXBRK COMPLETED; UTXEN disabled; ADDEN disabled; 
-    U2STA = 0x0000;
-    // BaudRate = 115200; Frequency = 16000000 Hz; U2BRG 34; 
-    U2BRG = 0x0022;
-    // ADMADDR 0; ADMMASK 0; 
-    U2ADMD = 0x0000;
+    /*
+     * Esto ahora se hace desde pin_manager.c por MCC
+     IOCPUFbits.IOCPF4 = 1;      // Turn on weak pull up on U2RX so no spurious data arrives if nobody connected
+    _U2RXR  = 10;               // U2RX on RP10
+    _RP17R  = _RPOUT_U2TX;      // U2TX on RP17
+     */
     
-    U2MODEbits.UARTEN = 1;  // enabling UARTEN bit
-    U2STAbits.UTXEN = 1; 
-   
+    /*
+     * Solo por si se trabaja con auto-baud. Requiere que previamente se haya 
+     * llamado a NOW_Reset().
+     */
+    if(EZBL_COMBaud <= 0)       // If auto-baud enabled, delay our UART initialization so MCP2221A POR timer and init
+    {                           // is complete before we start listening. POR timer max spec is 140ms, so MCP2221A TX
+        NOW_Wait(140u*NOW_ms);  // pin glitching could occur long after we have enabled our UART without this forced delay.
+    }
+    
+    EZBL_COMBootIF = UART_Reset(2, FCY, EZBL_COMBaud, 1);
+    
 }
 
 

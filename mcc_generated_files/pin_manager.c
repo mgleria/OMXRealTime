@@ -75,7 +75,7 @@ void PIN_MANAGER_Initialize(void)
     TRISC = 0xF01E;
     TRISD = 0xFFFF;
     TRISE = 0x03FF;
-    TRISF = 0x31BF;
+    TRISF = 0x319F;
     TRISG = 0xF3CF;
 
     /****************************************************************************
@@ -93,7 +93,7 @@ void PIN_MANAGER_Initialize(void)
     IOCPUC = 0x0000;
     IOCPUD = 0x0000;
     IOCPUE = 0x0000;
-    IOCPUF = 0x100C;
+    IOCPUF = 0x101C;
     IOCPUG = 0x0040;
 
     /****************************************************************************
@@ -123,6 +123,8 @@ void PIN_MANAGER_Initialize(void)
     __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
 
     RPINR3bits.T3CKR = 0x0015;   //RG6->TMR3:T3CK;
+    RPOR8bits.RP17R = 0x0005;   //RF5->UART2:U2TX;
+    RPINR19bits.U2RXR = 0x000A;   //RF4->UART2:U2RX;
 
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock   PPS
 
