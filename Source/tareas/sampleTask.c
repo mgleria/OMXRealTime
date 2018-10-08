@@ -8,6 +8,8 @@
 #include    "FreeRTOS.h"
 #include    "freeRTOS/semphr.h"
 
+#include    "ezbl.h"
+
 
 static void prvPasiveCallback (TimerHandle_t xTimer);
 static void prvActiveCallback (TimerHandle_t xTimer);
@@ -49,7 +51,9 @@ SemaphoreHandle_t xMutexMemory = NULL;
 
 void debug_enable()
 {
-    __C30_UART=1;
+    //Requiere PROBAR SI NO ROMPE LA CONFIG ACTUAL
+    UART_Reset(1, FCY, EZBL_COMBaud, 1);
+    
 }
 
 void startSampleTask(){
@@ -243,7 +247,7 @@ static void FSM_SampleTask(uint32_t status){
 //                printf("resultPutSample->%d.\r\n",resultPutSample);
                 if(resultPutSample){
                     printf("Muestra guardada exitosamente.\r\n");
-                    printMemoryPointers();
+//                    printMemoryPointers();
                 }
                 else{
                     printf("ERROR al guardar la muestra.\r\n");

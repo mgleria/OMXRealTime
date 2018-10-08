@@ -1,6 +1,7 @@
 #include "utilities.h"
 #include "freeRTOSConfig.h"
 #include "ezbl.h"
+#include "uart1.h"
 
 //#define pdMS_TO_TICKS( xTimeInMs ) ( ( TickType_t ) ( ( ( TickType_t ) ( xTimeInMs ) * ( TickType_t ) configTICK_RATE_HZ ) / ( TickType_t ) 1000 ) )
 TickType_t xMsToTicks( TickType_t xTimeInMs){
@@ -58,7 +59,11 @@ uint16_t	swapBytes( uint16_t var )
 }
 
 void debugUART1(const char* s){
-//    UART1_WriteBuffer(s,strlen(s));
+    int returnValue = -1;
+    returnValue = UART1_WriteBuffer(s,strlen(s));
+    UART1_Write(0x0D);
+    UART1_Write(0x0A);
+    
 }
 
 void printMemoryPointers()

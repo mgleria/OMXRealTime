@@ -130,6 +130,7 @@ EZBL_SetSYM(EZBL_ADDRESSES_PER_SECTOR, 0x800);
 #endif  // Goes to: #if defined(EZBL_BOOT_PROJECT)
 
 #include "mcc.h"
+#include "tmr5.h"
 
 void OSCILLATOR_Initialize(void)
 {
@@ -229,12 +230,15 @@ void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
     INTERRUPT_Initialize();
+    OSCILLATOR_Initialize();//EVALUAR crearlo desde MCC. Ver config_words tmb.
     I2C1_Initialize();
+    UART1_Initialize();
+    TMR3_Initialize();
     TMR2_Initialize();
+    TMR5_Initialize();
     
     //Esto no ha sido modificado o no ha sido modificado por MCC
     UART2_Initialize(); //Creado desde MCC pero modificado.
-    OSCILLATOR_Initialize(); //EVALUAR crearlo desde MCC. Ver config_words tmb.
     TMR4_Initialize(); //EVALUAR crearlo desde MCC
     buttons_Initialize(); //EVALUAR crearlo desde MCC
     leds_Initialize(); //EVALUAR crearlo desde MCC

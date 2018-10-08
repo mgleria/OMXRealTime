@@ -64,7 +64,7 @@ void PIN_MANAGER_Initialize(void)
     LATC = 0x0000;
     LATD = 0x0000;
     LATE = 0x0000;
-    LATF = 0x0020;
+    LATF = 0x2020;
     LATG = 0x0040;
 
     /****************************************************************************
@@ -75,7 +75,7 @@ void PIN_MANAGER_Initialize(void)
     TRISC = 0xF01E;
     TRISD = 0xFFFF;
     TRISE = 0x03FF;
-    TRISF = 0x319F;
+    TRISF = 0x119F;
     TRISG = 0xF3CF;
 
     /****************************************************************************
@@ -111,7 +111,7 @@ void PIN_MANAGER_Initialize(void)
      * Setting the Analog/Digital Configuration SFR(s)
      ***************************************************************************/
     ANSA = 0x0600;
-    ANSB = 0xFF3F;
+    ANSB = 0xEF3F;
     ANSC = 0x6010;
     ANSD = 0x00C0;
     ANSE = 0x0210;
@@ -123,8 +123,10 @@ void PIN_MANAGER_Initialize(void)
     __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
 
     RPINR3bits.T3CKR = 0x0015;   //RG6->TMR3:T3CK;
-    RPOR8bits.RP17R = 0x0005;   //RF5->UART2:U2TX;
-    RPINR19bits.U2RXR = 0x000A;   //RF4->UART2:U2RX;
+    RPOR8bits.RP17R = 0x0003;   //RF5->UART1:U1TX;
+    RPOR15bits.RP31R = 0x0005;   //RF13->UART2:U2TX;
+    RPINR18bits.U1RXR = 0x000A;   //RF4->UART1:U1RX;
+    RPINR19bits.U2RXR = 0x0020;   //RF12->UART2:U2RX;
 
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock   PPS
 

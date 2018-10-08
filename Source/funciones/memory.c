@@ -404,7 +404,7 @@ void updateMemoryReadPointer()
 	write_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
 	write_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
     
-    printMemoryPointers();
+//    printMemoryPointers();
 }
 
 void printDeviceSensorEnables(){
