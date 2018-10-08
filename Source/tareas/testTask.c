@@ -6,13 +6,19 @@
 #include <stdio.h>
 #include <string.h>
 
+//Handle referenciado en tmr5.c para uso de xTaskNotify()
 TaskHandle_t xTestHandle;
+
 bool timeout;
 //unsigned int (*onReadCallback)(unsigned int bytesRead, void *readData, unsigned int dataLen, EZBL_FIFO *readFIFO));
 
 unsigned int UART_RX_FIFO_OnRead (unsigned int bytesRead, void *readData, unsigned int dataLen, EZBL_FIFO *readFIFO);
+void    cleanDataBuffer(uint8_t *buffer, uint8_t bufferSize);
 
-void _U2RXInterrupt(void);
+static uint32_t notificationFromModem;
+
+TickType_t delayModem;
+
 
 /**********************************************************************************************/
 /**
@@ -24,11 +30,13 @@ void vTaskTest( void *pvParameters )
 {
     #define TASK_PERIOD_MS          500
     #define MODEM_OFF_TIME_S        15
+    #define MODEM_WAIT_RESPONSE_MS  250
 
     timeout = false;
 
     TickType_t taskDelay, modemResetTime;
-//    
+//  
+    delayModem = xMsToTicks(MODEM_WAIT_RESPONSE_MS);
     taskDelay = xMsToTicks(TASK_PERIOD_MS);
     modemResetTime = xSegToTicks (MODEM_OFF_TIME_S);
 //    
@@ -70,45 +78,55 @@ void vTaskTest( void *pvParameters )
     //Loop principal
     for(;;)
     {
-        //        Espera arbitraria para dormir la tarea     
+        //        Espera arbitraria para dormir la tarea  
+        uxHighWaterMark1 = uxTaskGetStackHighWaterMark( NULL );
         vTaskDelay(taskDelay);
         
         cleanDataBuffer(RxBuffer,100);
         
         LEDToggle(0x01);
         
-        
+//        EZBL_FIFOWrite(EZBL_COMBootIF,atcmd_getModemID,strlength(atcmd_getModemID));
         EZBL_printf(atcmd_getModemID);
         debugUART1(">>>>");
         debugUART1(atcmd_getModemID);
         
-        uxHighWaterMark1 = uxTaskGetStackHighWaterMark( NULL );
-        
-        //Espera para esperar que el modem responda
-//        vTaskDelay(taskDelay*2);
-        
         TMR5_Start();
         
+        
+        
+         /* Aguarda por respuesta completa del modem */
+        notificationFromModem = ulTaskNotifyTake(   pdTRUE, delayModem ); 
+                
+        if(notificationFromModem == MDM_RESP_READY_NOTIFICATION)
+        {
+            TMR5_Stop();
+            EZBL_FIFORead(RxBuffer,EZBL_COMBootIF,100);
+            if(strstr(RxBuffer,_OK_)){
+                debugUART1("<<<<");
+                debugUART1(RxBuffer);
+            } 
+        }
+        
+        
+        
         //Espera bloqueante hasta recibir la respuesta completa del modem
-        while(!timeout);
-        
-        timeout = false;
-        TMR5_Stop();
-        
-        EZBL_FIFORead(RxBuffer,EZBL_STDIN,100);
-        debugUART1("<<<<");
-        debugUART1(RxBuffer);
+//        while(!timeout);
+//        
+//        timeout = false;
+//        TMR5_Stop();
+//        
+//        EZBL_FIFORead(RxBuffer,EZBL_STDIN,100);
+//        debugUART1("<<<<");
+//        debugUART1(RxBuffer);
         
 //        if(EZBL_FIFOFlush(EZBL_STDIN, NOW_sec))
 //            debugUART1("EZBL_FIFOFlush return 1");
 //        else 
 //            debugUART1("EZBL_FIFOFlush return 0");
         
-        ClrWdt();
-        
-        
-        
-    }
+        ClrWdt();      
+    } 
 }
 
 /**********************************************************************************************/
@@ -139,25 +157,6 @@ void vTaskTest2( void *pvParameters )
 //        EZBL_FIFOWriteStr(EZBL_STDOUT,"PRUEBA EZBL_FIFOWriteStr()");
     }
 }
-
-void startTestTask(){
-    //Funcion de inicialización previa
-    
-    xTaskCreate(    vTaskTest,
-                    "vTaskTest",
-                    1000,
-                    NULL,
-                    MAX_PRIORITY-1,
-                    &xTestHandle);
-        
-    xTaskCreate(    vTaskTest2,
-                    "vTaskTest2",
-                    1000,
-                    NULL,
-                    MAX_PRIORITY-2,
-                    NULL);
-}
-
 unsigned int UART_RX_FIFO_OnRead (unsigned int bytesRead, void *readData, unsigned int dataLen, EZBL_FIFO *readFIFO)
 {
     char s[100];
@@ -199,4 +198,22 @@ void    cleanDataBuffer(uint8_t *buffer, uint8_t bufferSize)
     for(i=0;i<bufferSize;i++){
         buffer[i]=NULL;
     }
+}
+
+void startTestTask(){
+    //Funcion de inicialización previa
+    
+    xTaskCreate(    vTaskTest,
+                    "vTaskTest",
+                    1000,
+                    NULL,
+                    MAX_PRIORITY-1,
+                    &xTestHandle);
+        
+    xTaskCreate(    vTaskTest2,
+                    "vTaskTest2",
+                    1000,
+                    NULL,
+                    MAX_PRIORITY-2,
+                    NULL);
 }

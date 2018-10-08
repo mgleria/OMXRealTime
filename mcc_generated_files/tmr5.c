@@ -50,6 +50,8 @@
 #include <xc.h>
 #include "tmr5.h"
 #include "ezbl.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 /**
   Section: Data Type Definitions
@@ -80,6 +82,7 @@ typedef struct _TMR_OBJ_STRUCT
 static TMR_OBJ tmr5_obj;
 
 extern bool timeout;
+extern TaskHandle_t xTestHandle;
 
 /**
   Section: Driver Interface
@@ -157,17 +160,19 @@ void __attribute__ ((weak)) TMR5_CallBack(void)
 
     count ++ ;
 
-    if( prevDataCount != EZBL_STDIN->dataCount )
+    if( prevDataCount != EZBL_COMBootIF->dataCount )
     {
-      prevDataCount = EZBL_STDIN->dataCount;
+      prevDataCount = EZBL_COMBootIF->dataCount;
       // reset count 
       count = 0;
     }
 
     //Pasaron 200ms desde el último caracter recibido.
-    if( count > 100 )
+    if( count > 10 )
     {
-        timeout = true; 
+        count = 0;
+//        timeout = true; 
+        xTaskNotifyFromISR(xTestHandle,MDM_RESP_READY_NOTIFICATION,eSetValueWithOverwrite,NULL);
         LEDToggle(0xF0);
     }
 }

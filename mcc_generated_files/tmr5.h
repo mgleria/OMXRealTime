@@ -60,6 +60,8 @@
 #endif
 
 #define TMR5_INTERRUPT_TICKER_FACTOR    1
+        
+#define MDM_RESP_READY_NOTIFICATION     2020
 
 /**
   Section: Interface Routines
