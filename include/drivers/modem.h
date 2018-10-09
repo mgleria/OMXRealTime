@@ -12,12 +12,16 @@
 
 #include	"sistema/HardwareProfile.h"
 #include    "utilities.h"
+#include    "tmr5.h"
 
-#include "freeRTOS/FreeRTOS.h"
-#include "freeRTOS/semphr.h"
+#include    "ezbl.h"
+
+#include    "freeRTOS/FreeRTOS.h"
+#include    "freeRTOS/semphr.h"
+#include    "task.h"
 //#include "freeRTOSConfig.h"
 
-
+extern EZBL_FIFO *EZBL_COMBootIF;
 
 /*	DEFINICIONES DE TIEMPOS	*/
 #define	T_ESPERA_MUTEX_MODEM_MS     500

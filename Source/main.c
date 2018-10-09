@@ -138,8 +138,8 @@ int main( void )
 //    printMemoryPointers();
     
 //    startSampleTask();
-//    startGprsTask();
-    startTestTask();
+    startGprsTask();
+//    startTestTask();
     
 //    vTraceEnable(TRC_START);
     

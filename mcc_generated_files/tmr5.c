@@ -82,7 +82,7 @@ typedef struct _TMR_OBJ_STRUCT
 static TMR_OBJ tmr5_obj;
 
 extern bool timeout;
-extern TaskHandle_t xTestHandle;
+extern TaskHandle_t xGprsHandle;
 
 /**
   Section: Driver Interface
@@ -103,6 +103,8 @@ void TMR5_Initialize (void)
     IEC1bits.T5IE = true;
 	
     tmr5_obj.timerElapsed = false;
+    
+    TMR5_Stop();
 
 }
 
@@ -172,7 +174,7 @@ void __attribute__ ((weak)) TMR5_CallBack(void)
     {
         count = 0;
 //        timeout = true; 
-        xTaskNotifyFromISR(xTestHandle,MDM_RESP_READY_NOTIFICATION,eSetValueWithOverwrite,NULL);
+        xTaskNotifyFromISR(xGprsHandle,MDM_RESP_READY_NOTIFICATION,eSetValueWithOverwrite,NULL);
         LEDToggle(0xF0);
     }
 }
