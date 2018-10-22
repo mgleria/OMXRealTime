@@ -13,7 +13,6 @@ bool timeout;
 //unsigned int (*onReadCallback)(unsigned int bytesRead, void *readData, unsigned int dataLen, EZBL_FIFO *readFIFO));
 
 unsigned int UART_RX_FIFO_OnRead (unsigned int bytesRead, void *readData, unsigned int dataLen, EZBL_FIFO *readFIFO);
-void    cleanDataBuffer(uint8_t *buffer, uint8_t bufferSize);
 
 static uint32_t notificationFromModem;
 
@@ -82,7 +81,7 @@ void vTaskTest( void *pvParameters )
         uxHighWaterMark1 = uxTaskGetStackHighWaterMark( NULL );
         vTaskDelay(taskDelay);
         
-        cleanDataBuffer(RxBuffer,100);
+        flushBuffer(RxBuffer,100);
         
         LEDToggle(0x01);
         
@@ -191,14 +190,6 @@ unsigned int UART_RX_FIFO_OnRead (unsigned int bytesRead, void *readData, unsign
 //    
 //    debugUART1(tx);
 //}
-
-void    cleanDataBuffer(uint8_t *buffer, uint8_t bufferSize)
-{
-    int i;
-    for(i=0;i<bufferSize;i++){
-        buffer[i]=NULL;
-    }
-}
 
 void startTestTask(){
     //Funcion de inicialización previa

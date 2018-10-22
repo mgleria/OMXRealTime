@@ -89,15 +89,6 @@ void vTaskGPRS( void *pvParameters )
 //    muestra_t sample;
 //    trama_muestra_t sampleFrame;
     
-    //Apago el modem y espero MODEM_RESET_TIME_S para encenderlo
-                _LATB12 = 0;
-                debugUART1("Modem OFF");
-                vTaskDelay(modemResetTime);
-                _LATB12 = 1;
-                debugUART1("Modem ON. Waiting for complete boot...");
-                vTaskDelay(modemResetTime*2);
-                debugUART1("Modem initialization complete");
-    
     for(;;)
     {   
 //        printf("////////////////////GPRS Task\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\r\n");     
@@ -114,6 +105,7 @@ void SetProcessState( uint8_t * reg, uint8_t state )
 	*reg = state;
 	sendCmd = TRUE;
     attempts = 0;
+    flushBuffer(gprsBuffer, MODEM_BUFFER_SIZE);
 }
 
 uint8_t	FSM_GprsTask( )
@@ -124,24 +116,35 @@ uint8_t	FSM_GprsTask( )
 	/*	GprsReset: reset + deshabilitacion ECHO	*/
 		case( gprsReset ):		
 //            printf("----------State: %s----------\r\n",getStateName(gprsState));
+            debugUART1("----------State: gprsReset");
 			if( sendCmd )
 			{
                 registered = false;
                 
                 /*Si hay muestras pendientes de enviar, armo las tramas y 
                  * postergo el registro*/
-//                if( isThereSamplesToSend()){
-//                    dataSecuence = muestras;
-//                }       
-//                //Si NO hay muestras sin enviar, registro la estación
-//                else{
-//                    dataSecuence = registro;
-//                }
-//                /*Armo el frame para la primera vez que llega al estado putData*/
-//                setServerFrame(dataSecuence,lastSample);
+                if( isThereSamplesToSend()){
+                    dataSecuence = muestras;
+                }       
+                //Si NO hay muestras sin enviar, registro la estación
+                else{
+                    dataSecuence = registro;
+                }
+                
+                //Apago el modem y espero MODEM_RESET_TIME_S para encenderlo
+                _LATB12 = 0;
+                debugUART1("Modem OFF");
+                vTaskDelay(modemResetTime);
+                _LATB12 = 1;
+                debugUART1("Modem ON. Waiting for complete boot...");
+                vTaskDelay(modemResetTime*2);
+                debugUART1("Modem initialization complete");
+                
+                /*Armo el frame para la primera vez que llega al estado putData*/
+                setServerFrame(dataSecuence,lastSample);
                 //Envio el comando hacia el modem.
-//                if(SendATCommand((string*)atcmd_initialConfig,gprsBuffer,gprsBuffer,10,0,2)>0){
-                if(SendATCommand((string*)atcmd_getModemID,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)atcmd_initialConfig,gprsBuffer,gprsBuffer,10,0,2)>0){
+//                if(SendATCommand((string*)atcmd_getModemID,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = FALSE;
                     TMR5_Start();
@@ -159,7 +162,7 @@ uint8_t	FSM_GprsTask( )
                     {
                         debugUART1("_OK_\n\r");
 //                        SetProcessState( &gprsState,disableEcho );
-                        SetProcessState( &gprsState,gprsReset );
+                        SetProcessState( &gprsState,disableEcho );
                     }
                     else
                     {
@@ -173,590 +176,632 @@ uint8_t	FSM_GprsTask( )
                 } 
                 else{
                     //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-                    debugUART1("ULTIMO else");
+                    debugUART1("TIMEOUT MDM RESPONSE.");
                     SetProcessState( &gprsState,gprsReset );
                 }               
 			}
 		break;
         
-//        case( disableEcho ):
+        case( disableEcho ):
 //			printf("----------State: %s----------\r\n",getStateName(gprsState));
-//			if( sendCmd )
-//			{
-//                if(SendATCommand((string*)atcmd_disableEcho,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                    /*	modo recepcion para espera de la respuesta	*/
-//                    sendCmd = FALSE;
-//                }
-//                else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_disableEcho);
-//			}
-//			else
-//			{
-//				modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
-//                    if(strstr(gprsBuffer,_OK_)){
-//                        debugUART1("_OK_\n\r");
-//                        SetProcessState( &gprsState,initModem );
-////                        SetProcessState( &gprsState,gprsReset );
-//                    }
-//                    else if( strstr( (char*)gprsBuffer, (string*)_ERROR_  )){
-//                        //TimeOutCounter();
-//                        debugUART1("_ERROR_\n\r");
-//                        SetProcessState( &gprsState,  gprsReset);
-//                    }
-//                    else {
-//                        //strcat(gprsBuffer,"_ERROR_\n\r");
-//                        debugUART1("ALGO SALIO MAL: ");
-//                        debugUART1(gprsBuffer);
-//                        SetProcessState( &gprsState,  gprsReset);
-//                    }
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }
-//			}
-//			break;
-//            
-//        case( initModem ):
+            debugUART1("----------State: disableEcho");
+			if( sendCmd )
+			{
+                if(SendATCommand((string*)atcmd_disableEcho,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                    TMR5_Start();
+                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                }
+			}
+			else
+			{
+                if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
+                    if(strstr(gprsBuffer,_OK_)){
+                        debugUART1("_OK_\n\r");
+                        SetProcessState( &gprsState,initModem );
+                    }
+                    else if( strstr( (char*)gprsBuffer, (string*)_ERROR_  )){
+                        //TimeOutCounter();
+                        debugUART1("_ERROR_\n\r");
+                        SetProcessState( &gprsState,  gprsReset);
+                    }
+                    else {
+                        //strcat(gprsBuffer,"_ERROR_\n\r");
+                        debugUART1("ALGO SALIO MAL: ");
+                        debugUART1(gprsBuffer);
+                        SetProcessState( &gprsState,  gprsReset);
+                    }
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }
+			}
+			break;
+            
+        case( initModem ):
 //			printf("----------State: %s----------\r\n",getStateName(gprsState));
-//			if( sendCmd )
-//			{           
-//                if(SendATCommand((string*)atcmd_STN_OFF,gprsBuffer,gprsBuffer,10,0,1)>0){
-//                    /*	modo recepcion para espera de la respuesta	*/
-//                    sendCmd = FALSE;
-//                }
-//                else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_STN_OFF); 
-//			}
-//			else
-//			{
-//				modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-//                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
-//                    if(strstr(gprsBuffer,_OK_)){
-//                        debugUART1("_OK_\n\r");
-//                        SetProcessState( &gprsState,setContext );
-////                        SetProcessState( &gprsState,gprsReset );
-//                    }
-//                    else if( strstr( (char*)gprsBuffer, (string*)_ERROR_  )){
-//                        //TimeOutCounter();
-//                        debugUART1("_ERROR_\n\r");
-//                        SetProcessState( &gprsState,  gprsReset);
-//                    }
-//                    else {
-//                        debugUART1("ALGO SALIO MAL: ");
-//                        debugUART1(gprsBuffer);
-//                        SetProcessState( &gprsState,  gprsReset);
-//                    }
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }
-//			}
-//			break;
-//            
-//        case( setContext ):
-//			printf("----------State: %s----------\r\n",getStateName(gprsState));
-//            if( sendCmd )
-//			{
-//				/*	modo recepcion para espera de la respuesta	*/
-//                if(SendATCommand((string*)atcmd_setContextClaro,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                    /*	modo recepcion para espera de la respuesta	*/
-//                    sendCmd = FALSE;
-//                }
-//                else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_setContextClaro);
-//			}
-//			else
-//			{			
-//               /* Aguarda por respuesta completa del modem */
-//                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-//                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
-//                    if(strstr(gprsBuffer,_OK_))
-//                    {
-//                        debugUART1("_OK_\n\r");
-//                        SetProcessState( &gprsState,configSocket );                 
-//                    }
-//                    else
-//                    {
-//                        debugUART1("ALGO SALIO MAL: ");
-//                        debugUART1(gprsBuffer);
-//                        SetProcessState( &gprsState,  gprsReset);
-//                    }
-//                    
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }
-//			}
-//		break;
-//        
-//        /*	Configuracion de Socket	*/
-//		case( configSocket ):
-//            printf("----------State: %s----------\r\n",getStateName(gprsState));
-//			if( sendCmd )
-//			{		
-//				if(SendATCommand((string*)atcmd_configSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                    /*	modo recepcion para espera de la respuesta	*/
-//                    sendCmd = FALSE;
-//                }
-//                else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_configSocketHARDCODED);
-//			}
-//			else
-//			{
-//               /* Aguarda por respuesta completa del modem */
-//                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-//                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
-//                    if(strstr(gprsBuffer,_OK_))
-//                    {
-//                        debugUART1("_OK_\n\r");
-//                        SetProcessState( &gprsState,configExtendSocket );                 
-//                    }
-//                    else
-//                    {
-//                        debugUART1(gprsBuffer);
-//                        SetProcessState( &gprsState,  gprsReset);
-//                    }   
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }
-//			}
-//		break;
-//        
-//        /*	Configuracion de Socket	*/
-//		case( configExtendSocket ):
-//            printf("----------State: %s----------\r\n",getStateName(gprsState));
-//			if( sendCmd )
-//			{	
-//                if(SendATCommand((string*)atcmd_configExtendSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                    /*	modo recepcion para espera de la respuesta	*/
-//                    sendCmd = FALSE;
-//                }
-//                else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_configExtendSocketHARDCODED);
-//                
-//			}
-//			else
-//			{
-//               /* Aguarda por respuesta completa del modem */
-//                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-//                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
-//                    if(strstr(gprsBuffer,_OK_))
-//                    {
-//                        debugUART1("_OK_\n\r");
-//                        SetProcessState( &gprsState,activateContext );                 
-//                    }
-//                    else
-//                    {
-//                        debugUART1(gprsBuffer);
-//                        SetProcessState( &gprsState,  gprsReset);
-//                    }   
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }
-//			}
-//		break;
-//        
-//        case( activateContext ):
-//			printf("----------State: %s----------\r\n",getStateName(gprsState));
-//            if( sendCmd )
-//			{
-//                if(SendATCommand((string*)atcmd_activateContextHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                    /*	modo recepcion para espera de la respuesta	*/
-//                    sendCmd = FALSE;
-//                }
-//                    else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_activateContextHARDCODED); 
-//                }
-//			else
-//			{
-//                /* Aguarda por respuesta completa del modem */
-//                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-//                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
-//                    if(strstr(gprsBuffer,_OK_)) {
-////                        saveIPaddress( (char*)gprsBuffer );
-//                        debugUART1("_OK_\n\r");
-//                        SetProcessState( &gprsState,socketDial );                 
-//                    }
-//                    else if( strstr( (char*)gprsBuffer, (string*)_ERROR_ ) ){
-//                        debugUART1("_ERROR_\n\r");
+            debugUART1("----------State: initModem");
+			if( sendCmd )
+			{           
+                if(SendATCommand((string*)atcmd_STN_OFF,gprsBuffer,gprsBuffer,10,0,1)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                    TMR5_Start();
+                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                }
+			}
+			else
+			{
+                if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
+                    if(strstr(gprsBuffer,_OK_)){
+                        debugUART1("_OK_\n\r");
+                        SetProcessState( &gprsState,setContext );
 //                        SetProcessState( &gprsState,gprsReset );
-////                        TimeOutCounter();
-//                    }
-//                    else if( strstr( (char*)gprsBuffer, (string*)_NOCARRIER_)) {
-//                        debugUART1("_NOCARRIER_\n\r");
-//                        SetProcessState( &gprsState, gprsReset);
-//                    }
-//                    else if( strstr( (char*)gprsBuffer, (string*)_TIMEOUT_ ) ) {
-//                        debugUART1("_TIMEOUT_\n\r");
-//                        SetProcessState( &gprsState, gprsReset);
-////                        TimeOutCounter();
-//                    }
-//                    else {
-//                        debugUART1("ALGO SALIO MAL\n\r");
-//                        debugUART1(gprsBuffer);
-//                        SetProcessState( &gprsState, gprsReset);
-//                    }
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }
-//			}
-//			break;
-//        
-//        case( socketDial ):
+                    }
+                    else if( strstr( (char*)gprsBuffer, (string*)_ERROR_  )){
+                        //TimeOutCounter();
+                        debugUART1("_ERROR_\n\r");
+                        SetProcessState( &gprsState,  gprsReset);
+                    }
+                    else {
+                        debugUART1("ALGO SALIO MAL: ");
+                        debugUART1(gprsBuffer);
+                        SetProcessState( &gprsState,  gprsReset);
+                    }
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }
+			}
+			break;
+            
+        case( setContext ):
+//			printf("----------State: %s----------\r\n",getStateName(gprsState));
+            debugUART1("----------State: setContext");
+            if( sendCmd )
+			{
+				/*	modo recepcion para espera de la respuesta	*/
+                if(SendATCommand((string*)atcmd_setContextClaro,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                    TMR5_Start();
+                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                }
+			}
+			else
+			{			
+               /* Aguarda por respuesta completa del modem */
+                if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
+                    if(strstr(gprsBuffer,_OK_))
+                    {
+                        debugUART1("_OK_\n\r");
+                        SetProcessState( &gprsState,configSocket );                 
+                    }
+                    else
+                    {
+                        debugUART1("ALGO SALIO MAL: ");
+                        debugUART1(gprsBuffer);
+                        SetProcessState( &gprsState,  gprsReset);
+                    }
+                    
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }
+			}
+		break;
+        
+        /*	Configuracion de Socket	*/
+		case( configSocket ):
 //            printf("----------State: %s----------\r\n",getStateName(gprsState));
-//			if( sendCmd )
-//			{	
-//                if(SendATCommand((string*)atcmd_socketDialHARDCODED_1,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                    /*	modo recepcion para espera de la respuesta	*/
-//                    sendCmd = FALSE;
-//                }
-//                else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_socketDialHARDCODED_1);
-//			}
-//			else
-//			{           
-//				/* Clear the modemResponseNotification value before exiting. & Block indefinitely*/
-//                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-//                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
-//                    if(strstr(gprsBuffer,_OK_))
-//                    {
-//                        debugUART1("_OK_\n\r");
-//                        SetProcessState( &gprsState,socketSend );                 
-//                    }
-//                    else
-//                    {
-//                        debugUART1("ALGO SALIO MAL\n\r");
-//                        debugUART1(gprsBuffer);
-//                        SetProcessState( &gprsState, gprsReset);
-//                    }   
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }
-//			}
-//			break;
+            debugUART1("----------State: configSocket");
+			if( sendCmd )
+			{		
+				if(SendATCommand((string*)atcmd_configSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                    TMR5_Start();
+                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                }
+			}
+			else
+			{
+               /* Aguarda por respuesta completa del modem */
+                if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
+                    if(strstr(gprsBuffer,_OK_))
+                    {
+                        debugUART1("_OK_\n\r");
+                        SetProcessState( &gprsState,configExtendSocket );                 
+                    }
+                    else
+                    {
+                        debugUART1(gprsBuffer);
+                        SetProcessState( &gprsState,  gprsReset);
+                    }   
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }
+			}
+		break;
+        
+        /*	Configuracion de Socket	*/
+		case( configExtendSocket ):
+//            printf("----------State: %s----------\r\n",getStateName(gprsState));
+            debugUART1("----------State: configExtendSocket");
+			if( sendCmd )
+			{	
+                if(SendATCommand((string*)atcmd_configExtendSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                    TMR5_Start();
+                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                }
+                
+			}
+			else
+			{
+               /* Aguarda por respuesta completa del modem */
+                if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
+                    if(strstr(gprsBuffer,_OK_))
+                    {
+                        debugUART1("_OK_\n\r");
+                        SetProcessState( &gprsState,activateContext );                 
+                    }
+                    else
+                    {
+                        debugUART1(gprsBuffer);
+                        SetProcessState( &gprsState,  gprsReset);
+                    }   
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }
+			}
+		break;
+        
+        case( activateContext ):
+//			printf("----------State: %s----------\r\n",getStateName(gprsState));
+            debugUART1("----------State: activateContext");
+            if( sendCmd )
+			{
+                if(SendATCommand((string*)atcmd_activateContextHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                    TMR5_Start();
+                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                }
+            }
+			else
+			{
+                /* Aguarda por respuesta completa del modem */
+                if(receiveATCommand(gprsBuffer, &attempts, xSegToTicks(5))) { //
+                    if(strstr(gprsBuffer,_OK_)) {
+//                        saveIPaddress( (char*)gprsBuffer );
+                        debugUART1("_OK_\n\r");
+                        SetProcessState( &gprsState,socketDial );                 
+                    }
+                    else if( strstr( (char*)gprsBuffer, (string*)_ERROR_ ) ){
+                        debugUART1("_ERROR_\n\r");
+                        SetProcessState( &gprsState,gprsReset );
+//                        TimeOutCounter();
+                    }
+                    else if( strstr( (char*)gprsBuffer, (string*)_NOCARRIER_)) {
+                        debugUART1("_NOCARRIER_\n\r");
+                        SetProcessState( &gprsState, gprsReset);
+                    }
+                    else if( strstr( (char*)gprsBuffer, (string*)_TIMEOUT_ ) ) {
+                        debugUART1("_TIMEOUT_\n\r");
+                        SetProcessState( &gprsState, gprsReset);
+//                        TimeOutCounter();
+                    }
+                    else {
+                        debugUART1("ALGO SALIO MAL\n\r");
+                        debugUART1(gprsBuffer);
+                        SetProcessState( &gprsState, gprsReset);
+                    }
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }
+			}
+			break;
+        
+        case( socketDial ):
+//            printf("----------State: %s----------\r\n",getStateName(gprsState));
+            debugUART1("----------State: socketDial");
+			if( sendCmd )
+			{	
+                if(SendATCommand((string*)atcmd_socketDialHARDCODED_1,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                    TMR5_Start();
+                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                }
+			}
+			else
+			{           
+				/* Clear the modemResponseNotification value before exiting. & Block indefinitely*/
+                if(receiveATCommand(gprsBuffer, &attempts, xSegToTicks(2))) {
+                    if(strstr(gprsBuffer,_OK_))
+                    {
+                        debugUART1("_OK_\n\r");
+                        SetProcessState( &gprsState,socketSend );                 
+                    }
+                    else
+                    {
+                        debugUART1("ALGO SALIO MAL\n\r");
+                        debugUART1(gprsBuffer);
+                        SetProcessState( &gprsState, gprsReset);
+                    }   
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }
+			}
+			break;
 //            
-//        case( socketSend ):
+        case( socketSend ):
 //            printf("----------State: %s----------\r\n",getStateName(gprsState));
-//			if( sendCmd )
-//			{	
-//                if(SendATCommand((string*)atcmd_socketSend,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                    /*	modo recepcion para espera de la respuesta	*/
-//                    sendCmd = FALSE;
-//                }
-//                else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_socketSend);
-//			}
-//			else
-//			{   
-//               /* Aguarda por respuesta completa del modem */
-//                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay*2 ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-//                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
-//                    if(strstr(gprsBuffer,">"))
-//                    {
-//                        debugUART1("> RECIBIDO\n\r");
-//                        SetProcessState( &gprsState,putData );                 
-//                    }
-//                    else
-//                    {
-//                        debugUART1("ALGO SALIO MAL\n\r");
-//                        debugUART1(gprsBuffer);
-//                        SetProcessState( &gprsState, gprsReset);
-//                    }   
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }
-//			}
-//		break;
-//        
-//        case( putData ):
+            debugUART1("----------State: socketSend");
+			if( sendCmd )
+			{	
+                if(SendATCommand((string*)atcmd_socketSend,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                    TMR5_Start();
+                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                }
+			}
+			else
+			{   
+               /* Aguarda por respuesta completa del modem */
+                if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
+                    if(strstr(gprsBuffer,">"))
+                    {
+                        debugUART1("> RECIBIDO\n\r");
+                        SetProcessState( &gprsState,putData );                 
+                    }
+                    else
+                    {
+                        debugUART1("ALGO SALIO MAL\n\r");
+                        debugUART1(gprsBuffer);
+                        SetProcessState( &gprsState, gprsReset);
+                    }   
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }
+			}
+		break;
+        
+        case( putData ):
 //            printf("----------State: %s----------\r\n",getStateName(gprsState));
-//			if( sendCmd )
-//			{
-//                /*A continuacion de la trama, envio el caracter especial 
-//                * EndOfFile (EOF)*/
-//                if(SendATCommand((string*)tramaGPRS,gprsBuffer,gprsBuffer,10,0,2)>0){        
-////                if(SendATCommand((string*)atcmd_FRAME2,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                    if(SendATCommand((string*)atcmd_EOF,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                        /*	modo recepcion para espera de la respuesta	*/
-//                        sendCmd = FALSE;
-//                    }
-//                    else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_EOF);
-//                }
+            debugUART1("----------State: putData");
+			if( sendCmd )
+			{
+                /*A continuacion de la trama, envio el caracter especial 
+                * EndOfFile (EOF)*/
+                if(SendATCommand((string*)tramaGPRS,gprsBuffer,gprsBuffer,10,0,2)>0){        
+//                if(SendATCommand((string*)atcmd_FRAME2,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    if(SendATCommand((string*)atcmd_EOF,gprsBuffer,gprsBuffer,10,0,2)>0){
+                        /*	modo recepcion para espera de la respuesta	*/
+                        sendCmd = FALSE;
+                        TMR5_Start();
+                    }
+                    else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                    }
+                }
 //                else {
 //                    printf("ERROR no se pudo enviar la trama\r\n %s \r\nal modem.\r\n",tramaGPRS);
-//                    asm("nop");
 //                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar la trama al modem.");
+                }
 //                printf("tramaGPRS:\r\n%s(%s)\r\n",tramaGPRS,getFrameType(dataSecuence));
-//			}
-//			else
-//			{
-//               /* Aguarda por respuesta completa del modem */
-//                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-//                    attempts++;
-//                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);                 
-//                    if(strstr(gprsBuffer,"SRING"))
-//                    {		
-//                        debugUART1("SRING Recibido\r\n");
-//                        SetProcessState( &gprsState, receiveData);
-//                    }
-//                    else if( strstr(gprsBuffer, (string*)_NOCARRIER_)) {
-//                        debugUART1("_NOCARRIER_\n\r");
-////                        SetProcessState( &gprsState, gprsReset);
-//                        SetProcessState( &gprsState, connectionStatus);
-//                    }
-//                    else
-//                    {
-//                        debugUART1("WAITING SRING:  ");
-//                        debugUART1(gprsBuffer);
-//                        if(attempts>MAX_ATTEMPTS_NUMBER-1){
-//                            SetProcessState( &gprsState,gprsReset );
-//                            debugUART1("Maximo numero de intentos alcanzado. Reiniciando...");
-//                        }
-//                    }   
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }
-//			}
-//		break;		
-//		
-//        /*	Receive data  */
-//		case( receiveData ):
+			}
+			else
+			{
+               /* Aguarda por respuesta completa del modem */
+                vTaskDelay(xSegToTicks(3)); //Espera para recibir respuesta del server
+                if(receiveATCommand(gprsBuffer, &attempts, xSegToTicks(1))) {                 
+                    if(strstr(gprsBuffer,"SRING"))
+                    {		
+                        debugUART1("SRING Recibido\r\n");
+                        SetProcessState( &gprsState, receiveData);
+                    }
+                    else if( strstr(gprsBuffer, (string*)_NOCARRIER_)) {
+                        debugUART1("_NOCARRIER_\n\r");
+//                        SetProcessState( &gprsState, gprsReset);
+                        SetProcessState( &gprsState, connectionStatus);
+                    }
+                    else
+                    {
+                        debugUART1("WAITING SRING:  ");
+                        debugUART1(gprsBuffer);
+                        if(attempts>MAX_ATTEMPTS_NUMBER-1){
+                            SetProcessState( &gprsState,gprsReset );
+                            debugUART1("Maximo numero de intentos alcanzado. Reiniciando...");
+                        }
+                    }   
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }
+			}
+		break;		
+		
+        /*	Receive data  */
+		case( receiveData ):
 //            printf("----------State: %s----------\r\n",getStateName(gprsState));
-//			if( sendCmd )
-//			{
-//                if(SendATCommand((string*)atcmd_sListenHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                    /*	modo recepcion para espera de la respuesta	*/
-//                    sendCmd = FALSE;
-//                }
-//                else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_sListenHARDCODED);
-//			}
-//			else
-//			{       
-//               /* Aguarda por respuesta completa del modem */
-//                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-//                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
-//                    /*Esto es para comparar solo con el encabezado de la trama
-//                     asi se evitan falsos positivos*/
-//                    const char ch = '\n';
-//                    char *ret;
-//                    
-//                    ret = findNthCharacterOcurrence(gprsBuffer,ch,1);
-//                    ret++;//La posicion siguiente a la segunda ocurrencia de \n
-//                    
-////                    strncpy(header,++ret,sizeof(header));
-//                    strncpy(header,ret,FRAME_HEADER_SIZE-1);
-//                    headerIndex = getHeaderIndex(header);
-//                    
+            debugUART1("----------State: receiveData");
+			if( sendCmd )
+			{
+                if(SendATCommand((string*)atcmd_sListenHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                    TMR5_Start();
+                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                }
+			}
+			else
+			{       
+               /* Aguarda por respuesta completa del modem */
+                if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
+                    /*Esto es para comparar solo con el encabezado de la trama
+                     asi se evitan falsos positivos*/
+                    const char ch = '\n';
+                    char *ret;
+                    
+                    ret = findNthCharacterOcurrence(gprsBuffer,ch,1);
+                    ret++;//La posicion siguiente a la segunda ocurrencia de \n
+                    
+//                    strncpy(header,++ret,sizeof(header));
+                    strncpy(header,ret,FRAME_HEADER_SIZE-1);
+                    headerIndex = getHeaderIndex(header);
+                    
 //                    printf("Rta SERVER: %s\r\n",gprsBuffer);
 //                    printf("dataSecuence: %s\r\n",getFrameType(dataSecuence));                   
 //                    printf("Header Rta SERVER: %s\r\n",header);
 //                    printf("headerIndex: %d\r\n",headerIndex);
 //                    printf("###########\r\n");
-//                    
-//                    switch(headerIndex){
-//                        case h024F:
+                    
+                    switch(headerIndex){
+                        case h024F:
 //                            printDeviceSensorEnables();
-//                            //Corrijo la config de sensores y la fecha-hora 
-//                            setDeviceSensorEnables( ret + 6 ); //7
-//                            setDeviceDateTime( ret + 13 );    //14
+                            //Corrijo la config de sensores y la fecha-hora 
+                            setDeviceSensorEnables( ret + 6 ); //7
+                            setDeviceDateTime( ret + 13 );    //14
 //                            printf("Configuracion de sensores y RTCC actualizada.\r\n");
 //                            printDeviceSensorEnables();
-//                            if(dataSecuence == registro){
-//                                registering = true;
-//                                registered = false;
-//                            }
-//                                
-//                            
-//                        //El siguiente codigo se ejecutara para 024F y 004F
-//                        case h004F:
-//                            if(dataSecuence == muestras) 
-//                                updateMemoryReadPointer();
-//                            else{
-//                                if(dataSecuence == configuracion){
-//                                    registered = true;
-//                                    registering = false;
-//                                }
-//                                    
-//                            }
-//                            dataSecuence = getNextDataSecuence(); 
-//                            break;
-//                        case h004E:
-//                        case h024E:
-//                            //Quiza sea innecesario...
-////                            setServerFrame(dataSecuence,lastSample);
-//                            break;
-//                        default:
+                            if(dataSecuence == registro){
+                                registering = true;
+                                registered = false;
+                            }
+                                
+                            
+                        //El siguiente codigo se ejecutara para 024F y 004F
+                        case h004F:
+                            if(dataSecuence == muestras) 
+                                updateMemoryReadPointer();
+                            else{
+                                if(dataSecuence == configuracion){
+                                    registered = true;
+                                    registering = false;
+                                }
+                                    
+                            }
+                            dataSecuence = getNextDataSecuence(); 
+                            break;
+                        case h004E:
+                        case h024E:
+                            //Quiza sea innecesario...
+//                            setServerFrame(dataSecuence,lastSample);
+                            break;
+                        default:
 //                            printf("Respuesta del server desconocida.\r\nReiniciando FSM...");
-//                            SetProcessState(&gprsState, gprsReset);
-//                    }
-//                    //Si dataSecuence es diferente de cero, tengo algo por enviar
-//                    if(dataSecuence){
-//                        setServerFrame(dataSecuence,lastSample);
+                            debugUART1("Respuesta del server desconocida.\nReiniciando FSM...");
+                            SetProcessState(&gprsState, gprsReset);
+                    }
+                    //Si dataSecuence es diferente de cero, tengo algo por enviar
+                    if(dataSecuence){
+                        setServerFrame(dataSecuence,lastSample);
 //                        printf("Building a %s frame.\r\n",getFrameType(dataSecuence));
-//                        SetProcessState(&gprsState, socketSend);
-//                    }
-//                    else{
-//                        SetProcessState(&gprsState, closeSocket);
-//                        debugUART1("No more frames. Closing socket...\r\n");
-//                    }      
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }  
-//            }
-//            break;
-//			
-//        /*	Close a Socket	
-//         * Cierra el puerto de comunicacion con el servidor.
-//         */
-//		case( closeSocket ):
+                        debugUART1("Building a frame.");
+                        SetProcessState(&gprsState, socketSend);
+                    }
+                    else{
+                        SetProcessState(&gprsState, closeSocket);
+                        debugUART1("No more frames. Closing socket...\r\n");
+                    }      
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }  
+            }
+            break;
+			
+        /*	Close a Socket	
+         * Cierra el puerto de comunicacion con el servidor.
+         */
+		case( closeSocket ):
 //            printf("----------State: %s----------\r\n",getStateName(gprsState));
-//            if( sendCmd )
-//			{	
-//                if(SendATCommand((string*)atcmd_closeSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                    /*	modo recepcion para espera de la respuesta	*/
-//                    sendCmd = FALSE;
-//                }
-//                else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_closeSocketHARDCODED);
-//			}
-//			else
-//			{           
-//				/* Clear the modemResponseNotification value before exiting. & Block indefinitely*/
-//                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-//                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);                 
-//                    if(strstr(gprsBuffer,_OK_))
-//                    {			
-//                        debugUART1("_OK_\n\r");
-//    //					SetProcessState( &gprsState, configExtendSocket);
-//                        SetProcessState( &gprsState, waitForNewRequests);
-//                    }
-//                    else
-//                    {
-//                        debugUART1("ALGO SALIO MAL\n\r");
-//                        debugUART1(gprsBuffer);
-//                        SetProcessState( &gprsState, gprsReset);
-//                    }   
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }
-//			}
-//		break;
-//        
-//        case( waitForNewRequests):
+            debugUART1("----------State: closeSocket");
+            if( sendCmd )
+			{	
+                if(SendATCommand((string*)atcmd_closeSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                    TMR5_Start();
+                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                }
+			}
+			else
+			{           
+				/* Clear the modemResponseNotification value before exiting. & Block indefinitely*/
+                if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {                
+                    if(strstr(gprsBuffer,_OK_))
+                    {			
+                        debugUART1("_OK_\n\r");
+    //					SetProcessState( &gprsState, configExtendSocket);
+                        SetProcessState( &gprsState, waitForNewRequests);
+                    }
+                    else
+                    {
+                        debugUART1("ALGO SALIO MAL\n\r");
+                        debugUART1(gprsBuffer);
+                        SetProcessState( &gprsState, gprsReset);
+                    }   
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }
+			}
+		break;
+        
+        case( waitForNewRequests):
 //            printf("----------State: %s----------\r\n",getStateName(gprsState));
-//            /*Colocar mecanismo sleep para esperar notificaciones desde la tarea 
-//             sample y disponerse a enviar una trama*/
-//            
-//            sampleReadyNotification = ulTaskNotifyTake(   pdTRUE, portMAX_DELAY ); 
-//                
-//            if(sampleReadyNotification == NEW_SAMPLE_NOTIFICATION){
-//                SetProcessState( &gprsState, connectionStatus);
-//            }
-//            else{
-//                printf("ERROR: se esperaba %d como notificacion pero se recibio %zu.\r\n",NEW_SAMPLE_NOTIFICATION,sampleReadyNotification);
-//            }
-//            break;
-//        
-//   
-//        /* En este estado verificamos conectividad del modem*/
-//        case( connectionStatus ):
+            debugUART1("----------State: waitForNewRequests");
+            /*Colocar mecanismo sleep para esperar notificaciones desde la tarea 
+             sample y disponerse a enviar una trama*/
+            
+            sampleReadyNotification = ulTaskNotifyTake(   pdTRUE, portMAX_DELAY ); 
+                
+            if(sampleReadyNotification == NEW_SAMPLE_NOTIFICATION){
+                SetProcessState( &gprsState, connectionStatus);
+            }
+            else{
+//                  printf("ERROR: se esperaba %d como notificacion pero se recibio %zu.\r\n",NEW_SAMPLE_NOTIFICATION,sampleReadyNotification);
+                    debugUART1("ERROR: se recibio otra notificación, no la que se esperaba (sample).");
+            }
+           
+            break;
+        
+   
+        /* En este estado verificamos conectividad del modem*/
+        case( connectionStatus ):
 //            printf("----------State: %s----------\r\n",getStateName(gprsState));
-//            //Hay que verificar si el equipo tiene si tengo ip
-//            if( sendCmd )
-//			{
-//                //Chequeo si tengo IP
-//                 if(SendATCommand((string*)atcmd_checkIP,gprsBuffer,gprsBuffer,10,0,2)>0){
-//                    /*	modo recepcion para espera de la respuesta	*/
-//                    sendCmd = FALSE;
-//                }
-//                else printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_checkIP);
-//			}
-//			else
-//			{
-//				//Espero que el modem termine de enviar su respuesta
-//                modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-//                
-//                if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-//                    TMR4_Stop();
-//                    UART2_ReadBuffer(gprsBuffer, GPRS_BUFFER_SIZE);
-//                    //Si tengo IP, la respuesta es de la forma ?xxx.yyy.zzz.www?
-//                    if((!(strstr(gprsBuffer,"AT")))&&(strlen(gprsBuffer)<40)){    
-//                    //NO TIENE IP, ES DECIR NO ESTOY CONECTADO			
-//                        if( isThereSamplesToSend() ){
-//                            //NO ESTOY CONECTADO Y TENGO QUE MANDAR MUESTRAS, ACTIVO CONTEXTO
+            debugUART1("----------State: connectionStatus");
+            //Hay que verificar si el equipo tiene si tengo ip
+            if( sendCmd )
+			{
+                //Chequeo si tengo IP
+                 if(SendATCommand((string*)atcmd_checkIP,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = FALSE;
+                    TMR5_Start();
+                }
+                else{
+//                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
+                    debugUART1("ERROR no se pudo enviar el comando al modem.");
+                }
+			}
+			else
+			{
+				//Espero que el modem termine de enviar su respuesta
+                if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
+                    if(strlen(gprsBuffer)<30){ 
+                    /*
+                     * La respuesta en caso de tener IP es de la siguiente forma:
+                     * \r\n#CGPADDR: 1,"10.215.134.177"\r\n\r\nOK\r\n
+                     * Dependiendo la IP, el largo total varía entre 31 y 39 caracteres
+                     * En caso negativo la respuesta es:
+                     * \r\n#CGPADDR: 1,""\r\n\r\nOK\r\n (Largo total 24)
+                     */
+                    //NO TIENE IP, ES DECIR NO ESTOY CONECTADO			
+                        if( isThereSamplesToSend() ){
+                            //NO ESTOY CONECTADO Y TENGO QUE MANDAR MUESTRAS, ACTIVO CONTEXTO
 //                            printf("Sin IP y nueva muestra por enviar...\r\n");
-//                            dataSecuence = muestras;
-//                            setServerFrame(dataSecuence,lastSample);
-//                            SetProcessState( &gprsState, activateContext);	
-//                        }
-//                        else{
+                            debugUART1("Sin IP y nueva muestra por enviar...");
+                            dataSecuence = muestras;
+                            setServerFrame(dataSecuence,lastSample);
+                            SetProcessState( &gprsState, activateContext);	
+                        }
+                        else{
 //                            printf("connectionStatus sin IP y sin muestras pendientes\r\n");
-//                            SetProcessState( &gprsState, waitForNewRequests);
-//                        }
-//                    }
-//                    else if(strlen(gprsBuffer)>40){
-//                    //TENGO IP, ESTOY CONECTADO
-//                        if( isThereSamplesToSend() ) {	
-//                        //TENGO MUESTRAS PARA ENVIAR
+                            debugUART1("connectionStatus sin IP y sin muestras pendientes.");
+                            SetProcessState( &gprsState, waitForNewRequests);
+                        }
+                    }
+                    else if(strstr(gprsBuffer,"CGPADDR") && strlen(gprsBuffer)>30){
+                    //TENGO IP, ESTOY CONECTADO
+                        if( isThereSamplesToSend() ) {	
+                        //TENGO MUESTRAS PARA ENVIAR
 //                            printf("Con IP y nueva muestra por enviar...\r\n");
-//                            dataSecuence = muestras;
-//                            setServerFrame(dataSecuence,lastSample);
-//                            SetProcessState( &gprsState, socketDial);
-//                        }
-//                        else {
-//                        //NO TENGO MUESTRAS PARA ENVIAR
+                            debugUART1("Con IP y nueva muestra por enviar...");
+                            dataSecuence = muestras;
+                            setServerFrame(dataSecuence,lastSample);
+                            SetProcessState( &gprsState, socketDial);
+                        }
+                        else {
+                        //NO TENGO MUESTRAS PARA ENVIAR
 //                            printf("connectionStatus con IP sin muestras para enviar \r\n");
-//                            SetProcessState( &gprsState,waitForNewRequests);
-//                        }
-//                    }   
-//                    else if( strstr( (char*)gprsBuffer, (string*)_NOCARRIER_ ) ) {
+                            debugUART1("connectionStatus con IP sin muestras para enviar.");                            
+                            SetProcessState( &gprsState,waitForNewRequests);
+                        }
+                    }   
+                    else if( strstr( (char*)gprsBuffer, (string*)_NOCARRIER_ ) ) {
 //                        printf("connectionStatus NOCARRIER \r\n");
-//                        SetProcessState( &gprsState, gprsReset);
-//                    }
-//                    else{
-//                        debugUART1("Estado de conexion indeterminado\r\n");
-//                        debugUART1(gprsBuffer);
-//                        SetProcessState( &gprsState, gprsReset);
-//                    }
-//                }
-//                else{
-//                    printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-//                }
-//			}
-//			break;
+                        debugUART1("connectionStatus NOCARRIER.");
+                        SetProcessState( &gprsState, gprsReset);
+                    }
+                    else{
+                        debugUART1("Estado de conexion indeterminado\r\n");
+                        debugUART1(gprsBuffer);
+                        SetProcessState( &gprsState, gprsReset);
+                    }
+                }
+                else{
+                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+                    debugUART1("TIMEOUT MDM RESPONSE.");
+                }
+			}
+			break;
     }
     
     return	TRUE;
@@ -820,7 +865,7 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
             
 //            printf("Building config frame\r\n");
             debugUART1("Building config frame\r\n");
-            printDeviceSensorEnables();
+//            printDeviceSensorEnables();
             
 //            configFrame.cmd = 0x11;
 //			configFrame.tipo = 0x11;

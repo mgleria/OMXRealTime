@@ -47,15 +47,6 @@ static uint16_t temperature;
 
 SemaphoreHandle_t xMutexMemory = NULL;
 
-
-
-void debug_enable()
-{
-    //Requiere PROBAR SI NO ROMPE LA CONFIG ACTUAL
-    UART_Reset(1, FCY, EZBL_COMBaud, 1);
-    
-}
-
 void startSampleTask(){
     
     xTaskCreate(    vTaskSample,
@@ -70,8 +61,6 @@ void startSampleTask(){
     sensorsConfig();
     TMR3_Start();
     
-//    debug_enable();
-    
     debugUART1("startSampleTask()\r\n");
 }
 
@@ -84,7 +73,8 @@ void vTaskSample( void *pvParameters ){
     
     xMutexMemory = xSemaphoreCreateMutex();
     if(!xMutexMemory){
-        printf("ERROR en la creación del mutex de Memoria");
+//        printf("ERROR en la creación del mutex de Memoria");
+        debugUART1("ERROR en la creación del mutex de Memoria");
         //El programa no puede seguir, hay que detenerlo.
     }
     
@@ -95,7 +85,7 @@ void vTaskSample( void *pvParameters ){
     // Cuerpo de la tarea
     for( ;; ){
 //        printf("--------------------Sample Task--------------------\r\n");
-        printf("////////////////////Sample Task\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\r\n");
+//        printf("////////////////////Sample Task\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\r\n");
         
         if(waitForNotify){
             //Se bloquea la tarea a la espera de nuevas notificaciones que llegarán desde
@@ -179,8 +169,8 @@ static void FSM_SampleTask(uint32_t status){
             break;
         //to-do: Cambiar portMAX_DELAY por el valor apropiado
         case SYNC_SAMPLING:
-            printf("SYNC_SAMPLING %d\r",syncCounter);
-//            debugUART1("SYNC_SAMPLING\r\n");
+//            printf("SYNC_SAMPLING %d\r",syncCounter);
+            debugUART1("SYNC_SAMPLING");
             syncEvents = ulTaskNotifyTake( 
                 pdTRUE,  /* Clear the notification value before exiting. */
                 xSegToTicks(T_MUESTREO_DATO_S) ); /* Max Blocking time. */
@@ -209,8 +199,8 @@ static void FSM_SampleTask(uint32_t status){
             if(syncCounter>0){
                 sample.clima.hum = potentiometer/syncCounter;
                 sample.clima.temper = getTemperature(temperature/syncCounter);
-                printf("sample.clima.hum: %d\r\n",sample.clima.hum);
-                printf("sample.clima.temper: %d\r\n",sample.clima.temper);
+//                printf("sample.clima.hum: %d\r\n",sample.clima.hum);
+//                printf("sample.clima.temper: %d\r\n",sample.clima.temper);
             }
             else{
                 //to-do: Ver que se hace en caso de que no se hayan tomado 
@@ -221,7 +211,7 @@ static void FSM_SampleTask(uint32_t status){
 /////////////////////MUESTRAS TOMADAS ASINCRONICAMENTE//////////////////////////
             //to-do: Hacer una función que me permita escalar esto mejor
             sample.clima.lluvia = getAccumulatedRain();
-            printf("sample.clima.lluvia: %d\r\n",sample.clima.lluvia);
+//            printf("sample.clima.lluvia: %d\r\n",sample.clima.lluvia);
             //Limpio el contador por soft del TMR3
             clearAccumulatedRain();
             
@@ -246,11 +236,13 @@ static void FSM_SampleTask(uint32_t status){
 //                printMemoryPointers();
 //                printf("resultPutSample->%d.\r\n",resultPutSample);
                 if(resultPutSample){
-                    printf("Muestra guardada exitosamente.\r\n");
+//                    printf("Muestra guardada exitosamente.\r\n");
+                    debugUART1("Muestra guardada exitosamente.");
 //                    printMemoryPointers();
                 }
                 else{
-                    printf("ERROR al guardar la muestra.\r\n");
+//                    printf("ERROR al guardar la muestra.\r\n");
+                    debugUART1("ERROR al guardar la muestra.");
                 }
                 resultGetSample = getSample(&returnedSample,0);
 //                printf("getSample(&sample,0)->%s \r\n",resultGetSample);
@@ -271,7 +263,8 @@ static void FSM_SampleTask(uint32_t status){
                 setStatusFSM(ASYNC_SAMPLING);
             }
             else{
-                printf("ERROR no se pudo tomar el mutex de memoria.\r\n");
+//                printf("ERROR no se pudo tomar el mutex de memoria.\r\n");
+                debugUART1("ERROR no se pudo tomar el mutex de memoria.");
             }
             break;
     }

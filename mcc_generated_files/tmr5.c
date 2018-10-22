@@ -160,17 +160,19 @@ void __attribute__ ((weak)) TMR5_CallBack(void)
     static uint16_t count = 0;
     static uint8_t prevDataCount = 0xFF; 
 
-    count ++ ;
-
-    if( prevDataCount != EZBL_COMBootIF->dataCount )
+    if( (prevDataCount != EZBL_COMBootIF->dataCount) 
+        && (EZBL_COMBootIF->dataCount > 0) )
     {
-      prevDataCount = EZBL_COMBootIF->dataCount;
-      // reset count 
-      count = 0;
+        prevDataCount = EZBL_COMBootIF->dataCount;
+        // reset count 
+        count = 0;
+    }
+    else {
+        count ++ ;
     }
 
     //Pasaron 200ms desde el último caracter recibido.
-    if( count > 10 )
+    if( count > 15 )
     {
         count = 0;
 //        timeout = true; 

@@ -27,6 +27,8 @@ void    printMemoryPointers();
 
 char *findNthCharacterOcurrence(const char *src,const char ch, uint8_t n);
 
+void    flushBuffer(uint8_t *buffer, uint16_t bufferSize);
+
 
 #endif	/* UTILITIES_H */
 

@@ -52,15 +52,13 @@ uint8_t	receiveATCommand( char* buffer, uint8_t *attempts, TickType_t responseDe
     uint32_t modemResponseNotification = 0;
     uint16_t readedBytes = 0;
     
+    *attempts++;
     modemResponseNotification = ulTaskNotifyTake(   pdTRUE, responseDelay ); 
-                
+    
+    
     if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
-        TMR5_Stop();
-        *attempts++;
-        
+        TMR5_Stop();       
         readedBytes = EZBL_FIFORead(buffer,EZBL_COMBootIF,MODEM_BUFFER_SIZE);
-        debugUART1("receiveATCommand");
-        debugUART1(buffer);
 //        UART2_ReadBuffer(buffer, GPRS_BUFFER_SIZE);
         return 1;
     }

@@ -129,15 +129,15 @@ int main( void )
         
     
     
-//    rtc_init();
+    rtc_init();
 ////    vLedInitialise();
-//    setEstacionConfig();
+    setEstacionConfig();
     
-//    if(RESET_MEMORY) resetSamplesPtr();
+    if(RESET_MEMORY) resetSamplesPtr();
     
 //    printMemoryPointers();
     
-//    startSampleTask();
+    startSampleTask();
     startGprsTask();
 //    startTestTask();
     

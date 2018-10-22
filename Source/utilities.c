@@ -59,10 +59,10 @@ uint16_t	swapBytes( uint16_t var )
 }
 
 void debugUART1(const char* s){
-    int returnValue = -1;
-    returnValue = UART1_WriteBuffer(s,strlen(s));
-    UART1_Write(0x0D);
-    UART1_Write(0x0A);
+    
+    UART1_WriteBuffer(s,strlen(s));
+    UART1_Write(0x0D); // \r
+    UART1_Write(0x0A); // \n
     
 }
 
@@ -87,4 +87,12 @@ char *findNthCharacterOcurrence(const char *src,const char ch, uint8_t n)
         p++;
     }
     return p;
+}
+
+void    flushBuffer(uint8_t *buffer, uint16_t bufferSize)
+{
+    int i;
+    for(i=0;i<bufferSize;i++){
+        buffer[i]='\0';
+    }
 }
