@@ -67,9 +67,8 @@ void    rtc_init();
 void    get_rtcc_datetime( rtcc_t *rtcc );
 void	set_rtcc_datetime( rtcc_t* rtcc );
 
-
-
-
+void    printRTCCTime( rtcc_t* rtcc );
+void    printCurrentRTCCTime();
 
 #endif	/* RTCC_H */
 

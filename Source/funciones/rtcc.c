@@ -1,5 +1,7 @@
 #include "funciones/rtcc.h"
 #include "sistema/ext_rtcc.h"
+#include "utilities.h"
+#include "uart1.h"
 
 rtcc_t tiempo;					///<	Estructura con la fecha y hora del sistema.
 
@@ -335,6 +337,31 @@ void	set_rtcc_datetime( rtcc_t* rtcc )
 {
 	set_rtcc_date( rtcc );
 	set_rtcc_time( rtcc );
+}
+
+void printRTCCTime( rtcc_t* rtcc )
+{
+    #define AUX_BUFFER_SIZE 20
+    char auxBuffer[AUX_BUFFER_SIZE];
+    flushBuffer(auxBuffer,AUX_BUFFER_SIZE);
+    
+    sprintf(auxBuffer,"%d/%d/%d %d:%d:%d\r\n", 
+            bcd2dec(rtcc->dia), 
+            bcd2dec(rtcc->mes), 
+            bcd2dec(rtcc->anio), 
+            bcd2dec(rtcc->hora), 
+            bcd2dec(rtcc->minutos), 
+            bcd2dec(rtcc->segundos));
+    
+    UART1_WriteBuffer(auxBuffer,AUX_BUFFER_SIZE);
+    
+}
+
+void printCurrentRTCCTime()
+{
+    rtcc_t now;
+    get_rtcc_datetime(&now);
+    printRTCCTime(&now);
 }
 
 /**********************************************************************************************/

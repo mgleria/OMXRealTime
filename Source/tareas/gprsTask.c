@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "tareas/gprsTask.h"
+#include "funciones/rtcc.h"
 
 void    vTaskGPRS( void *pvParameters );
 
@@ -110,6 +111,8 @@ void SetProcessState( uint8_t * reg, uint8_t state )
 
 uint8_t	FSM_GprsTask( )
 {
+    uint8_t modemResponseFlag;
+    bool waitingSRING = true;
 	/*	estados del proceso	*/
 	switch ( gprsState )
 	{
@@ -399,6 +402,7 @@ uint8_t	FSM_GprsTask( )
 			else
 			{
                 /* Aguarda por respuesta completa del modem */
+                vTaskDelay(xSegToTicks(3));
                 if(receiveATCommand(gprsBuffer, &attempts, xSegToTicks(5))) { //
                     if(strstr(gprsBuffer,_OK_)) {
 //                        saveIPaddress( (char*)gprsBuffer );
@@ -450,7 +454,7 @@ uint8_t	FSM_GprsTask( )
 			else
 			{           
 				/* Clear the modemResponseNotification value before exiting. & Block indefinitely*/
-                if(receiveATCommand(gprsBuffer, &attempts, xSegToTicks(2))) {
+                if(receiveATCommand(gprsBuffer, &attempts, xSegToTicks(5))) {
                     if(strstr(gprsBuffer,_OK_))
                     {
                         debugUART1("_OK_\n\r");
@@ -534,37 +538,63 @@ uint8_t	FSM_GprsTask( )
 //                  printf("ERROR no se pudo enviar el comando %s al modem.\r\n",atcmd_initialConfig);  
                     debugUART1("ERROR no se pudo enviar la trama al modem.");
                 }
+                printCurrentRTCCTime();//Timestamp para evaluar delay comando-respuesta
 //                printf("tramaGPRS:\r\n%s(%s)\r\n",tramaGPRS,getFrameType(dataSecuence));
 			}
 			else
 			{
                /* Aguarda por respuesta completa del modem */
                 vTaskDelay(xSegToTicks(3)); //Espera para recibir respuesta del server
-                if(receiveATCommand(gprsBuffer, &attempts, xSegToTicks(1))) {                 
-                    if(strstr(gprsBuffer,"SRING"))
-                    {		
-                        debugUART1("SRING Recibido\r\n");
-                        SetProcessState( &gprsState, receiveData);
-                    }
-                    else if( strstr(gprsBuffer, (string*)_NOCARRIER_)) {
-                        debugUART1("_NOCARRIER_\n\r");
-//                        SetProcessState( &gprsState, gprsReset);
-                        SetProcessState( &gprsState, connectionStatus);
-                    }
+                modemResponseFlag = receiveATCommand(gprsBuffer, &attempts, xSegToTicks(1));
+                if(modemResponseFlag)
+                        waitingSRING = !strstr(gprsBuffer,"SRING");
+                
+                while(waitingSRING && attempts < MAX_ATTEMPTS_NUMBER) {
+                    attempts++;
+                    modemResponseFlag = getServerResponse(gprsBuffer, xSegToTicks(5));
+                    
+                    if(modemResponseFlag)
+                        waitingSRING = !strstr(gprsBuffer,"SRING");
                     else
-                    {
-                        debugUART1("WAITING SRING:  ");
-                        debugUART1(gprsBuffer);
-                        if(attempts>MAX_ATTEMPTS_NUMBER-1){
-                            SetProcessState( &gprsState,gprsReset );
-                            debugUART1("Maximo numero de intentos alcanzado. Reiniciando...");
-                        }
-                    }   
+                        debugUART1("Sin respuesta del server.");
                 }
-                else{
-                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
-                    debugUART1("TIMEOUT MDM RESPONSE.");
+                //Si waitingSRING es false, significa que ya lo he recibido
+                if(!waitingSRING) {
+                    debugUART1("SRING Recibido\r\n");
+                    SetProcessState( &gprsState, receiveData);
                 }
+                else {
+                    debugUART1("La respuesta del server ha tardado demasiado. Reiniciando comunicacion...\r\n");
+                    SetProcessState( &gprsState,gprsReset );
+                }
+                
+                
+//                if(modemResponseFlag) {                 
+//                    printCurrentRTCCTime(); //Timestamp para evaluar delay comando-respuesta
+//                    if(strstr(gprsBuffer,"SRING"))
+//                    {		
+//                        debugUART1("SRING Recibido\r\n");
+//                        SetProcessState( &gprsState, receiveData);
+//                    }
+//                    else if( strstr(gprsBuffer, (string*)_NOCARRIER_)) {
+//                        debugUART1("_NOCARRIER_\n\r");
+////                        SetProcessState( &gprsState, gprsReset);
+//                        SetProcessState( &gprsState, connectionStatus);
+//                    }
+//                    else
+//                    {
+//                        debugUART1("WAITING SRING:  ");
+//                        debugUART1(gprsBuffer);
+//                        if(attempts>MAX_ATTEMPTS_NUMBER-1){
+//                            SetProcessState( &gprsState,gprsReset );
+//                            debugUART1("Maximo numero de intentos alcanzado. Reiniciando...");
+//                        }
+//                    }   
+//                }
+//                else{
+//                    //printf("TIMEOUT MDM RESPONSE. State:%s\r\n ",getStateName(gprsState));
+//                    debugUART1("TIMEOUT MDM RESPONSE.");
+//                }
 			}
 		break;		
 		

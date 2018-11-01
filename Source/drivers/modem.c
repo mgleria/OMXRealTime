@@ -62,7 +62,23 @@ uint8_t	receiveATCommand( char* buffer, uint8_t *attempts, TickType_t responseDe
 //        UART2_ReadBuffer(buffer, GPRS_BUFFER_SIZE);
         return 1;
     }
-    else
+    
+    return 0;
+}
+
+uint8_t	getServerResponse( char* buffer, TickType_t responseDelay )
+{
+    uint32_t modemResponseNotification = 0;
+    uint16_t readedBytes = 0;
+   
+     
+    readedBytes = EZBL_FIFORead(buffer,EZBL_COMBootIF,MODEM_BUFFER_SIZE);
+    
+    if(readedBytes)
+        return 1;
+    else {
+        vTaskDelay(responseDelay);
         return 0;
+    }   
 }
     

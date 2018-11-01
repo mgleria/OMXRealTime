@@ -310,7 +310,7 @@ unsigned int UART1_WriteBuffer( const uint8_t *buffer , const unsigned int bufLe
 {
     unsigned int numBytesWritten = 0 ;
 
-    while ( numBytesWritten < ( bufLen ))
+    while ( numBytesWritten < ( bufLen ) && buffer[numBytesWritten] != '\0')
     {
         if((uart1_obj.txStatus.s.full))
         {

@@ -3,6 +3,7 @@
 
 #include "ezbl.h"
 #include "tmr5.h"
+#include "funciones/rtcc.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -27,102 +28,29 @@ TickType_t delayModem;
  */
 void vTaskTest( void *pvParameters )
 {
-    #define TASK_PERIOD_MS          500
+    #define TASK_PERIOD_MS          3000
     #define MODEM_OFF_TIME_S        15
     #define MODEM_WAIT_RESPONSE_MS  250
 
-    timeout = false;
-
-    TickType_t taskDelay, modemResetTime;
-//  
-    delayModem = xMsToTicks(MODEM_WAIT_RESPONSE_MS);
-    taskDelay = xMsToTicks(TASK_PERIOD_MS);
-    modemResetTime = xSegToTicks (MODEM_OFF_TIME_S);
-//    
-    string	atcmd_getModemID[]				=	"AT+GMR\n";
-//    
-//    //Buffer de comunicación entrante y saliente con el modem
-//    static char gprsBuffer[GPRS_BUFFER_SIZE]={0};
-//    static char header[FRAME_HEADER_SIZE]={0};
-//    static headerOptions_t headerIndex; 
-//    
-//    const char ch = '\n';
-//    char *ret;
-//    
-    
-    unsigned long ledBlinkTimer;
-    ledBlinkTimer = NOW_32();
-
-    size_t heapFree;
+    TickType_t taskDelay;
     UBaseType_t uxHighWaterMark1;
-    
-    heapFree = xPortGetFreeHeapSize();
-    
-    uint8_t RxBuffer[100] = {0};
-    
-//    EZBL_STDIN->onReadCallback = UART_RX_FIFO_OnRead;
-    
-    //Apago el modem y espero MODEM_RESET_TIME_S para encenderlo
-    _LATB12 = 0;
-    debugUART1("Modem OFF\r\n");
-    vTaskDelay(modemResetTime);
-    _LATB12 = 1;
-    debugUART1("Modem ON. Waiting for complete boot...\r\n");
-    vTaskDelay(modemResetTime*2);
-    debugUART1("Modem initialization complete\r\n");
-    
-    TMR5_Stop();
-    
-    
+  
+    taskDelay = xMsToTicks(TASK_PERIOD_MS);
+ 
+    rtcc_t time;
+   
     //Loop principal
     for(;;)
-    {
-        //        Espera arbitraria para dormir la tarea  
+    {  
         uxHighWaterMark1 = uxTaskGetStackHighWaterMark( NULL );
+        // Espera arbitraria para dormir la tarea   
         vTaskDelay(taskDelay);
         
-        flushBuffer(RxBuffer,100);
-        
-        LEDToggle(0x01);
-        
-//        EZBL_FIFOWrite(EZBL_COMBootIF,atcmd_getModemID,strlength(atcmd_getModemID));
-        EZBL_printf(atcmd_getModemID);
-        debugUART1(">>>>");
-        debugUART1(atcmd_getModemID);
-        
-        TMR5_Start();
+//        get_rtcc_datetime(&time);
+//        printRTCCTime(&time);
+        printCurrentRTCCTime();
         
         
-        
-         /* Aguarda por respuesta completa del modem */
-        notificationFromModem = ulTaskNotifyTake(   pdTRUE, delayModem ); 
-                
-        if(notificationFromModem == MDM_RESP_READY_NOTIFICATION)
-        {
-            TMR5_Stop();
-            EZBL_FIFORead(RxBuffer,EZBL_COMBootIF,100);
-            if(strstr(RxBuffer,_OK_)){
-                debugUART1("<<<<");
-                debugUART1(RxBuffer);
-            } 
-        }
-        
-        
-        
-        //Espera bloqueante hasta recibir la respuesta completa del modem
-//        while(!timeout);
-//        
-//        timeout = false;
-//        TMR5_Stop();
-//        
-//        EZBL_FIFORead(RxBuffer,EZBL_STDIN,100);
-//        debugUART1("<<<<");
-//        debugUART1(RxBuffer);
-        
-//        if(EZBL_FIFOFlush(EZBL_STDIN, NOW_sec))
-//            debugUART1("EZBL_FIFOFlush return 1");
-//        else 
-//            debugUART1("EZBL_FIFOFlush return 0");
         
         ClrWdt();      
     } 
@@ -201,10 +129,10 @@ void startTestTask(){
                     MAX_PRIORITY-1,
                     &xTestHandle);
         
-    xTaskCreate(    vTaskTest2,
-                    "vTaskTest2",
-                    1000,
-                    NULL,
-                    MAX_PRIORITY-2,
-                    NULL);
+//    xTaskCreate(    vTaskTest2,
+//                    "vTaskTest2",
+//                    1000,
+//                    NULL,
+//                    MAX_PRIORITY-2,
+//                    NULL);
 }
