@@ -117,6 +117,8 @@ extern rtcc_t tiempo;
 /*Macro para resetear los punteros de memoria en cada inicio de la app*/
 #define     RESET_MEMORY     1
 
+extern volatile int timeForPartitionSwap __attribute__((persistent));    // Global variable signaling when we complete a successful firmware update on the Inactive Partition
+
 int main( void )
 {
     unsigned int ret=0;
@@ -137,9 +139,77 @@ int main( void )
     
 //    printMemoryPointers();
     
-    startSampleTask();
-    startGprsTask();
+//    startSampleTask();
+//    startGprsTask();
 //    startTestTask();
+//    vTaskTestClone();
+    
+    unsigned long ledBlinkTimer;
+    int i;
+
+    EZBL_BootloaderInit();
+    
+    if(!_SFTSWP)
+    {
+        EZBL_ConsoleClear();    // Writes "Shift In", "Clear Screen" and "Reset Attributes" ANSI control codes to EZBL_STDOUT
+    }
+    
+#if defined (__DEBUG)
+    __builtin_software_breakpoint();
+#endif
+    
+    EZBL_printf("\n"
+                "\nPartition %X starting up..."
+                "\n  NVMCON<SFTSWP> = %X"
+                "\n  Active   Partition FBTSEQ = 0x%06lX"
+                "\n  Inactive Partition FBTSEQ = 0x%06lX",
+                _P2ACTIV + 1u,
+                _SFTSWP,
+                EZBL_ReadFlash(__FBTSEQ_BASE),
+                EZBL_ReadFlash(0x400000u | __FBTSEQ_BASE));
+
+    
+    ledBlinkTimer = NOW_32();
+    while(1)
+    {
+        ClrWdt();
+
+        // Every half second toggle an LED (1 Hz blink rate) to indicate we are alive
+        if(NOW_32() - ledBlinkTimer > NOW_sec/2u)
+        {
+            LEDToggle(0x07);
+            ledBlinkTimer += NOW_sec/2u;
+//            EZBL_printf("\nBlinking led.\n");
+        }
+
+
+        if(timeForPartitionSwap)
+        {
+            EZBL_printf("\n\nNew firmware detected. Changing partitions now.");
+            EZBL_FIFOFlush(EZBL_STDOUT, NOW_sec);       // Flush all TX status messages from printf() statements
+            EZBL_PartitionSwap();                       // Perform the partition swap and branch to 0x000000 on the (presently) Inactive Partition
+        }
+
+        ButtonRead();
+        if(ButtonsReleased & 0x1)       // Check if user pushed then released S4 (right-most Explorer 16/32 button)
+        {
+            EZBL_printf("\n\nButton push detected: swapping partitions manually");
+            if(ButtonsLastState & 0x8)  // Also check if user is holding down S3 (left-most Explorer 16/32 button)
+            {
+                EZBL_printf("\nAlso second button held:"
+                            "\n  Decrementing FBTSEQ on Inactive Partition so it is reset active...");
+                i = EZBL_WriteFBTSEQ(0, 0, -1);
+                EZBL_printf(i == 1 ? "success" : "failed (%d)", i);
+                // NOTE: if you want to change the EZBL_WriteFBTSEQ() call to
+                // program the Active Partition's FBTSEQ value, you must remove
+                // FBTSEQ's address on the Active Partition from this line at
+                // the top of ezbl_uart_dual_partition.c:
+                //     EZBL_SetNoProgramRange(0x000000, 0x400000);
+            }
+            EZBL_FIFOFlush(EZBL_STDOUT, NOW_sec);       // Flush all TX status messages from printf() statements
+            EZBL_PartitionSwap();                       // Perform the partition swap and branch to 0x000000 on the (presently) Inactive Partition
+        }
+    }
     
 //    vTraceEnable(TRC_START);
     
@@ -169,7 +239,7 @@ int main( void )
 //	xLCDQueue = xStartLCDTask();
 
 	/* Finally start the scheduler. */
-	vTaskStartScheduler();
+//	vTaskStartScheduler();
 
 	/* Will only reach here if there is insufficient heap available to start
 	the scheduler. */

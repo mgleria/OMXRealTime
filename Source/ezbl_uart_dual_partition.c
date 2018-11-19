@@ -48,6 +48,7 @@
 
 #include <xc.h>
 #include "ezbl.h"
+#include "utilities.h"
 
 
 // EZBL ezbl_lib.a link time options:
@@ -155,10 +156,13 @@ void EZBL_BootloaderInit(void)
  */
 int EZBL_BootloaderTask(void)
 {
+    
     // Run the main Bootload state machine
     if(EZBL_Install2IP(&EZBL_bootCtx))
     {   // Non-zero return code means a Bootload "event" has completed.
         // bootCode and appVer available right now (only now)
+        debugUART1("After EZBL_Install2IP");
+        debugUART1(EZBL_bootCtx.bootCode);
         timeForPartitionSwap = (EZBL_bootCtx.bootCode == EZBL_ERROR_SUCCESS);
         if(timeForPartitionSwap)
             EZBL_FIFOFlush(EZBL_COM_TX, NOW_ms*32u);    // Wait for final status code to go out; I2C could be slow because it depends on the host polling us.
@@ -192,8 +196,12 @@ int EZBL_BootloaderTask(void)
     // characters.
     if(EZBL_COM_RX)
     {
-        NOW_SetNextTaskTime(&EZBL_bootTask, NOW_ms);
-    }
+        NOW_SetNextTaskTime(&EZBL_bootTask, NOW_us);
+        debugUART1("EZBL_COM_RX NOT NULL");
+    } 
+//    else {
+//        debugUART1("EZBL_COM_RX NULL");
+//    }
 
     return 0;
 }
