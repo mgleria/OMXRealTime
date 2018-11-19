@@ -29,7 +29,7 @@ void    removePaddingBytes(char *tramaGPRS,uint8 paddingPosition, uint8 frameSiz
 void    cleanBufferTail(uint8 frameSize);
 headerOptions_t getHeaderIndex(const char* header);
 
-//Buffer de comunicación entrante y saliente con el modem
+//Buffer de comunicaciï¿½n entrante y saliente con el modem
 static char gprsBuffer[MODEM_BUFFER_SIZE]={0};
 static char header[FRAME_HEADER_SIZE]={0};
 static headerOptions_t headerIndex; 
@@ -129,7 +129,7 @@ uint8_t	FSM_GprsTask( )
                 if( isThereSamplesToSend()){
                     dataSecuence = muestras;
                 }       
-                //Si NO hay muestras sin enviar, registro la estación
+                //Si NO hay muestras sin enviar, registro la estaciï¿½n
                 else{
                     dataSecuence = registro;
                 }
@@ -747,7 +747,7 @@ uint8_t	FSM_GprsTask( )
             }
             else{
 //                  printf("ERROR: se esperaba %d como notificacion pero se recibio %zu.\r\n",NEW_SAMPLE_NOTIFICATION,sampleReadyNotification);
-                    debugUART1("ERROR: se recibio otra notificación, no la que se esperaba (sample).");
+                    debugUART1("ERROR: se recibio otra notificaciï¿½n, no la que se esperaba (sample).");
             }
            
             break;
@@ -779,7 +779,7 @@ uint8_t	FSM_GprsTask( )
                     /*
                      * La respuesta en caso de tener IP es de la siguiente forma:
                      * \r\n#CGPADDR: 1,"10.215.134.177"\r\n\r\nOK\r\n
-                     * Dependiendo la IP, el largo total varía entre 31 y 39 caracteres
+                     * Dependiendo la IP, el largo total varï¿½a entre 31 y 39 caracteres
                      * En caso negativo la respuesta es:
                      * \r\n#CGPADDR: 1,""\r\n\r\nOK\r\n (Largo total 24)
                      */
@@ -849,8 +849,8 @@ uint8_t	FSM_GprsTask( )
  * 0x04	registro\n
  *
  * @param frameType		Tipo de Frame que se desee armar : muestras, configuracion o registro
- * @param whichSample	Última muestra disponible (lastSample) o las siguientes (nextSample) 
- * @return				TRUE en caso de exito o FALSE si hubo algún problema o no hay muestras para enviar
+ * @param whichSample	ï¿½ltima muestra disponible (lastSample) o las siguientes (nextSample) 
+ * @return				TRUE en caso de exito o FALSE si hubo algï¿½n problema o no hay muestras para enviar
  */
 char	setServerFrame( uint8_t frameType, uint8_t whichSample )
 {
@@ -913,7 +913,7 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
             /*Hay que eliminar un byte de padding*/
 //            removePaddingBytes(tramaGPRS, 30, sizeof(trama_config_t)*2);
             
-            //Envío hardcodeado una trama de registro
+            //Envï¿½o hardcodeado una trama de registro
 //            strcpy(tramaGPRS,atcmd_FRAME_1);
 			break;
 
@@ -945,7 +945,7 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
             removePaddingBytes(tramaGPRS,26,sizeof(trama_inicio_t)*2);
 //            removePaddingBytes(tramaGPRS,48,sizeof(trama_inicio_t)*2);
             
-            //Envío hardcodeado una trama de configuracion
+            //Envï¿½o hardcodeado una trama de configuracion
 //            strcpy(tramaGPRS,atcmd_FRAME_3);
 			break;
 
@@ -1113,7 +1113,7 @@ uint8    getNextDataSecuence()
     else{ 
         /*Si no tengo muestras pendientes de enviar y no estoy registrado*/
         if(registerInProcess()){
-            //No se registró. Procede a registrarse.
+            //No se registrï¿½. Procede a registrarse.
             return configuracion;
 //            setServerFrame(dataSecuence,nextSample);
 //            debugUART1("Sending config frame.\r\n");

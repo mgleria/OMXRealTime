@@ -73,8 +73,8 @@ void vTaskSample( void *pvParameters ){
     
     xMutexMemory = xSemaphoreCreateMutex();
     if(!xMutexMemory){
-//        printf("ERROR en la creación del mutex de Memoria");
-        debugUART1("ERROR en la creación del mutex de Memoria");
+//        printf("ERROR en la creaciï¿½n del mutex de Memoria");
+        debugUART1("ERROR en la creaciï¿½n del mutex de Memoria");
         //El programa no puede seguir, hay que detenerlo.
     }
     
@@ -88,8 +88,8 @@ void vTaskSample( void *pvParameters ){
 //        printf("////////////////////Sample Task\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\r\n");
         
         if(waitForNotify){
-            //Se bloquea la tarea a la espera de nuevas notificaciones que llegarán desde
-            //las callbacks timers o desde una interrupción generada por el driver de un sensor
+            //Se bloquea la tarea a la espera de nuevas notificaciones que llegarï¿½n desde
+            //las callbacks timers o desde una interrupciï¿½n generada por el driver de un sensor
             status = ulTaskNotifyTake(  pdTRUE,  /* Clear the notification value before
                                                     exiting. */
                                         portMAX_DELAY ); /* Block indefinitely. */
@@ -179,7 +179,7 @@ static void FSM_SampleTask(uint32_t status){
                 case SYNCHRONOUS:
 //                    printf("case SYNCHRONOUS:");
                     syncCounter++;
-                    //Para cada medición sincrónica debe definirse un acumulador
+                    //Para cada mediciï¿½n sincrï¿½nica debe definirse un acumulador
                     //acum_sensor_n += functionToGetSampleSensorN();
                     potentiometer += ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
                     temperature += ADC_Read10bit( ADC_CHANNEL_TEMPERATURE_SENSOR );
@@ -209,7 +209,7 @@ static void FSM_SampleTask(uint32_t status){
             }
             syncCounter = 0;
 /////////////////////MUESTRAS TOMADAS ASINCRONICAMENTE//////////////////////////
-            //to-do: Hacer una función que me permita escalar esto mejor
+            //to-do: Hacer una funciï¿½n que me permita escalar esto mejor
             sample.clima.lluvia = getAccumulatedRain();
 //            printf("sample.clima.lluvia: %d\r\n",sample.clima.lluvia);
             //Limpio el contador por soft del TMR3
@@ -225,7 +225,7 @@ static void FSM_SampleTask(uint32_t status){
             sample.hora = rtcc.hora;
             sample.minutos = rtcc.minutos;        
 /////////////////////GUARDANDO MUESTRA EN MEM PERSISENTE////////////////////////
-            /* Ver si puedo obtener el semaforo. Si este no está disponible
+            /* Ver si puedo obtener el semaforo. Si este no estï¿½ disponible
              * esperar xTimeMemoryMutex y volver a probar */
             uint8 resultPutSample = 0;
             char resultGetSample = 0;
@@ -396,18 +396,18 @@ static void resetSyncVariables(){
     temperature = 0;
 }
 
-//Función de transferencia del sensor TC1047A embebido en Explorer16/32
+//Funciï¿½n de transferencia del sensor TC1047A embebido en Explorer16/32
 uint16_t getTemperature(uint16_t adcValue){
-    // VOUT = (10 mV/°C) (Temperature °C) + 500 mV
-    // 3300mV/1024*ADC=(10mV/ºC)*(TºC)+500mV 
+    // VOUT = (10 mV/ï¿½C) (Temperature ï¿½C) + 500 mV
+    // 3300mV/1024*ADC=(10mV/ï¿½C)*(Tï¿½C)+500mV 
     uint16_t temp = (adcValue*165/512)-50;
     return temp;
 }
 
 uint16_t getAccumulatedRain(){
-    /*Se está usando el contador provisto por el driver de TMR3 ya que no se 
+    /*Se estï¿½ usando el contador provisto por el driver de TMR3 ya que no se 
      pudo configurar el TMR3 para que sea un contador de eventos asincronicos
-     como se pretendía*/
+     como se pretendï¿½a*/
     return TMR3_SoftwareCounterGet();
 }
 

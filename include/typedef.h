@@ -127,7 +127,7 @@ typedef struct
 	sint8				tiporeset;		//	19
 	uint16				intentosConex;	//	20,21
 	uint16				fw_version;		//	22,23
-}estacion_t;							//	tamaño: 24 caracteres
+}estacion_t;							//	tamaï¿½o: 24 caracteres
 
 /**********************************************************************************************/
 /*
@@ -141,7 +141,7 @@ typedef struct
 	char				fsn[16];		//	40 a 55
 	char				fw_version[16];	//	56 a 71
 	uint8				ipAddress[4];	//	72 a 75
-}modem_t;								//	tamaño: 52 caracteres
+}modem_t;								//	tamaï¿½o: 52 caracteres
 /**********************************************************************************************/
 /*
  * definicion de variable tipo trama muestra
@@ -193,7 +193,7 @@ typedef struct
 	uint8				sensorHab1;		//	21
 	uint8				sensorHab2;		//	22
 	uint8				sensorHab3;		//	23
-}trama_inicio_t;						//	tamaño: 24 caracteres
+}trama_inicio_t;						//	tamaï¿½o: 24 caracteres
 
 /**********************************************************************************************/
 /*
@@ -212,7 +212,7 @@ typedef struct
 	uint8				sensorHab1;		//	12
 	uint8				sensorHab2;		//	13
 	uint8				sensorHab3;		//	14
-}trama_config_t;						//	tamaño: 15 caracteres
+}trama_config_t;						//	tamaï¿½o: 15 caracteres
 
 /**********************************************************************************************/
 /*
@@ -222,7 +222,7 @@ typedef struct
 {
 	uint16				port;			//	puerto de conexion al servidor
 	char				dns[30];		//	direccion de conexion con el servidor
-}server_t;								//	32 bytes de tamaño de variable
+}server_t;								//	32 bytes de tamaï¿½o de variable
 
 /*	estructura de configuracion del equipo */
 typedef struct
@@ -253,7 +253,7 @@ typedef enum
 	ACK
 }acknowledge;
 
-//Para función delay
+//Para funciï¿½n delay
 #define FCY 8000000UL
 #include <libpic30.h>
 

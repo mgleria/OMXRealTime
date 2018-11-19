@@ -93,7 +93,7 @@ char	getSample( muestra_t *muestra, char sample )
 	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (uint8_t*)&samplesWrite, sizeof(samplesWrite) );
 	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (uint8_t*)&samplesTotal, sizeof(samplesTotal) );
 
-    // actualiza el nùmero de memoria donde debe leer
+    // actualiza el nï¿½mero de memoria donde debe leer
     memNumber = (uint8)(samplesRead / SAMPLES_BLOCK_SIZE);
     memDevice += memNumber * 2;
     
@@ -153,7 +153,7 @@ uint8 putSample( muestra_t* muestra )
 	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (char*)&samplesWrite, sizeof(samplesWrite) );
 	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
     
-    // Calcula el nùmero de memoria donde debe escribir
+    // Calcula el nï¿½mero de memoria donde debe escribir
     memNumber = (uint8_t)(samplesWrite / SAMPLES_BLOCK_SIZE);
     memDevice += memNumber * 2;
     

@@ -43,7 +43,7 @@
         configExtendSocket,         //!	Configuracion extendida el socket
         activateContext,			//!	Activa el contexto previamente configurado   
         socketDial,                 //!	Apertura del socket
-        socketSend,                 //! Prepara el socket para en el envío de datos
+        socketSend,                 //! Prepara el socket para en el envï¿½o de datos
         putData,					//!	coloca los datos dentro del protocolo
         receiveData,				//! Recibe e interpreta datos desde el servidor               
 		closeSocket,				//!	cierra el puerto de conexion con la red
@@ -67,10 +67,6 @@
         h024E,
         h004E
     }headerOptions_t;
-    
-    
-    
-    
     
     void startGprsTask();
 
