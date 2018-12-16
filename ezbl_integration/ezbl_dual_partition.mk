@@ -27,7 +27,7 @@ BOOTID_OTHER  = "dual flash partition device"
 # integer.
 APPID_VER_MAJOR = 0
 APPID_VER_MINOR = 1
-APPID_VER_BUILD = 367
+APPID_VER_BUILD = 432
 
 APPID_VER_BUILD_INC = 1
 
@@ -41,15 +41,16 @@ ezbl_post_build: .build-impl
 	-test "${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.bl2" -nt "${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.elf" || ${MP_JAVA_PATH}java -jar "${thisMakefileDir}ezbl_tools.jar" --blobber -artifact="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.elf"
 	@test "${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.unified.hex" -nt "${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.unified.bl2" && ${MP_JAVA_PATH}java -jar "${thisMakefileDir}ezbl_tools.jar" --blobber -artifact="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.unified.hex" || true
 
-ifneq (,${filter default uart,${CONF}})   # Check if "default" or "uart" MPLAB project build profile is used
-	@echo EZBL: Attempting to send to bootloader via UART
-	${MP_JAVA_PATH}java -jar "${thisMakefileDir}ezbl_tools.jar" --communicator -com=COM8 -baud=115200 -timeout=1200 -artifact="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.bl2" 1>&2
-else ifneq (,${filter i2c,${CONF}})	  # Check if "i2c" MPLAB project build profile is used. If so, upload via MCP2221 I2C.
-	@echo EZBL: Attempting to send to bootloader via I2C
-	${MP_JAVA_PATH}java -jar "${thisMakefileDir}ezbl_tools.jar" --communicator -com=I2C -i2c_address=0x60 -baud=400000 -timeout=1100 -artifact="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.bl2" 1>&2
-else ifneq (,${filter usb_msd,${CONF}})	# Check if "usb_msd" MPLAB project build profile is used. Make a nice FIRMWARE.BL2 file to copy to the drive.
-	@test -e "${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.bl2" && cp "${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.bl2" "${DISTDIR}/FIRMWARE.BL2" || true
-endif
+	
+#ifneq (,${filter default uart,${CONF}})   # Check if "default" or "uart" MPLAB project build profile is used
+#	@echo EZBL: Attempting to send to bootloader via UART
+#	${MP_JAVA_PATH}java -jar "${thisMakefileDir}ezbl_tools.jar" --communicator -com=COM8 -baud=115200 -timeout=1200 -artifact="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.bl2" 1>&2
+#else ifneq (,${filter i2c,${CONF}})	  # Check if "i2c" MPLAB project build profile is used. If so, upload via MCP2221 I2C.
+#	@echo EZBL: Attempting to send to bootloader via I2C
+#	${MP_JAVA_PATH}java -jar "${thisMakefileDir}ezbl_tools.jar" --communicator -com=I2C -i2c_address=0x60 -baud=400000 -timeout=1100 -artifact="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.bl2" 1>&2
+#else ifneq (,${filter usb_msd,${CONF}})	# Check if "usb_msd" MPLAB project build profile is used. Make a nice FIRMWARE.BL2 file to copy to the drive.
+#	@test -e "${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.bl2" && cp "${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.bl2" "${DISTDIR}/FIRMWARE.BL2" || true
+#endif
 
 
 
