@@ -9,8 +9,8 @@
 #define	RTCC_H
 
 #include "i2c1.h"
+#include "mcc.h"
 //Para función delay
-#define FCY 8000000UL
 #include <libpic30.h>
 
 /**********************************************************************************************/

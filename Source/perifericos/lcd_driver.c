@@ -14,6 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 *******************************************************************************/
 
+#include <p24FJ1024GB610.h>
+#include <xc.h>
+#include "perifericos/lcd_driver.h"
+#include "mcc.h"
+
+#define SYSTEM_PERIPHERAL_CLOCK FCY
 
 #ifndef SYSTEM_PERIPHERAL_CLOCK
 #define SYSTEM_PERIPHERAL_CLOCK 16000000
@@ -23,10 +29,6 @@ limitations under the License.
 /* This defines the number of cycles per loop through the delay routine.  Spans
  * between 12-18 depending on optimization mode.*/
 #define CYCLES_PER_DELAY_LOOP 12
-
-#include <p24FJ1024GB610.h>
-#include <xc.h>
-#include "perifericos/lcd_driver.h"
 
 
 /* Private Definitions ***********************************************/
