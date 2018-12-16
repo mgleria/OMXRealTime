@@ -50,7 +50,7 @@ TaskHandle_t xGprsHandle;
 
 TickType_t responseDelay, modemResetTime;
 
-static uint8_t sendCmd = TRUE;
+static uint8_t sendCmd = true;
 uint8_t attempts = 0;
 
 /*	variables externas a este archivo	*/
@@ -104,7 +104,7 @@ void SetProcessState( uint8_t * reg, uint8_t state )
 {
 //    printf("%s -> %s \r\n",getStateName(*reg),getStateName(state));
 	*reg = state;
-	sendCmd = TRUE;
+	sendCmd = true;
     attempts = 0;
     flushBuffer(gprsBuffer, MODEM_BUFFER_SIZE);
 }
@@ -149,7 +149,7 @@ uint8_t	FSM_GprsTask( )
                 if(SendATCommand((string*)atcmd_initialConfig,gprsBuffer,gprsBuffer,10,0,2)>0){
 //                if(SendATCommand((string*)atcmd_getModemID,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -192,7 +192,7 @@ uint8_t	FSM_GprsTask( )
 			{
                 if(SendATCommand((string*)atcmd_disableEcho,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -233,7 +233,7 @@ uint8_t	FSM_GprsTask( )
 			{           
                 if(SendATCommand((string*)atcmd_STN_OFF,gprsBuffer,gprsBuffer,10,0,1)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -275,7 +275,7 @@ uint8_t	FSM_GprsTask( )
 				/*	modo recepcion para espera de la respuesta	*/
                 if(SendATCommand((string*)atcmd_setContextClaro,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -315,7 +315,7 @@ uint8_t	FSM_GprsTask( )
 			{		
 				if(SendATCommand((string*)atcmd_configSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -353,7 +353,7 @@ uint8_t	FSM_GprsTask( )
 			{	
                 if(SendATCommand((string*)atcmd_configExtendSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -391,7 +391,7 @@ uint8_t	FSM_GprsTask( )
 			{
                 if(SendATCommand((string*)atcmd_activateContextHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -443,7 +443,7 @@ uint8_t	FSM_GprsTask( )
 			{	
                 if(SendATCommand((string*)atcmd_socketDialHARDCODED_1,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -481,7 +481,7 @@ uint8_t	FSM_GprsTask( )
 			{	
                 if(SendATCommand((string*)atcmd_socketSend,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -523,7 +523,7 @@ uint8_t	FSM_GprsTask( )
 //                if(SendATCommand((string*)atcmd_FRAME2,gprsBuffer,gprsBuffer,10,0,2)>0){
                     if(SendATCommand((string*)atcmd_EOF,gprsBuffer,gprsBuffer,10,0,2)>0){
                         /*	modo recepcion para espera de la respuesta	*/
-                        sendCmd = FALSE;
+                        sendCmd = false;
                         TMR5_Start();
                     }
                     else{
@@ -606,7 +606,7 @@ uint8_t	FSM_GprsTask( )
 			{
                 if(SendATCommand((string*)atcmd_sListenHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -702,7 +702,7 @@ uint8_t	FSM_GprsTask( )
 			{	
                 if(SendATCommand((string*)atcmd_closeSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -763,7 +763,7 @@ uint8_t	FSM_GprsTask( )
                 //Chequeo si tengo IP
                  if(SendATCommand((string*)atcmd_checkIP,gprsBuffer,gprsBuffer,10,0,2)>0){
                     /*	modo recepcion para espera de la respuesta	*/
-                    sendCmd = FALSE;
+                    sendCmd = false;
                     TMR5_Start();
                 }
                 else{
@@ -834,7 +834,7 @@ uint8_t	FSM_GprsTask( )
 			break;
     }
     
-    return	TRUE;
+    return	true;
 }
 
 /**********************************************************************************************/
@@ -850,7 +850,7 @@ uint8_t	FSM_GprsTask( )
  *
  * @param frameType		Tipo de Frame que se desee armar : muestras, configuracion o registro
  * @param whichSample	�ltima muestra disponible (lastSample) o las siguientes (nextSample) 
- * @return				TRUE en caso de exito o FALSE si hubo alg�n problema o no hay muestras para enviar
+ * @return				true en caso de exito o false si hubo alg�n problema o no hay muestras para enviar
  */
 char	setServerFrame( uint8_t frameType, uint8_t whichSample )
 {
@@ -868,8 +868,8 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
 	{
 		case( muestras ):
 			//	levanta la proxima muestra para formatear a la trama de envio al servidor
-			if( getSample( &muestraAlmacenada, whichSample ) == FALSE ){
-                return	FALSE;	//	no hay mas muestras para enviar
+			if( getSample( &muestraAlmacenada, whichSample ) == false ){
+                return	false;	//	no hay mas muestras para enviar
             }
             else{
                 prepareSample(&tramaMuestra, &muestraAlmacenada);
@@ -951,11 +951,11 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
 
 		default:
 		{
-			return	FALSE;
+			return	false;
 		}
 	}
 //    printf("tramaGPRS:\r\n%s(%s)\r\n",tramaGPRS,getFrameType(frameType));
-	return	TRUE;
+	return	true;
 }
 
 void prepareSample(trama_muestra_t *tramaMuestra, muestra_t *muestraAlmacenada)

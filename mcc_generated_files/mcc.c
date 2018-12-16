@@ -232,13 +232,14 @@ void SYSTEM_Initialize(void)
     INTERRUPT_Initialize();
     OSCILLATOR_Initialize();//EVALUAR crearlo desde MCC. Ver config_words tmb.
     I2C1_Initialize();
-    UART1_Initialize();
+    
     TMR3_Initialize();
     TMR2_Initialize();
     TMR5_Initialize();
     
     //Esto no ha sido modificado o no ha sido modificado por MCC
     UART2_Initialize(); //Creado desde MCC pero modificado.
+    UART1_Initialize(); //Cambiado a EZBL
     TMR4_Initialize(); //EVALUAR crearlo desde MCC
     buttons_Initialize(); //EVALUAR crearlo desde MCC
     leds_Initialize(); //EVALUAR crearlo desde MCC

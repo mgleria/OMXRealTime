@@ -82,7 +82,7 @@ void UART2_Initialize(void)
         NOW_Wait(140u*NOW_ms);  // pin glitching could occur long after we have enabled our UART without this forced delay.
     }
     
-    EZBL_COMBootIF = UART_Reset(2, FCY, EZBL_COMBaud, 1);
+    EZBL_COMBootIF = UART_Reset(2, FCY, EZBL_COMBaud, 0);
     
 }
 

@@ -59,11 +59,11 @@
 #define	EZBL_H
 
 // Easy Bootloader Library for PIC24/dsPIC33/PIC32MM release version
-#define EZBL_VERSION            2.10        // The complete EZBL version string, but written as a floating point number, including two decimals.
+#define EZBL_VERSION            2.11        // The complete EZBL version string, but written as a floating point number, including two decimals.
 #define EZBL_VERSION_MAJOR      2           // The single EZBL major revision numeral to the left of the dot
-#define EZBL_VERSION_MINOR      10          // The numerical EZBL minor revision to the right of the dot. This is 1 for version x.01, 10 for x.10, 26 for x.26, etc.
+#define EZBL_VERSION_MINOR      11          // The numerical EZBL minor revision to the right of the dot. This is 1 for version x.01, 10 for x.10, 26 for x.26, etc.
 #define EZBL_VERSION_MINORH     1           // The single EZBL minor revision numeral one place right of the dot (immediate right of the dot)
-#define EZBL_VERSION_MINORL     0           // The single EZBL minor revision numeral two places right of the dot
+#define EZBL_VERSION_MINORL     1           // The single EZBL minor revision numeral two places right of the dot
 
 
 
@@ -186,6 +186,9 @@
 #define EZBL_PAGE_ATTR
 #define EZBL_PWORD                      ".word   "
 #define STRINGIFY_SYM(symbolToken)      STRINGIFY(symbolToken)              // Just convert to string without leading underscore on XC32
+#if !defined(Idle)
+void Idle(void);
+#endif
 #if !defined(WDTCON)
 extern volatile unsigned int __attribute__((section("sfrs"))) WDTCON;
 #endif
@@ -375,10 +378,8 @@ static inline void __attribute__((always_inline, optimize(1))) ClrWdt(void) // C
  */
 #define EZBL_SET_CONF(config_word_name, config_value)                           \
 __asm__("\n\t.pushsection   _" STRINGIFY(config_word_name) ".sec, code"         \
-        "\n\t.global    " STRINGIFY(config_word_name)                           \
         "\n\t.global    _" STRINGIFY(config_word_name)                          \
         "\n\t.global    __" STRINGIFY(config_word_name)                         \
-        "\n" STRINGIFY(config_word_name) ":"                                    \
         "\n_" STRINGIFY(config_word_name) ":"                                   \
         "\n__" STRINGIFY(config_word_name) ":"                                  \
         "\n\t.pword " STRINGIFY(config_value)                                   \
@@ -836,6 +837,81 @@ __asm__ ("\n    .pushsection .info.EZBL_KeepSYMIfPresent, info, keep"           
             "\n     .long " STRINGIFY(value) " /* Store data in case if it is a symbol reference */ " \
             "\n     .popsection"                                                \
     )
+
+
+/**
+ * Macro prevents zero or more function, global variable, constant or other
+ * global linker symbol(s) from being exported from an EZBL Bootloader project
+ * for use by Application projects.
+ *
+ * Internally, this macro saves the specified regular expression string(s) to
+ * the .info.EZBL_NoExportSYM debugging section, which is then read by
+ * ezbl_tools.jar during .merge.S file creation. If any symbol exists in the
+ * Bootloader project and matches any of the no-export regular expression
+ * strings, the symbol will be explicitly prevented from being defined in the
+ * .merge.S file. Referencing this macro consumes no flash/RAM/run-time
+ * execution or other device resources and will only work against normal or
+ * single partition Bootloader projects.
+ *
+ * This macro can be referenced multiple times and in any .c source file within
+ * the project.
+ *
+ * @param symbolNameRegEx Literal constant regular expression string containing
+ *                        the function, variable, object, symbol name or pattern
+ *                        to prevent the export of.
+ *
+ *                        If the pattern does not match any symbols in the
+ *                        project, this macro has no effect.
+ *
+ *                        As an example, to prevent the function myFunc() from
+ *                        being visible in the App project, use:
+ *                          EZBL_NoExportSYM("_muFunc");   // XC16
+ *                        Or
+ *                          EZBL_NoExportSYM("muFunc");    // XC32
+ *
+ *                        Unlike most other EZBL macros accepting symbol
+ *                        parameters, this macro will not generate a leading
+ *                        underscore for XC16 symbols. To abstractly suppress
+ *                        the export of myFunc()'s address for both toolchains
+ *                        with the same macro call, use a regular expression
+ *                        that makes the underscore optional, for example:
+ *                          EZBL_NoExportSYM("_?myFunc");
+ */
+#define EZBL_NoExportSYM(symbolNameRegEx)                                       \
+    __asm__("\n     .pushsection    .info.EZBL_NoExportSYM, info, keep"         \
+            "\n     .string \"" symbolNameRegEx "\""                            \
+            "\n     .popsection")
+
+
+/**
+ * Macro prevents all symbols within zero or more named sections from being
+ * exported from an EZBL Bootloader project for use by Application projects.
+ * 
+ * To suppress a symbol from being exported by a specific name, use
+ * EZBL_NoExportSYM() instead.
+ *
+ * Internally, this macro saves the specified regular expression string(s) to
+ * the .info.EZBL_NoExportSection debugging section, which is then read by
+ * ezbl_tools.jar during .merge.S file creation. Any symbol that exists in the
+ * specified section (or section matching the name pattern) in the Bootloader
+ * project will be explicitly prevented from being defined in the
+ * .merge.S file. Referencing this macro consumes no flash/RAM/run-time
+ * execution or other device resources and will only work against normal or
+ * single partition Bootloader projects.
+ *
+ * This macro can be referenced multiple times and in any .c source file within
+ * the project.
+ *
+ * @param sectionNameRegEx Literal constant regular expression string containing
+ *                         the section name or section-name pattern to prevent symbol exporting from.
+ *
+ *                        If the pattern does not match any sections in the
+ *                        project, this macro has no effect.
+ */
+#define EZBL_NoExportSection(sectionNameRegEx)                                  \
+    __asm__("\n     .pushsection    .info.EZBL_NoExportSection, info, keep"     \
+            "\n     .string \"" sectionNameRegEx "\""                           \
+            "\n     .popsection")
 
 
 /**
@@ -3786,7 +3862,7 @@ void EZBL_ForwardAllIRQ(int toAppProject);
  *         If no Bootloader ISR was defined for the vector number, 0 is
  *         returned.
  */
-#define EZBL_ForwarIRQtToBoot(irqNum)     EZBL_ForwardIRQ(0, irqNum)
+#define EZBL_ForwardIRQToBoot(irqNum)     EZBL_ForwardIRQ(0, irqNum)
 #endif
 
 
@@ -8313,7 +8389,6 @@ int EZBL_Install2IP(EZBL_INSTALL_CTX *s);
 #endif
 
 
-#if defined(__XC16__)
 /**
  * Reads a .bl2 file from the specified FILEIO communications handle, checks
  * that the offering has a matching BOOTID_HASH, optionally checks that the
@@ -8452,8 +8527,6 @@ int EZBL_Install2IP(EZBL_INSTALL_CTX *s);
  *         </ul>
  */
 int EZBL_InstallFILEIO2Flash(void *bl2FILEIOHandle, int commit);
-#elif defined(__XC32__) || defined(__PIC32__)
-#endif
 
 
 // Common error code definitions used for communications and .bl2 file parsing.
@@ -11177,6 +11250,59 @@ void NOW_CORETMR_ResetConst(void);
 }
 
 #elif defined(__PIC32__) || defined(__XC32__)
+/**
+ * void NOW_Reset(const_token timerTypeNumber, unsigned long FCYClock);
+ *
+ * Macro enables the PIC32MM MIPS CP0 CoreTimer for implementing the NOW_16(),
+ * NOW_32(), and NOW_64() NOW timer APIs that depend on an a real time value up
+ * to 64-bits long. The NOW_Fcy, NOW_sec, NOW_ms and NOW_us global variables are
+ * also configured.
+ *
+ * This macro selects the correct NOW_x_ResetConst() API to call corresponding
+ * to the given timer type + module instance number and optimally computes the
+ * values for NOW_Fcy, NOW_sec, etc.
+ *
+ * When FCYClock is a compile time constant, the derived NOW_sec/NOW_ms/NOW_us
+ * values are computed at compile-time. The NOW_x_ResetConst() API is called to
+ * save code space and run-time computation.
+ *
+ * When FCYClock is not constant, NOW_x_ResetCalc() is called which derives the
+ * needed variables by doing run-time division against the FCYClock.
+ *
+ * @param timerTypeNumber
+ *      Literal token that specifies which hardware timer resource to use
+ *      for the NOW_*() APIs. This timer should not be written or required by
+ *      other software.
+ *
+ *      Legal tokens are:
+ *          CORETMR - MIPS CP0 Core Timer implemented as 32-bit timer,
+ *                    incrementing at SYS_CLK/2, period 0xFFFFFFFF + 1, and no
+ *                    interrupts (polling sufficient)
+ *
+ *      An example calling sequence is:
+ *          NOW_Reset(CORETMR, 24000000);
+ *
+ * @param FCYClock
+ *      Instruction execution clock, in Hertz. Ex: 24000000 for 24 MIPS.
+ *
+ *      If possible, specify FCYClock as a compile-time constant to minimize
+ *      code size.
+ *
+ * @return void
+ *         All NOW_*() APIs will be usable and the NOW_Fcy,
+ *         NOW_sec, NOW_ms, and NOW_us global variables
+ *         will be set.
+ *
+ *         Besides start up initialization, this function may later be called
+ *         during application execution to reinitialize the timer SFRs. However,
+ *         the TMRx/CCPxTMRH register is never changed, nor the internally
+ *         stored extended bits for 64-bit emulation, so absolute forward time
+ *         progression will be continue, subject to a one time monotonicity
+ *         error in the low order 16-bits (i.e. time can temporarily be up to
+ *         65535 counts less than it previously was when the timer was disabled
+ *         by application code). When calling NOW_Reset() 2+ times, the
+ *         timerTypeNumber parameter must be the same.
+ */
 #define NOW_Reset(timerTypeNumber, FCYClock)                        \
 {                                                                   \
     if(__builtin_constant_p(FCYClock))                              \
@@ -11192,7 +11318,6 @@ void NOW_CORETMR_ResetConst(void);
         NOW_##timerTypeNumber##_ResetCalc(FCYClock);                \
     }                                                               \
 }
-
 #endif
 
 

@@ -72,7 +72,7 @@ EZBL_SetNoVerifyRange(0x800000, 0xFFFFFE);      // FBOOT may also read back diff
 // Uncomment for faster communications/bootloading. Buffer default size is 96
 // bytes in ezbl_lib, which conserves static RAM, but reduces peak throughput.
 // Any size >= 64 bytes is valid for bootloading.
-//unsigned char UART2_RxFifoBuffer[1024] __attribute__((noload, section(".bss.UART2_RxFifoBuffer")));
+unsigned char UART2_RxFifoBuffer[1024] __attribute__((noload, section(".bss.UART2_RxFifoBuffer")));
 
 
 // Bootloader global variables and flags
@@ -161,11 +161,15 @@ int EZBL_BootloaderTask(void)
     if(EZBL_Install2IP(&EZBL_bootCtx))
     {   // Non-zero return code means a Bootload "event" has completed.
         // bootCode and appVer available right now (only now)
-        debugUART1("After EZBL_Install2IP");
-        debugUART1(EZBL_bootCtx.bootCode);
+//        EZBL_printf("\n After EZBL_Install2IP");
+//        EZBL_printf(EZBL_bootCtx.bootCode);
         timeForPartitionSwap = (EZBL_bootCtx.bootCode == EZBL_ERROR_SUCCESS);
         if(timeForPartitionSwap)
             EZBL_FIFOFlush(EZBL_COM_TX, NOW_ms*32u);    // Wait for final status code to go out; I2C could be slow because it depends on the host polling us.
+    }
+    else
+    {
+        LEDToggle(0x08);
     }
 
 #if defined(XPRJ_uart) || defined(XPRJ_default) || defined(EZBL_INIT_UART)   // Defined by MPLAB X on command line when compiling "uart" or "default" Build Configurations or a EZBL_INIT_UART macro exists someplace
@@ -197,7 +201,7 @@ int EZBL_BootloaderTask(void)
     if(EZBL_COM_RX)
     {
         NOW_SetNextTaskTime(&EZBL_bootTask, NOW_us);
-        debugUART1("EZBL_COM_RX NOT NULL");
+//        debugUART1("EZBL_COM_RX NOT NULL");
     } 
 //    else {
 //        debugUART1("EZBL_COM_RX NULL");

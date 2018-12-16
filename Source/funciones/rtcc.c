@@ -353,7 +353,7 @@ void printRTCCTime( rtcc_t* rtcc )
             bcd2dec(rtcc->minutos), 
             bcd2dec(rtcc->segundos));
     
-    UART1_WriteBuffer(auxBuffer,AUX_BUFFER_SIZE);
+//    UART1_WriteBuffer(auxBuffer,AUX_BUFFER_SIZE);
     
 }
 

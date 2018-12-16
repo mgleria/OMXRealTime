@@ -1355,7 +1355,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="UART1" name="AllInterrupts"/>
-         <value>enabled</value>
+         <value>disabled</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="Pin Module" registerAlias="ODCC" settingAlias="ODCC13" alias="enabled"/>
@@ -4035,7 +4035,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="UART1" registerAlias="UERI" settingAlias="enable"/>
-         <value>enabled</value>
+         <value>disabled</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="Pin Module" name="trisUserSetRA1"/>
@@ -4239,7 +4239,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="UART1" registerAlias="URXI" settingAlias="enable"/>
-         <value>enabled</value>
+         <value>disabled</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="Pin Module" registerAlias="TRISF"/>
@@ -8575,7 +8575,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="UART1" registerAlias="UTXI" settingAlias="enable"/>
-         <value>enabled</value>
+         <value>disabled</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="Pin Module" registerAlias="TRISE" settingAlias="TRISE3" alias="output"/>
@@ -12898,6 +12898,10 @@
          <value>0</value>
       </entry>
       <entry>
+         <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="UART1" registerAlias="UMODE" settingAlias="UEN" alias="TX_RX_RTS"/>
+         <value>1</value>
+      </entry>
+      <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="TRISG" settingAlias="TRISG2"/>
          <value>input</value>
       </entry>
@@ -15340,6 +15344,10 @@
    </tokenMap>
    <generatedFileHashHistoryMap class="java.util.HashMap">
       <entry>
+         <file>mcc_generated_files\mcc.h</file>
+         <hash>ae60a0d7d09be8ce5995df8e4eb6009d6302c9bb12f354e3a0be9d7d264708fe</hash>
+      </entry>
+      <entry>
          <file>mcc_generated_files\tmr5.h</file>
          <hash>ddb4ae6ea5aa9e3396b1b3bece9cd4a76915c141be15c3718ebf9c1750fcbc5d</hash>
       </entry>
@@ -15348,24 +15356,20 @@
          <hash>85df177cff9fb99279ff1654a9a072edc74b9387e27e9684d9832bc1c221694f</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files\mcc.h</file>
-         <hash>d6509704bf1d113025e1a04db0491de42e4d1bb868dd4a9448766db837ceeec1</hash>
+         <file>mcc_generated_files\uart2.h</file>
+         <hash>b926fad38e95db1b1837f463798f16740890d9c49c10f0c4e58dfc8c64837cc9</hash>
       </entry>
       <entry>
          <file>mcc_generated_files\i2c1.c</file>
          <hash>98d64e8e380822ac15eb47565d7c2980506cc69883b530391190d6871d36f579</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files\uart2.h</file>
-         <hash>b926fad38e95db1b1837f463798f16740890d9c49c10f0c4e58dfc8c64837cc9</hash>
-      </entry>
-      <entry>
          <file>mcc_generated_files\uart1.h</file>
-         <hash>fec4b0f93a036195f429bcf1a08c0cf8edd743e64eed8affb12376e7b0a3ef8b</hash>
+         <hash>bb1c899cfaf6acc298f7e454b6e5b06b3a1ea609db1066f1813e4846a00dd64e</hash>
       </entry>
       <entry>
          <file>mcc_generated_files\uart1.c</file>
-         <hash>a0799aa9483bf0b503892a3195c3ce551634e33d845e3e293cdb73b59e1d9f02</hash>
+         <hash>b60b7fba2e55d4435d6edf9eba24a2dfd72a6c9ccfa7c1ce3bf96b06a25694ae</hash>
       </entry>
       <entry>
          <file>mcc_generated_files\tmr5.c</file>
@@ -15376,20 +15380,20 @@
          <hash>cddaca4fcb9616bd46d10be72dc4f52a9da5d366ad362f20c0be68e2f5389ec0</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files\tmr2.h</file>
-         <hash>c1df6e0d135e97297d5c314beeb2806dff572365f8546328044a10ab631047c7</hash>
-      </entry>
-      <entry>
          <file>mcc_generated_files\uart2.c</file>
          <hash>572b5d7b84c52b09f8a16e845618d8a1f37d467a516ec7c636745bb394db14e9</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files\tmr2.c</file>
-         <hash>6e6866b26b1b1ff498d51223702696c5acff36d42a1b9ef50c92e2820c089d14</hash>
+         <file>mcc_generated_files\tmr2.h</file>
+         <hash>c1df6e0d135e97297d5c314beeb2806dff572365f8546328044a10ab631047c7</hash>
       </entry>
       <entry>
          <file>mcc_generated_files\pin_manager.h</file>
          <hash>8c11692beb90b2c35ab6454bad4d676cd68ad1430e55cca5fc8c37077a0b7e18</hash>
+      </entry>
+      <entry>
+         <file>mcc_generated_files\tmr2.c</file>
+         <hash>6e6866b26b1b1ff498d51223702696c5acff36d42a1b9ef50c92e2820c089d14</hash>
       </entry>
       <entry>
          <file>mcc_generated_files\i2c1.h</file>
@@ -15412,12 +15416,12 @@
          <hash>9e0882bcac2d363f98fbebfdd092382d0a174ce5598d9142b834a1137d0448aa</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files\interrupt_manager.c</file>
-         <hash>3abc80c653e15ef839a678fd12a560ca247bb80e12b22bea3af1c551cad2b8e5</hash>
+         <file>mcc_generated_files\mcc.c</file>
+         <hash>17d25fa4d1dae730ecf42ca507dee4dd4761780e4017de279d1856d2d6be54b5</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files\mcc.c</file>
-         <hash>c7cc8fa69c0160525e4a13ed010986231e0df4abcff4937101d4f03a807feea7</hash>
+         <file>mcc_generated_files\interrupt_manager.c</file>
+         <hash>c2ad1df2965851c2f39a08925b147a3e8ab250db415c86875011e7a2f90bee92</hash>
       </entry>
    </generatedFileHashHistoryMap>
 </config>
