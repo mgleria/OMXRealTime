@@ -144,7 +144,6 @@ int main( void )
 //    vTaskTestClone();
     
     unsigned long ledBlinkTimer;
-    unsigned long cont = 1000;
     int i;
 
     
@@ -172,8 +171,6 @@ int main( void )
     while(1)
     {
         ClrWdt();
-        do{cont--;}while(cont);
-        cont = 1000;
         // Every half second toggle an LED (1 Hz blink rate) to indicate we are alive
         if(NOW_32() - ledBlinkTimer > NOW_sec/2u)
         {
