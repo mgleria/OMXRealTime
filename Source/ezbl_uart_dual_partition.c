@@ -49,6 +49,13 @@
 #include <xc.h>
 #include "ezbl.h"
 #include "utilities.h"
+#include "task.h"
+
+#include "freeRTOS/FreeRTOS.h"
+
+TaskHandle_t xBootloaderHandle;
+void vTaskBootloader (void *pvParameters);
+void setBootloaderTaskPeriod (TickType_t newFrecuencyMs);
 
 
 // EZBL ezbl_lib.a link time options:
@@ -67,6 +74,10 @@ EZBL_SetNoVerifyRange(0x800000, 0xFFFFFE);      // FBOOT may also read back diff
 // General Bootloader timeout governing reset idle time to initial Application
 // launch and bootload termination when communications are broken.
 #define BOOTLOADER_TIMEOUT          (NOW_sec * 1u)
+
+#define BOOTLOADER_PERIOD_MS        32
+
+#define BOOTLOADER_PERIOD_ACTIVE_MS 1
 
 
 // Uncomment for faster communications/bootloading. Buffer default size is 96
@@ -89,7 +100,28 @@ volatile int        timeForPartitionSwap    __attribute__((persistent));    // G
 char __attribute__((persistent, noload, keep, unused, address(__DATA_BASE), section(".icd.reservedRAM"))) icdReservedRAM[0x50];
 #endif
 
+static TickType_t xFrequency;
 
+void vTaskBootloader (void *pvParameters)
+{    
+    TickType_t xLastWakeTime;
+    // Set default frecuency to Bootloader Task
+    setBootloaderTaskPeriod(BOOTLOADER_PERIOD_MS);
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
+    
+    for(;;)
+    {
+        EZBL_BootloaderTask();
+        // Wait for the next cycle.
+        vTaskDelayUntil( &xLastWakeTime, xFrequency );
+    } 
+}
+
+void setBootloaderTaskPeriod (TickType_t newFrecuencyMs)
+{
+    xFrequency = xMsToTicks(newFrecuencyMs);
+}
 
 /**
  * Bootloader initialization code. This should execute early in the device reset
@@ -146,7 +178,14 @@ void EZBL_BootloaderInit(void)
     // Now we are going to launch the main() Application. To ensure the
     // Bootloader still gets some periodic, low priority CPU time, create the
     // scheduled NOW "thread" for it
-    NOW_CreateRepeatingTask(&EZBL_bootTask, EZBL_BootloaderTask, 32u*NOW_ms);
+//    NOW_CreateRepeatingTask(&EZBL_bootTask, EZBL_BootloaderTask, 32u*NOW_ms);
+    
+    xTaskCreate(    vTaskBootloader,
+                    "vTaskBootloader",
+                    2000,
+                    NULL,
+                    MAX_PRIORITY,
+                    &xBootloaderHandle);
 }
 
 
@@ -200,12 +239,13 @@ int EZBL_BootloaderTask(void)
     // characters.
     if(EZBL_COM_RX)
     {
-        NOW_SetNextTaskTime(&EZBL_bootTask, NOW_us);
-//        debugUART1("EZBL_COM_RX NOT NULL");
-    } 
-//    else {
-//        debugUART1("EZBL_COM_RX NULL");
-//    }
+//        NOW_SetNextTaskTime(&EZBL_bootTask, NOW_us);
+        setBootloaderTaskPeriod(BOOTLOADER_PERIOD_ACTIVE_MS);
+    }
+    else
+    {
+        setBootloaderTaskPeriod(BOOTLOADER_PERIOD_MS);
+    }
 
     return 0;
 }
