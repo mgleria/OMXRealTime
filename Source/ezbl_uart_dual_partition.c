@@ -155,6 +155,7 @@ void EZBL_BootloaderInit(void)
     if((((unsigned int)EZBL_ReadFlash(__FBOOT_BASE)) & 0x3u) == 0x3u)
         return;
 
+    unsigned long FBTSEQ = EZBL_ReadFlash(__FBTSEQ_BASE); 
 
     // Set initial state for executing EZBL_BootloaderTask() and
     // EZBL_Install2IP(). See EZBL_Install2IP() docs.

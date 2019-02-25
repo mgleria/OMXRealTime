@@ -8813,10 +8813,10 @@ unsigned int LEDOn(unsigned int ledBitField);
 unsigned int LEDSet(unsigned int ledBitField);
 
 
-extern unsigned int ButtonsLastState;   // Last observed bitfield button state returned by ButtonRead(). Use this variable to re-reference the same value without storing the first ButtonRead() value locally.
-extern unsigned int ButtonsToggled;     // Bitfield of buttons that have changed state between the two most recent calls to ButtonRead().
-extern unsigned int ButtonsPushed;      // Bitfield of buttons that have changed from '0' to '1' between the two most recent calls to ButtonRead().
-extern unsigned int ButtonsReleased;    // Bitfield of buttons that have changed from '1' to '0' between the two most recent calls to ButtonRead().
+__attribute__((far)) extern unsigned int ButtonsLastState;   // Last observed bitfield button state returned by ButtonRead(). Use this variable to re-reference the same value without storing the first ButtonRead() value locally.
+__attribute__((far)) extern unsigned int ButtonsToggled;     // Bitfield of buttons that have changed state between the two most recent calls to ButtonRead().
+__attribute__((far)) extern unsigned int ButtonsPushed;      // Bitfield of buttons that have changed from '0' to '1' between the two most recent calls to ButtonRead().
+__attribute__((far)) extern unsigned int ButtonsReleased;    // Bitfield of buttons that have changed from '1' to '0' between the two most recent calls to ButtonRead().
 
 
 /**

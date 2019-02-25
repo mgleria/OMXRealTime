@@ -89,6 +89,9 @@ void vTaskDelay( TickType_t xTicksToDelay );
 //***********************Prototipo de funciones propias*************************
 void setEstacionConfig();
 void setDeviceConfig();
+void printConfigRegisters();
+void printConfigRealRegistersPartition1();
+void printConfigRealRegistersPartition2();
 
 //******************************Globales****************************************
 
@@ -123,9 +126,7 @@ int main( void )
 {
     unsigned int ret=0;
     SYSTEM_Initialize();
-    
     EZBL_BootloaderInit();
-    
 //            ClrWdt();
 
         
@@ -335,6 +336,11 @@ void vTaskSwapPartition( void *pvParameters )
     
     ledBlinkTimer = NOW_32();
     
+    printConfigRegisters();
+    
+    printConfigRealRegistersPartition1();
+    printConfigRealRegistersPartition2();
+    
     for(;;)
     {
         ClrWdt();
@@ -351,7 +357,7 @@ void vTaskSwapPartition( void *pvParameters )
         {
 //            EZBL_printf("\n\nNew firmware detected. Changing partitions now.");
             EZBL_printf("\n\nNew firmware detected. Changing partitions in 500ms.");
-            vTaskDelay(xMsToTicks(500));
+            vTaskDelay(xMsToTicks(2000));
             EZBL_FIFOFlush(EZBL_STDOUT, NOW_sec);       // Flush all TX status messages from printf() statements
             EZBL_PartitionSwap();                       // Perform the partition swap and branch to 0x000000 on the (presently) Inactive Partition
         }
@@ -360,18 +366,22 @@ void vTaskSwapPartition( void *pvParameters )
         if(ButtonsReleased & 0x1)       // Check if user pushed then released S4 (right-most Explorer 16/32 button)
         {
             EZBL_printf("\n\nButton push detected: swapping partitions manually");
-            if(ButtonsLastState & 0x8)  // Also check if user is holding down S3 (left-most Explorer 16/32 button)
-            {
-                EZBL_printf("\nAlso second button held:"
+            EZBL_printf("\nAlso second button held:"
                             "\n  Decrementing FBTSEQ on Inactive Partition so it is reset active...");
                 i = EZBL_WriteFBTSEQ(0, 0, -1);
                 EZBL_printf(i == 1 ? "success" : "failed (%d)", i);
-                // NOTE: if you want to change the EZBL_WriteFBTSEQ() call to
-                // program the Active Partition's FBTSEQ value, you must remove
-                // FBTSEQ's address on the Active Partition from this line at
-                // the top of ezbl_uart_dual_partition.c:
-                //     EZBL_SetNoProgramRange(0x000000, 0x400000);
-            }
+//            if(ButtonsLastState & 0x8)  // Also check if user is holding down S3 (left-most Explorer 16/32 button)
+//            {
+//                EZBL_printf("\nAlso second button held:"
+//                            "\n  Decrementing FBTSEQ on Inactive Partition so it is reset active...");
+//                i = EZBL_WriteFBTSEQ(0, 0, -1);
+//                EZBL_printf(i == 1 ? "success" : "failed (%d)", i);
+//                // NOTE: if you want to change the EZBL_WriteFBTSEQ() call to
+//                // program the Active Partition's FBTSEQ value, you must remove
+//                // FBTSEQ's address on the Active Partition from this line at
+//                // the top of ezbl_uart_dual_partition.c:
+//                //     EZBL_SetNoProgramRange(0x000000, 0x400000);
+//            }
             EZBL_FIFOFlush(EZBL_STDOUT, NOW_sec);       // Flush all TX status messages from printf() statements
             EZBL_PartitionSwap();                       // Perform the partition swap and branch to 0x000000 on the (presently) Inactive Partition
         }
@@ -447,3 +457,40 @@ void setEstacionConfig()
 	/*	tipo de reset del equipo */
 	estacion.tiporeset = RCON;
 }
+
+void printConfigRegisters(){
+    EZBL_printf("\n  _FSEC initial config = 0x%04X", BWRP_OFF & BSS_OFF & BSEN_OFF & GWRP_OFF & GSS_OFF & CWRP_OFF & CSS_DIS & AIVTDIS_DISABLE);
+    EZBL_printf("\n  _FOSCSEL initial config = 0x%04X", FNOSC_FRC & PLLMODE_PLL96DIV2 & IESO_OFF);
+    EZBL_printf("\n  _FOSC initial config = 0x%04X", POSCMD_XT & OSCIOFCN_ON & SOSCSEL_ON & PLLSS_PLL_PRI & IOL1WAY_OFF & FCKSM_CSECME);
+    EZBL_printf("\n  _FWDT initial config = 0x%04X", WDTPS_PS1024 & FWPSA_PR32 & SWON & WINDIS_OFF & WDTCMX_LPRC & WDTCLK_LPRC);
+    EZBL_printf("\n  _FPOR initial config = 0x%04X", BOREN_ON & LPCFG_ON & DNVPEN_ENABLE);
+    EZBL_printf("\n  _FICD initial config = 0x%04X", PGX2 & JTAGEN_OFF & BTSWP_ON);
+    EZBL_printf("\n  _FDEVOPT1 initial config = 0x%04X", ALTCMPI_DISABLE & TMPRPIN_OFF & SOSCHP_ON & ALTVREF_ALTVREFDIS);
+    EZBL_printf("\n  _FBOOT initial config = 0x%04X", BTMODE_DUAL);  
+    EZBL_printf("\n  _RCON = 0x%04X", RCON);  
+}
+
+void printConfigRealRegistersPartition1(){
+    EZBL_printf("\n  ------------------------------------- ");
+    EZBL_printf("\n  _FSEC real config = 0x%04X", EZBL_ReadFlash(0x055f00));
+    EZBL_printf("\n  _FOSCSEL real config = 0x%04X", EZBL_ReadFlash(_FOSCSEL));
+    EZBL_printf("\n  _FOSC real config = 0x%04X", EZBL_ReadFlash(_FOSC));
+    EZBL_printf("\n  _FWDT real config = 0x%04X", EZBL_ReadFlash(_FWDT));
+    EZBL_printf("\n  _FPOR real config = 0x%04X", EZBL_ReadFlash(_FPOR));
+    EZBL_printf("\n  _FICD real config = 0x%04X", EZBL_ReadFlash(_FICD));
+    EZBL_printf("\n  _FDEVOPT1 real config = 0x%04X", EZBL_ReadFlash(_FDEVOPT1));
+    EZBL_printf("\n  _FBOOT real config = 0x%04X", EZBL_ReadFlash(_FBOOT));  
+}
+
+void printConfigRealRegistersPartition2(){
+    EZBL_printf("\n  ------------------------------------- ");
+    EZBL_printf("\n  _FSEC real config = 0x%04X", EZBL_ReadFlash(_FSEC+0x400000));
+    EZBL_printf("\n  _FOSCSEL real config = 0x%04X", EZBL_ReadFlash(_FOSCSEL+0x400000));
+    EZBL_printf("\n  _FOSC real config = 0x%04X", EZBL_ReadFlash(_FOSC+0x400000));
+    EZBL_printf("\n  _FWDT real config = 0x%04X", EZBL_ReadFlash(_FWDT+0x400000));
+    EZBL_printf("\n  _FPOR real config = 0x%04X", EZBL_ReadFlash(_FPOR+0x400000));
+    EZBL_printf("\n  _FICD real config = 0x%04X", EZBL_ReadFlash(_FICD+0x400000));
+    EZBL_printf("\n  _FDEVOPT1 real config = 0x%04X", EZBL_ReadFlash(_FDEVOPT1+0x400000));
+    EZBL_printf("\n  _FBOOT real config = 0x%04X", EZBL_ReadFlash(_FBOOT+0x400000));
+}
+
