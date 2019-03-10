@@ -61,7 +61,7 @@ void startSampleTask(){
     sensorsConfig();
     TMR3_Start();
     
-    debugUART1("startSampleTask()\r\n");
+    debug("startSampleTask()");
 }
 
 void vTaskSample( void *pvParameters ){
@@ -72,22 +72,22 @@ void vTaskSample( void *pvParameters ){
     
     
     xMutexMemory = xSemaphoreCreateMutex();
+    debug("xMutexMemory created");
     if(!xMutexMemory){
-//        printf("ERROR en la creaci�n del mutex de Memoria");
-        debugUART1("ERROR en la creaci�n del mutex de Memoria");
+        debug("ERROR en la creacion del mutex de Memoria");
         //El programa no puede seguir, hay que detenerlo.
     }
     
     setStatusFSM(SYNC_SERVER_TIME); 
-    debugUART1("Initial section Sample Task\r\n");
+    debug("Initial section Sample Task");
     
         
     // Cuerpo de la tarea
     for( ;; ){
-//        printf("--------------------Sample Task--------------------\r\n");
-//        printf("////////////////////Sample Task\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\r\n");
+        debug("--------------------Sample Task--------------------");
         
         if(waitForNotify){
+            debug("waitForNotify true");
             //Se bloquea la tarea a la espera de nuevas notificaciones que llegar�n desde
             //las callbacks timers o desde una interrupci�n generada por el driver de un sensor
             status = ulTaskNotifyTake(  pdTRUE,  /* Clear the notification value before
@@ -97,6 +97,7 @@ void vTaskSample( void *pvParameters ){
             
         }
         else{
+            debug("FSM_SampleTask()");
             FSM_SampleTask(status);
         }
         
@@ -116,7 +117,7 @@ static void FSM_SampleTask(uint32_t status){
      funciones externas*/
     switch(status){  
         case SYNC_SERVER_TIME:
-            debugUART1("SYNC_SERVER_TIME\r\n");
+            debug("SYNC_SERVER_TIME");
 
             //Chequeo si la estacion ya se registro
 //            SyncServerTime = isRegistered();
@@ -144,7 +145,7 @@ static void FSM_SampleTask(uint32_t status){
             
         //to-do: Cambiar portMAX_DELAY por el valor apropiado    
         case ASYNC_SAMPLING:
-            debugUART1("ASYNC_SAMPLING\r\n");
+            debug("ASYNC_SAMPLING");
 //            printf("ASYNC_SAMPLING");
             
             //Wait for async events
@@ -170,7 +171,7 @@ static void FSM_SampleTask(uint32_t status){
         //to-do: Cambiar portMAX_DELAY por el valor apropiado
         case SYNC_SAMPLING:
 //            printf("SYNC_SAMPLING %d\r",syncCounter);
-            debugUART1("SYNC_SAMPLING");
+            debug("SYNC_SAMPLING");
             syncEvents = ulTaskNotifyTake( 
                 pdTRUE,  /* Clear the notification value before exiting. */
                 xSegToTicks(T_MUESTREO_DATO_S) ); /* Max Blocking time. */
@@ -187,12 +188,12 @@ static void FSM_SampleTask(uint32_t status){
                     break;
                 default:
                     //indicar con algun codigo de error que algo anduvo mal
-                    debugUART1("syncEvents default\r\n");
+                    debug("syncEvents default");
                     break;
             }
             break;
         case SAVE_AND_PACKAGE:
-            debugUART1("SAVE_AND_PACKAGE\r\n");
+            debug("SAVE_AND_PACKAGE");
 //            printf("SAVE_AND_PACKAGE");
             //Preparar la muestra
 /////////////////////MUESTRAS TOMADAS SINCRONICAMENTE///////////////////////////
@@ -205,7 +206,7 @@ static void FSM_SampleTask(uint32_t status){
             else{
                 //to-do: Ver que se hace en caso de que no se hayan tomado 
                 //muestras sincronicas. Reinicio?
-                debugUART1("syncEvents syncCounter<0\r\n");
+                debug("syncEvents syncCounter<0");
             }
             syncCounter = 0;
 /////////////////////MUESTRAS TOMADAS ASINCRONICAMENTE//////////////////////////
@@ -237,12 +238,12 @@ static void FSM_SampleTask(uint32_t status){
 //                printf("resultPutSample->%d.\r\n",resultPutSample);
                 if(resultPutSample){
 //                    printf("Muestra guardada exitosamente.\r\n");
-                    debugUART1("Muestra guardada exitosamente.");
+                    debug("Muestra guardada exitosamente.");
 //                    printMemoryPointers();
                 }
                 else{
 //                    printf("ERROR al guardar la muestra.\r\n");
-                    debugUART1("ERROR al guardar la muestra.");
+                    debug("ERROR al guardar la muestra.");
                 }
                 resultGetSample = getSample(&returnedSample,0);
 //                printf("getSample(&sample,0)->%s \r\n",resultGetSample);
@@ -264,7 +265,7 @@ static void FSM_SampleTask(uint32_t status){
             }
             else{
 //                printf("ERROR no se pudo tomar el mutex de memoria.\r\n");
-                debugUART1("ERROR no se pudo tomar el mutex de memoria.");
+                debug("ERROR no se pudo tomar el mutex de memoria.");
             }
             break;
     }

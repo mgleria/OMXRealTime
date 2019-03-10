@@ -48,17 +48,17 @@
 #include "pin_manager.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "uart2.h"
-#include "tmr3.h"
 #include "i2c1.h"
+#include "uart2.h"
+#include "uart3.h"
 #include "uart1.h"
+#include "tmr5.h"
+#include "tmr3.h"
 #include "interrupt_manager.h"
 #include "traps.h"
 #include "tmr2.h"
-#include "tmr5.h"
 
-
-#define     _XTAL_FREQ      32000000UL
+#define _XTAL_FREQ  32000000UL
 
 //EZBL -> Habria que unificar o relacionar esto con las definicios de frecuencia de freeRTOS
 #define     FCY             16000000ul      // Changing this automatically changes the PLL settings to run at this target frequency

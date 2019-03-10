@@ -1,6 +1,7 @@
 #include "utilities.h"
 #include "freeRTOSConfig.h"
 #include "ezbl.h"
+#include <string.h>
 #include "uart1.h"
 
 //#define pdMS_TO_TICKS( xTimeInMs ) ( ( TickType_t ) ( ( ( TickType_t ) ( xTimeInMs ) * ( TickType_t ) configTICK_RATE_HZ ) / ( TickType_t ) 1000 ) )
@@ -58,20 +59,27 @@ uint16_t	swapBytes( uint16_t var )
 	return	var;
 }
 
-void debugUART1(const char* s){
+void debug(const char* s){
     
 //    UART1_WriteBuffer(s,strlen(s));
-    UART1_Write(0x0D); // \r
-    UART1_Write(0x0A); // \n
-    
+//    UART1_Write(0x0D); // \r
+//    UART1_Write(0x0A); // \n
+//     EZBL_printf("\n %s",s);
+    EZBL_printf("\n");
+    EZBL_printf(s);
 }
 
 void printMemoryPointers()
 {
+    
+    EZBL_printf("\n fifoSize: %d", EZBL_STDOUT->fifoSize);
+//    UART1_TX_FIFO_WaitUntilFlushed();
 //    printf("%-8s%-8s%-8s\n", "Total", "Read", "Write"); 
 //    printf("%-8d%-8d%-8d\n", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
-    EZBL_printf("%-8s%-8s%-8s\n", "Total", "Read", "Write"); 
-    EZBL_printf("%-8d%-8d%-8d\n", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
+    EZBL_printf("\n1234567890abcdefghijklmnrsopqrstuvwxyz1234567890"); 
+//    UART1_TX_FIFO_WaitUntilFlushed();
+//    EZBL_printf("%-8s%-8s%-8s\n", "Total", "Read", "Write"); 
+//    EZBL_printf("%-8d%-8d%-8d\n", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
     
     
 }

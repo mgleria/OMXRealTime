@@ -60,7 +60,7 @@ void PIN_MANAGER_Initialize(void)
      * Setting the Output Latch SFR(s)
      ***************************************************************************/
     LATA = 0x0000;
-    LATB = 0x1000;
+    LATB = 0x1001;
     LATC = 0x0000;
     LATD = 0x0000;
     LATE = 0x0000;
@@ -71,7 +71,7 @@ void PIN_MANAGER_Initialize(void)
      * Setting the GPIO Direction SFR(s)
      ***************************************************************************/
     TRISA = 0xC67F;
-    TRISB = 0xEFFF;
+    TRISB = 0xEFFE;
     TRISC = 0xF01E;
     TRISD = 0xFFFF;
     TRISE = 0x03FF;
@@ -89,7 +89,7 @@ void PIN_MANAGER_Initialize(void)
     IOCPDF = 0x0000;
     IOCPDG = 0x0000;
     IOCPUA = 0x0000;
-    IOCPUB = 0x0000;
+    IOCPUB = 0x0002;
     IOCPUC = 0x0000;
     IOCPUD = 0x0000;
     IOCPUE = 0x0000;
@@ -111,7 +111,7 @@ void PIN_MANAGER_Initialize(void)
      * Setting the Analog/Digital Configuration SFR(s)
      ***************************************************************************/
     ANSA = 0x0600;
-    ANSB = 0xEF3F;
+    ANSB = 0xEF3C;
     ANSC = 0x6010;
     ANSD = 0x00C0;
     ANSE = 0x0210;
@@ -124,9 +124,11 @@ void PIN_MANAGER_Initialize(void)
 
     RPINR3bits.T3CKR = 0x0015;   //RG6->TMR3:T3CK;
     RPOR8bits.RP17R = 0x0003;   //RF5->UART1:U1TX;
-    RPOR15bits.RP31R = 0x0005;   //RF13->UART2:U2TX;
     RPINR18bits.U1RXR = 0x000A;   //RF4->UART1:U1RX;
-    RPINR19bits.U2RXR = 0x0020;   //RF12->UART2:U2RX;
+    RPOR0bits.RP0R = 0x0005;   //RB0->UART2:U2TX;
+    RPOR15bits.RP31R = 0x0013;   //RF13->UART3:U3TX;
+    RPINR17bits.U3RXR = 0x0020;   //RF12->UART3:U3RX;
+    RPINR19bits.U2RXR = 0x0001;   //RB1->UART2:U2RX;
 
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock   PPS
 

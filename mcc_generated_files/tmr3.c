@@ -150,8 +150,8 @@ uint16_t TMR3_Counter16BitGet( void )
 void __attribute__ ((weak)) TMR3_CallBack(void)
 {
     // Add your custom callback code here
-    printf("TMR3: %d\r\n",TMR3);
-    printf("tmr3_obj.count: %d\r\n",tmr3_obj.count);
+//    printf("TMR3: %d\r\n",TMR3);
+//    printf("tmr3_obj.count: %d\r\n",tmr3_obj.count);
 }
 
 void TMR3_Start( void )

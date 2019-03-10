@@ -157,28 +157,29 @@ uint16_t TMR5_Counter16BitGet( void )
 
 void __attribute__ ((weak)) TMR5_CallBack(void)
 {
-    static uint16_t count = 0;
-    static uint8_t prevDataCount = 0xFF; 
-
-    if( (prevDataCount != EZBL_COMBootIF->dataCount) 
-        && (EZBL_COMBootIF->dataCount > 0) )
-    {
-        prevDataCount = EZBL_COMBootIF->dataCount;
-        // reset count 
-        count = 0;
-    }
-    else {
-        count ++ ;
-    }
-
-    //Pasaron 200ms desde el último caracter recibido.
-    if( count > 15 )
-    {
-        count = 0;
-//        timeout = true; 
-        xTaskNotifyFromISR(xGprsHandle,MDM_RESP_READY_NOTIFICATION,eSetValueWithOverwrite,NULL);
-        LEDToggle(0xF0);
-    }
+//    static uint16_t count = 0;
+//    static uint8_t prevDataCount = 0xFF; 
+//
+//    if( (prevDataCount != EZBL_COMBootIF->dataCount) 
+//        && (EZBL_COMBootIF->dataCount > 0) )
+//    {
+//        prevDataCount = EZBL_COMBootIF->dataCount;
+//        // reset count 
+//        count = 0;
+//    }
+//    else {
+//        count ++ ;
+//    }
+//
+//    //Pasaron 200ms desde el último caracter recibido.
+//    if( count > 15 )
+//    {
+//        count = 0;
+////        timeout = true; 
+//        xTaskNotifyFromISR(xGprsHandle,MDM_RESP_READY_NOTIFICATION,eSetValueWithOverwrite,NULL);
+//        LEDToggle(0xF0);
+//    }
+    xTaskNotifyFromISR(xGprsHandle,MDM_RESP_READY_NOTIFICATION,eSetValueWithOverwrite,NULL);
 }
 
 void TMR5_Start( void )

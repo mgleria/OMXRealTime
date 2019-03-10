@@ -20,6 +20,7 @@ static uint32_t notificationFromModem;
 
 TickType_t delayModem;
 
+static char gprsTestBuffer[MODEM_BUFFER_SIZE]={0};
 
 /**********************************************************************************************/
 /**
@@ -174,6 +175,8 @@ void vTaskTest2( void *pvParameters )
     size_t heapFree;
     UBaseType_t uxHighWaterMark2;
     
+    sprintf(gprsTestBuffer,"This is a string to test. This is another string to test.");
+    
     heapFree = xPortGetFreeHeapSize();
     //Loop principal
     for(;;)
@@ -185,8 +188,8 @@ void vTaskTest2( void *pvParameters )
 
         uxHighWaterMark2 = uxTaskGetStackHighWaterMark( NULL );   
         
-//        EZBL_printf("vTaskTest2\n");
-        debugUART1("vTaskTest2");
+//        debug("vTaskTest2");
+//        debug(gprsTestBuffer);
         
 //        EZBL_FIFOWriteStr(EZBL_STDOUT,"PRUEBA EZBL_FIFOWriteStr()");
     }
@@ -204,11 +207,11 @@ unsigned int UART_RX_FIFO_OnRead (unsigned int bytesRead, void *readData, unsign
 //        strcpy(data,"(0 bytes readed)\n");
     
 
-    debugUART1("--------1--------");
-    debugUART1("onReadCallback:");
-    debugUART1(s);
-    debugUART1(data);
-    debugUART1("-------2---------");
+    debug("--------1--------");
+    debug("onReadCallback:");
+    debug(s);
+    debug(data);
+    debug("-------2---------");
     
     return bytesRead;
     
@@ -223,23 +226,25 @@ unsigned int UART_RX_FIFO_OnRead (unsigned int bytesRead, void *readData, unsign
 //    
 //    tx[0] = U2RXREG;
 //    
-//    debugUART1(tx);
+//    debug(tx);
 //}
 
 void startTestTask(){
     //Funcion de inicialización previa
     
-    xTaskCreate(    vTaskTest,
-                    "vTaskTest",
-                    1000,
-                    NULL,
-                    MAX_PRIORITY-1,
-                    &xTestHandle);
-        
-//    xTaskCreate(    vTaskTest2,
-//                    "vTaskTest2",
+//    xTaskCreate(    vTaskTest,
+//                    "vTaskTest",
 //                    1000,
 //                    NULL,
-//                    MAX_PRIORITY-2,
-//                    NULL);
+//                    MAX_PRIORITY-1,
+//                    &xTestHandle);
+    
+    debug("startTestTask2()");
+        
+    xTaskCreate(    vTaskTest2,
+                    "vTaskTest2",
+                    1000,
+                    NULL,
+                    MAX_PRIORITY-2,
+                    NULL);
 }

@@ -52,6 +52,15 @@
 */
 void INTERRUPT_Initialize (void)
 {
+    //    UERI: U3E - UART3 Error
+    //    Priority: 1
+        IPC20bits.U3ERIP = 1;
+    //    UTXI: U3TX - UART3 Transmitter
+    //    Priority: 1
+        IPC20bits.U3TXIP = 1;
+    //    URXI: U3RX - UART3 Receiver
+    //    Priority: 1
+        IPC20bits.U3RXIP = 1;
     //    MICI: MI2C1 - I2C1 Master Events
     //    Priority: 1
         IPC4bits.MI2C1IP = 1;

@@ -237,7 +237,7 @@ void SYSTEM_Initialize(void)
     TMR2_Initialize();
     TMR5_Initialize();
     
-    //Esto no ha sido modificado o no ha sido modificado por MCC
+    UART3_Initialize();
     UART2_Initialize(); //Creado desde MCC pero modificado.
     UART1_Initialize(); //Cambiado a EZBL
     TMR4_Initialize(); //EVALUAR crearlo desde MCC

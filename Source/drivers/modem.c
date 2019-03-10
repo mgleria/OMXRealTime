@@ -8,7 +8,7 @@ void    setupModem(){
     xMutexModem  = xSemaphoreCreateMutex();
     if(!xMutexModem){
 //        printf("ERROR en la creación del mutex de Memoria");
-        debugUART1("ERROR en la creación del mutex de Memoria");
+        debug("ERROR en la creación del mutex de Memoria");
         //El programa no puede seguir, hay que detenerlo.
     }
     xTimeModemMutex = xMsToTicks(T_ESPERA_MUTEX_MODEM_MS);
@@ -22,18 +22,18 @@ int16_t	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d,
     if(d>0) vTaskDelay(xMsToTicks(d));
     
     /* Ver si puedo obtener el semaforo. Si este no está disponible
-     * esperar xTimeModemMutex y volver a probar, si falla aún pasado 
+     * esperar xTimeModemMutex y volver a probar, si falla aún pasado  
      * xTimeModemMutex, devuelve -1 */
     if( xSemaphoreTake( xMutexModem, xTimeModemMutex ) == pdTRUE ){
-        writedBytes = EZBL_printf(text);
-        debugUART1(text);
-//        writedBytes = UART2_WriteBuffer(text,strlen(text));
+//        writedBytes = EZBL_printf(text);
+        debug(text);
+        writedBytes = UART3_WriteBuffer(text,strlen(text));
         xSemaphoreGive(xMutexModem);
         return writedBytes;
     }
     else{
 //        printf("ERROR no se pudo tomar el mutex del modem.\r\n");
-        debugUART1("ERROR no se pudo tomar el mutex del modem.\r\n");
+        debug("ERROR no se pudo tomar el mutex del modem");
         return -1;
     }
 }
@@ -58,8 +58,16 @@ uint8_t	receiveATCommand( char* buffer, uint8_t *attempts, TickType_t responseDe
     
     if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
         TMR5_Stop();       
-        readedBytes = EZBL_FIFORead(buffer,EZBL_COMBootIF,MODEM_BUFFER_SIZE);
-//        UART2_ReadBuffer(buffer, GPRS_BUFFER_SIZE);
+//        readedBytes = EZBL_FIFORead(buffer,EZBL_COMBootIF,MODEM_BUFFER_SIZE);
+        readedBytes = UART3_ReadBuffer(buffer, MODEM_BUFFER_SIZE);
+        
+        if(readedBytes) {
+            debug("MDM Response:");
+            debug(buffer);
+        }
+        else
+            debug("Respuesta de modem vacía");
+        
         return 1;
     }
     
@@ -68,11 +76,12 @@ uint8_t	receiveATCommand( char* buffer, uint8_t *attempts, TickType_t responseDe
 
 uint8_t	getServerResponse( char* buffer, TickType_t responseDelay )
 {
-    uint32_t modemResponseNotification = 0;
+//    uint32_t modemResponseNotification = 0;
     uint16_t readedBytes = 0;
    
      
-    readedBytes = EZBL_FIFORead(buffer,EZBL_COMBootIF,MODEM_BUFFER_SIZE);
+//    readedBytes = EZBL_FIFORead(buffer,EZBL_COMBootIF,MODEM_BUFFER_SIZE);
+    readedBytes = UART3_ReadBuffer(buffer, MODEM_BUFFER_SIZE);
     
     if(readedBytes)
         return 1;
