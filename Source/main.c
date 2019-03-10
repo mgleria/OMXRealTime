@@ -142,8 +142,8 @@ int main( void )
     
 //    EZBL_BootloaderInit();
 //    startSampleTask();
-    startGprsTask();
-//    startCLITask();    
+//    startGprsTask();
+    startCLITask();    
 //    startSwapPartitionTask();
     
 //    startTestTask();

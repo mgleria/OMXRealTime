@@ -53,6 +53,8 @@
   Section: UART1 APIs
 */
 
+//extern EZBL_FIFO *EZBL_STDIN __attribute__((persistent));  // Pointer to EZBL_STDIN to check activity on for debugging
+
 void UART1_Initialize(void)
 {
 /**    

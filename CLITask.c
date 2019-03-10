@@ -1,4 +1,5 @@
 #include "tareas/CLITask.h"
+#include "ezbl.h"
 
 //Handle referenciado en tmr5.c para uso de xTaskNotify()
 TaskHandle_t xCLIHandle;
@@ -13,15 +14,18 @@ void vTaskCLI( void *pvParameters ){
     uint16_t sizeRespuesta;
     bytesEnviados = bytesRecibidos = -1;
     
+    TMR2_Start();
+    
     // Cuerpo de la tarea
     for( ;; ){   
             uxHighWaterMarkShell = uxTaskGetStackHighWaterMark( NULL );
             //Detengo el TMR2 que inicio al final de _U1RXInterrupt().
-            TMR2_Stop();
+//            TMR2_Stop();
             //Leemos el comando recibido por la UART
             
-            //  bytesRecibidos = UART1_ReadBuffer(comando,MAX_COMMAND_LENGHT);
+            bytesRecibidos = EZBL_FIFORead(comando, EZBL_STDIN, EZBL_STDIN->dataCount);
             
+            LEDToggle(0x01);            
             
             //Si se recibio algo, procesamos el comando para obtener una respuesta
             if(bytesRecibidos>0) {
@@ -31,7 +35,8 @@ void vTaskCLI( void *pvParameters ){
 //                stringToIntArray(respuestaUART,respuesta);
                 sizeRespuesta = strlen(respuesta);
                 
-                //bytesEnviados = UART1_WriteBuffer(respuesta,sizeRespuesta);
+                EZBL_printf("\nRespuesta comando: ");
+                EZBL_printf(respuesta);
             }
             //Si se envi� la respuesta, se suspende la tarea hasta que llegue el pr�ximo comando.
             flushComando(comando); 
@@ -46,6 +51,6 @@ void startCLITask(){
                     "vTaskCLI",
                     1000,
                     NULL,
-                    MAX_PRIORITY-1,
+                    MAX_PRIORITY-2,
                     &xCLIHandle);
 }

@@ -53,6 +53,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "ezbl.h"
+
 /**
   Section: Data Type Definitions
 */
@@ -70,7 +72,7 @@
     None.
 */
 
-extern TaskHandle_t xShellHandle; 
+extern TaskHandle_t xCLIHandle; 
 
 typedef struct _TMR_OBJ_STRUCT
 {
@@ -151,10 +153,30 @@ uint16_t TMR2_Counter16BitGet( void )
     return( TMR2 );
 }
 
+static uint16_t count = 0;
+static uint8_t prevDataCount = 0xFF;
 
 void __attribute__ ((weak)) TMR2_CallBack(void)
 {
-    vTaskResume(xShellHandle);
+    if( (prevDataCount != EZBL_STDIN->dataCount) 
+        && (EZBL_STDIN->dataCount > 0) )
+    {
+        prevDataCount = EZBL_STDIN->dataCount;
+        // reset count 
+        count = 0;
+    }
+    else {
+        count ++ ;
+    }
+
+    //Pasaron 200ms desde el último caracter recibido.
+    if( count )
+    {
+        count = 0;
+        prevDataCount = 0xFF;
+        vTaskResume(xCLIHandle);
+        LEDToggle(0xF0);
+    }
 }
 
 void TMR2_Start( void )
