@@ -141,9 +141,9 @@ int main( void )
     printMemoryPointers();
     
     EZBL_BootloaderInit();
-//    startSampleTask();
-//    startGprsTask();
-//    startCLITask();    
+    startSampleTask();
+    startGprsTask();
+    startCLITask();    
     startSwapPartitionTask();
     
 //    startTestTask();
@@ -175,10 +175,9 @@ void vTaskSwapPartition( void *pvParameters )
     
     ledBlinkTimer = NOW_32();
     
-    printConfigRegisters();
-    
-    printConfigRealRegistersPartition1();
-    printConfigRealRegistersPartition2();
+//    printConfigRegisters();
+//    printConfigRealRegistersPartition1();
+//    printConfigRealRegistersPartition2();
     
     for(;;)
     {
