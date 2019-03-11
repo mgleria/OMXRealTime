@@ -30,8 +30,8 @@
 #define configTICK_RATE_HZ				( ( TickType_t ) 1000 )
 #define configCPU_CLOCK_HZ				( ( unsigned long ) 16000000 )  /* Fosc/2 */
 
-#define configMAX_PRIORITIES			( 5 )
-#define MAX_PRIORITY                    configMAX_PRIORITIES-1
+#define configMAX_PRIORITIES			( 6 )
+#define MAX_PRIORITY                    configMAX_PRIORITIES-2
 
 #define configMINIMAL_STACK_SIZE		( 200 )
 #define configTOTAL_HEAP_SIZE			( ( size_t ) 10240 )

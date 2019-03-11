@@ -185,7 +185,7 @@ void EZBL_BootloaderInit(void)
                     "vTaskBootloader",
                     2000,
                     NULL,
-                    MAX_PRIORITY,
+                    MAX_PRIORITY+1,
                     &xBootloaderHandle);
 }
 

@@ -71,11 +71,11 @@ void PIN_MANAGER_Initialize(void)
      * Setting the GPIO Direction SFR(s)
      ***************************************************************************/
     TRISA = 0xC67F;
-    TRISB = 0xEFFE;
+    TRISB = 0xEFFF;
     TRISC = 0xF01E;
     TRISD = 0xFFFF;
     TRISE = 0x03FF;
-    TRISF = 0x119F;
+    TRISF = 0x109F;
     TRISG = 0xF3CF;
 
     /****************************************************************************
@@ -124,8 +124,8 @@ void PIN_MANAGER_Initialize(void)
 
     RPINR3bits.T3CKR = 0x0015;   //RG6->TMR3:T3CK;
     RPOR8bits.RP17R = 0x0003;   //RF5->UART1:U1TX;
+    RPOR7bits.RP15R = 0x0005;   //RF8->UART2:U2TX;
     RPINR18bits.U1RXR = 0x000A;   //RF4->UART1:U1RX;
-    RPOR0bits.RP0R = 0x0005;   //RB0->UART2:U2TX;
     RPOR15bits.RP31R = 0x0013;   //RF13->UART3:U3TX;
     RPINR17bits.U3RXR = 0x0020;   //RF12->UART3:U3RX;
     RPINR19bits.U2RXR = 0x0001;   //RB1->UART2:U2RX;

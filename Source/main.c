@@ -140,11 +140,11 @@ int main( void )
     
     printMemoryPointers();
     
-//    EZBL_BootloaderInit();
-    startSampleTask();
-    startGprsTask();
-    startCLITask();    
-//    startSwapPartitionTask();
+    EZBL_BootloaderInit();
+//    startSampleTask();
+//    startGprsTask();
+//    startCLITask();    
+    startSwapPartitionTask();
     
 //    startTestTask();
     //    vTaskTestClone();
@@ -186,7 +186,7 @@ void vTaskSwapPartition( void *pvParameters )
         // Every half second toggle an LED (1 Hz blink rate) to indicate we are alive
         if(NOW_32() - ledBlinkTimer > NOW_sec/2u)
         {
-            LEDToggle(0x07);
+            LEDToggle(0x01);
             ledBlinkTimer += NOW_sec/2u;
 //            EZBL_printf("\n\nTesting");
         }
@@ -233,7 +233,7 @@ void startSwapPartitionTask()
                         "vTaskSwapPartition",
                         1000,
                         NULL,
-                        MAX_PRIORITY,
+                        MAX_PRIORITY-2,
                         &xTaskSwapPartition);
 }
 
