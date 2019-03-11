@@ -73,6 +73,7 @@
 */
 
 extern TaskHandle_t xCLIHandle; 
+static uint8_t prevDataCount = 0xFF;
 
 typedef struct _TMR_OBJ_STRUCT
 {
@@ -153,26 +154,19 @@ uint16_t TMR2_Counter16BitGet( void )
     return( TMR2 );
 }
 
-static uint16_t count = 0;
-static uint8_t prevDataCount = 0xFF;
-
 void __attribute__ ((weak)) TMR2_CallBack(void)
 {
-    if( (prevDataCount != EZBL_STDIN->dataCount) 
-        && (EZBL_STDIN->dataCount > 0) )
+    //Si nada nuevo ha llegado no hay nada que hacer
+    if(!EZBL_STDIN->dataCount)
+        return;
+    //Verifico entonces si llego algo nuevo
+    else if( prevDataCount != EZBL_STDIN->dataCount ) 
     {
         prevDataCount = EZBL_STDIN->dataCount;
-        // reset count 
-        count = 0;
     }
+    /* Si llego hasta aca es porque finalizo la recepcion de un comando 
+    en EZBL_STDIN. Despierto a xCLIHandle para que lo procese. */
     else {
-        count ++ ;
-    }
-
-    //Pasaron 200ms desde el último caracter recibido.
-    if( count )
-    {
-        count = 0;
         prevDataCount = 0xFF;
         vTaskResume(xCLIHandle);
         LEDToggle(0xF0);

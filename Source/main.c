@@ -141,8 +141,8 @@ int main( void )
     printMemoryPointers();
     
 //    EZBL_BootloaderInit();
-//    startSampleTask();
-//    startGprsTask();
+    startSampleTask();
+    startGprsTask();
     startCLITask();    
 //    startSwapPartitionTask();
     
