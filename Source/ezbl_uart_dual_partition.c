@@ -75,9 +75,9 @@ EZBL_SetNoVerifyRange(0x800000, 0xFFFFFE);      // FBOOT may also read back diff
 // launch and bootload termination when communications are broken.
 #define BOOTLOADER_TIMEOUT          (NOW_sec * 1u)
 
-#define BOOTLOADER_PERIOD_MS        32
+#define BOOTLOADER_PERIOD_MS        500
 
-#define BOOTLOADER_PERIOD_ACTIVE_MS 1
+#define BOOTLOADER_PERIOD_ACTIVE_MS 10
 
 
 // Uncomment for faster communications/bootloading. Buffer default size is 96

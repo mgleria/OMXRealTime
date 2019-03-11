@@ -186,7 +186,7 @@ void vTaskSwapPartition( void *pvParameters )
         // Every half second toggle an LED (1 Hz blink rate) to indicate we are alive
         if(NOW_32() - ledBlinkTimer > NOW_sec/2u)
         {
-            LEDToggle(0x01);
+            LEDToggle(0x07);
             ledBlinkTimer += NOW_sec/2u;
 //            EZBL_printf("\n\nTesting");
         }
@@ -194,9 +194,9 @@ void vTaskSwapPartition( void *pvParameters )
 
         if(timeForPartitionSwap)
         {
-//            EZBL_printf("\n\nNew firmware detected. Changing partitions now.");
+            //Introduzco esta demora para que la tarea vTaskBootloader pueda terminar de enviar todas sus tramas al host
             EZBL_printf("\n\nNew firmware detected. Changing partitions in 500ms.");
-            vTaskDelay(xMsToTicks(2000));
+            vTaskDelay(xMsToTicks(500));
             EZBL_FIFOFlush(EZBL_STDOUT, NOW_sec);       // Flush all TX status messages from printf() statements
             EZBL_PartitionSwap();                       // Perform the partition swap and branch to 0x000000 on the (presently) Inactive Partition
         }
