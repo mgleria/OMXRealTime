@@ -9,6 +9,8 @@
 #define FREERTOS_CONFIG_H
 
 #include <p24FJ1024GB610.h>
+#include "mcc.h"
+
 
 /*-----------------------------------------------------------
  * Application specific definitions.
@@ -28,7 +30,7 @@
 #define configUSE_TICK_HOOK				0
 //Cada cuanto interrumpe el tick de FreeRTOS (Hz)
 #define configTICK_RATE_HZ				( ( TickType_t ) 1000 )
-#define configCPU_CLOCK_HZ				( ( unsigned long ) 16000000 )  /* Fosc/2 */
+#define configCPU_CLOCK_HZ				( FCY )  /* Fosc/2 defined in mcc.h*/
 
 #define configMAX_PRIORITIES			( 6 )
 #define MAX_PRIORITY                    configMAX_PRIORITIES-2
@@ -69,6 +71,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelayUntil			1
 #define INCLUDE_vTaskDelay				1
 #define INCLUDE_uxTaskGetStackHighWaterMark 1
+#define INCLUDE_xTaskResumeFromISR              1
 
 
 #define configKERNEL_INTERRUPT_PRIORITY	0x01
