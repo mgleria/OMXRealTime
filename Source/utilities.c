@@ -71,17 +71,10 @@ void debug(const char* s){
 
 void printMemoryPointers()
 {
-    
     EZBL_printf("\n fifoSize: %d", EZBL_STDOUT->fifoSize);
-//    UART1_TX_FIFO_WaitUntilFlushed();
-//    printf("%-8s%-8s%-8s\n", "Total", "Read", "Write"); 
-//    printf("%-8d%-8d%-8d\n", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
-    EZBL_printf("\n1234567890abcdefghijklmnrsopqrstuvwxyz1234567890"); 
-//    UART1_TX_FIFO_WaitUntilFlushed();
-//    EZBL_printf("%-8s%-8s%-8s\n", "Total", "Read", "Write"); 
-//    EZBL_printf("%-8d%-8d%-8d\n", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
-    
-    
+    EZBL_printf("%-8s%-8s%-8s\n", "Total", "Read", "Write"); 
+    EZBL_printf("%-8d%-8d%-8d\n", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
+    //    UART1_TX_FIFO_WaitUntilFlushed();
 }
 
 char *findNthCharacterOcurrence(const char *src,const char ch, uint8_t n)

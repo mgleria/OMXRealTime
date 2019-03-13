@@ -11,7 +11,6 @@ void vTaskCLI( void *pvParameters ){
     uint8_t comando[MAX_COMMAND_LENGHT] ={0};
     string respuesta[MAX_RESP_LENGHT]={0};
     portBASE_TYPE bytesEnviados, bytesRecibidos;
-    uint16_t sizeRespuesta;
     bytesEnviados = bytesRecibidos = -1;
     
     TMR2_Start();
@@ -31,14 +30,12 @@ void vTaskCLI( void *pvParameters ){
             if(bytesRecibidos>0) {
                 bytesRecibidos=0;
                 strcpy( respuesta, processCmdLine( &comando ) );
-                //Env�o la respuesta por la UART hacia la PC.
-//                stringToIntArray(respuestaUART,respuesta);
-                sizeRespuesta = strlen(respuesta);
+                //Envio la respuesta por la UART hacia la PC.
                 
                 EZBL_printf("\nRespuesta comando: ");
                 EZBL_printf(respuesta);
             }
-            //Si se envi� la respuesta, se suspende la tarea hasta que llegue el pr�ximo comando.
+            //Si se envia la respuesta, se suspende la tarea hasta que llegue el proximo comando.
             flushComando(comando); 
             vTaskSuspend( NULL );
             
