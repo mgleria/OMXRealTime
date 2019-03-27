@@ -88,11 +88,12 @@ void vTaskSample( void *pvParameters ){
         
         if(waitForNotify){
             debug("waitForNotify true");
-            //Se bloquea la tarea a la espera de nuevas notificaciones que llegarï¿½n desde
-            //las callbacks timers o desde una interrupciï¿½n generada por el driver de un sensor
+            //Se bloquea la tarea a la espera de nuevas notificaciones que llegaran desde
+            //las callbacks timers o desde una interrupcion generada por el driver de un sensor
             status = ulTaskNotifyTake(  pdTRUE,  /* Clear the notification value before
                                                     exiting. */
                                         portMAX_DELAY ); /* Block indefinitely. */
+            //to-do: Cambiar portMAX_DELAY por el valor apropiado
             waitForNotify = false;
             
         }
@@ -116,6 +117,9 @@ static void FSM_SampleTask(uint32_t status){
     /*Los cambios de estado ocurren en los callback de los timers o en otras
      funciones externas*/
     switch(status){  
+        /*El estado SYNC_SERVER_TIME debe ser removido tras implementar el RF10
+         * el cual asegurará que el equipo tenga la hora correcta antes de 
+         * comenzar a tomar muestras. */
         case SYNC_SERVER_TIME:
             debug("SYNC_SERVER_TIME");
 
@@ -142,11 +146,11 @@ static void FSM_SampleTask(uint32_t status){
                 xTimerStart(xPassiveSamplingTime,0);
             }
             break;
-            
-        //to-do: Cambiar portMAX_DELAY por el valor apropiado    
+                
+        /*to-do: Revisar si este estado es o no necesario. Quizá sea necesario 
+         cuando se requiera pos procesamiento de los datos capturados asincronicamente*/
         case ASYNC_SAMPLING:
             debug("ASYNC_SAMPLING");
-//            printf("ASYNC_SAMPLING");
             
             //Wait for async events
             asyncEvents = ulTaskNotifyTake( 
@@ -168,9 +172,7 @@ static void FSM_SampleTask(uint32_t status){
                     break;      
             }
             break;
-        //to-do: Cambiar portMAX_DELAY por el valor apropiado
         case SYNC_SAMPLING:
-//            printf("SYNC_SAMPLING %d\r",syncCounter);
             debug("SYNC_SAMPLING");
             syncEvents = ulTaskNotifyTake( 
                 pdTRUE,  /* Clear the notification value before exiting. */
@@ -184,7 +186,6 @@ static void FSM_SampleTask(uint32_t status){
                     //acum_sensor_n += functionToGetSampleSensorN();
                     potentiometer += ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
                     temperature += ADC_Read10bit( ADC_CHANNEL_TEMPERATURE_SENSOR );
-//                    printf("syncCounter: %d\r\n",syncCounter);
                     break;
                 default:
                     //indicar con algun codigo de error que algo anduvo mal
@@ -194,14 +195,11 @@ static void FSM_SampleTask(uint32_t status){
             break;
         case SAVE_AND_PACKAGE:
             debug("SAVE_AND_PACKAGE");
-//            printf("SAVE_AND_PACKAGE");
             //Preparar la muestra
 /////////////////////MUESTRAS TOMADAS SINCRONICAMENTE///////////////////////////
             if(syncCounter>0){
                 sample.clima.hum = potentiometer/syncCounter;
                 sample.clima.temper = getTemperature(temperature/syncCounter);
-//                printf("sample.clima.hum: %d\r\n",sample.clima.hum);
-//                printf("sample.clima.temper: %d\r\n",sample.clima.temper);
             }
             else{
                 //to-do: Ver que se hace en caso de que no se hayan tomado 
@@ -210,9 +208,8 @@ static void FSM_SampleTask(uint32_t status){
             }
             syncCounter = 0;
 /////////////////////MUESTRAS TOMADAS ASINCRONICAMENTE//////////////////////////
-            //to-do: Hacer una funciï¿½n que me permita escalar esto mejor
+            //to-do: Hacer una funcion que me permita escalar esto mejor
             sample.clima.lluvia = getAccumulatedRain();
-//            printf("sample.clima.lluvia: %d\r\n",sample.clima.lluvia);
             //Limpio el contador por soft del TMR3
             clearAccumulatedRain();
             
@@ -226,7 +223,7 @@ static void FSM_SampleTask(uint32_t status){
             sample.hora = rtcc.hora;
             sample.minutos = rtcc.minutos;        
 /////////////////////GUARDANDO MUESTRA EN MEM PERSISENTE////////////////////////
-            /* Ver si puedo obtener el semaforo. Si este no estï¿½ disponible
+            /* Ver si puedo obtener el semaforo. Si este no esta disponible
              * esperar xTimeMemoryMutex y volver a probar */
             uint8 resultPutSample = 0;
             char resultGetSample = 0;
@@ -234,23 +231,13 @@ static void FSM_SampleTask(uint32_t status){
             if( xSemaphoreTake( xMutexMemory, xTimeMemoryMutex ) == pdTRUE )
             {
                 resultPutSample = putSample(&sample);
-//                printMemoryPointers();
-//                printf("resultPutSample->%d.\r\n",resultPutSample);
                 if(resultPutSample){
-//                    printf("Muestra guardada exitosamente.\r\n");
                     debug("Muestra guardada exitosamente.");
-//                    printMemoryPointers();
                 }
                 else{
-//                    printf("ERROR al guardar la muestra.\r\n");
                     debug("ERROR al guardar la muestra.");
                 }
                 resultGetSample = getSample(&returnedSample,0);
-//                printf("getSample(&sample,0)->%s \r\n",resultGetSample);
-//                printf("sample.clima.hum: %d\r\n",returnedSample.clima.hum);
-//                printf("sample.clima.temper: %d\r\n",returnedSample.clima.temper);
-//                printf("sample.clima.lluvia: %d\r\n",returnedSample.clima.lluvia);
-//                printMemoryPointers();
                 
                 /* Terminamos de usar el recurso, por lo que devolvemos el
                  * mutex */
@@ -264,7 +251,7 @@ static void FSM_SampleTask(uint32_t status){
                 setStatusFSM(ASYNC_SAMPLING);
             }
             else{
-//                printf("ERROR no se pudo tomar el mutex de memoria.\r\n");
+                /*to-do: Reinicio?*/
                 debug("ERROR no se pudo tomar el mutex de memoria.");
             }
             break;

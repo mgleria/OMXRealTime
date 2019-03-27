@@ -12,18 +12,26 @@ void vTaskCLI( void *pvParameters ){
     string respuesta[MAX_RESP_LENGHT]={0};
     portBASE_TYPE bytesEnviados, bytesRecibidos;
     bytesEnviados = bytesRecibidos = -1;
+    uint32_t ulNotifiedValue;
     
     TMR2_Start();
     
     // Cuerpo de la tarea
     for( ;; ){   
             uxHighWaterMarkShell = uxTaskGetStackHighWaterMark( NULL );
-            //Detengo el TMR2 que inicio al final de _U1RXInterrupt().
-//            TMR2_Stop();
+
             //Leemos el comando recibido por la UART
             
-            bytesRecibidos = EZBL_FIFORead(comando, EZBL_STDIN, EZBL_STDIN->dataCount);
+            /* La siguiente línea va a bloquear la tarea CLI hasta que llegue 
+             * una notificacion. En este caso no filtramos cuál porque solo
+             * estamos enviando una sola notificacion desde una sola fuente: 
+             * TMR2_CallBack()*/
+            ulNotifiedValue = ulTaskNotifyTake( pdTRUE, portMAX_DELAY );
+            EZBL_printf("\nulNotifiedValue vTaskCLI:%lu",ulNotifiedValue);
+//            TMR2_Stop();
             
+            bytesRecibidos = EZBL_FIFORead(comando, EZBL_STDIN, EZBL_STDIN->dataCount);
+            EZBL_printf("\nbytesRecibidos vTaskCLI:%d",bytesRecibidos);
             LEDToggle(0x01);            
             
             //Si se recibio algo, procesamos el comando para obtener una respuesta
@@ -37,7 +45,8 @@ void vTaskCLI( void *pvParameters ){
             }
             //Si se envia la respuesta, se suspende la tarea hasta que llegue el proximo comando.
             flushComando(comando); 
-            vTaskSuspend( NULL );
+//            TMR2_Start(); 
+//            vTaskSuspend( NULL );
             
     }
 }

@@ -133,18 +133,18 @@ int main( void )
 //            ClrWdt();
 
     rtc_init();
-////    vLedInitialise();
+//    vLedInitialise();
     setEstacionConfig();
     
     if(RESET_MEMORY) resetSamplesPtr();
-    
+//    
     printMemoryPointers();
     
-    EZBL_BootloaderInit();
-    startSampleTask();
-    startGprsTask();
+//    EZBL_BootloaderInit();
+//    startSampleTask();
+//    startGprsTask();
     startCLITask();    
-    startSwapPartitionTask();
+//    startSwapPartitionTask();
     
 //    startTestTask();
     //    vTaskTestClone();

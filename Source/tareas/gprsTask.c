@@ -62,7 +62,7 @@ void startGprsTask(){
                     "vTaskGprs",
                     1000,
                     NULL,
-                    MAX_PRIORITY-1, //ACOMODAR prioridades
+                    MAX_PRIORITY-1, //to-do: ACOMODAR prioridades
                     &xGprsHandle);
     
     sampleReadyNotification = 0;

@@ -66,11 +66,9 @@ uint8_t	receiveATCommand( char* buffer, uint8_t *attempts, TickType_t responseDe
             debug(buffer);
         }
         else
-            debug("Respuesta de modem vacía");
-        
+            debug("Respuesta de modem vacía");    
         return 1;
     }
-    
     return 0;
 }
 

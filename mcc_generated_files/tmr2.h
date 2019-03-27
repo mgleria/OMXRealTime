@@ -60,6 +60,7 @@
 #endif
 
 #define TMR2_INTERRUPT_TICKER_FACTOR    1
+#define NEW_COMMAND_RECEIVED_FLAG       2
 
 /**
   Section: Interface Routines

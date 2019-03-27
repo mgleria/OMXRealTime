@@ -74,6 +74,7 @@
 
 extern TaskHandle_t xCLIHandle; 
 static uint8_t prevDataCount = 0xFF;
+static uint8_t count = 0x00;
 
 typedef struct _TMR_OBJ_STRUCT
 {
@@ -95,8 +96,8 @@ void TMR2_Initialize (void)
 {
     //TMR2 0; 
     TMR2 = 0x0000;
-    //Period = 0.2 s; Frequency = 4000000 Hz; PR2 12500; 
-    PR2 = 0x30D4;
+    //Period = 0.2 s; Frequency = 16000000 Hz; PR2 50000; 
+    PR2 = 0xC350;
     //TCKPS 1:64; T32 16 Bit; TON enabled; TSIDL disabled; TCS FOSC/2; TECS SOSC; TGATE disabled; 
     T2CON = 0x8020;
 
@@ -165,14 +166,12 @@ void __attribute__ ((weak)) TMR2_CallBack(void)
         prevDataCount = EZBL_STDIN->dataCount;
     }
     /* Si llego hasta aca es porque finalizo la recepcion de un comando 
-    en EZBL_STDIN. Despierto a xCLIHandle para que lo procese. */
+    en EZBL_STDIN. Notifico a xCLIHandle para que lo procese. */
     else {
         prevDataCount = 0xFF;
-        EZBL_printf("\nEZBL_STDIN->dataCount: %d", EZBL_STDIN->dataCount);
+//        EZBL_printf("\nEZBL_STDIN->dataCount: %d", EZBL_STDIN->dataCount);
         LEDToggle(0xF0);
-//        xTaskResumeFromISR(xCLIHandle);
-        vTaskResume(xCLIHandle);
-        
+        xTaskNotifyFromISR(xCLIHandle,NEW_COMMAND_RECEIVED_FLAG,eSetValueWithOverwrite,NULL);
     }
 }
 
