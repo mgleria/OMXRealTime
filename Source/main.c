@@ -130,6 +130,9 @@ int main( void )
     
     SYSTEM_Initialize();
     
+    if(_SFTSWP) EZBL_printf("\nCongratulations! A new application is running now after a successful firmware update.");
+    else EZBL_printf("\nThis is a normal reset.");
+    
 //            ClrWdt();
 
     rtc_init();
@@ -140,11 +143,13 @@ int main( void )
 //    
     printMemoryPointers();
     
-//    EZBL_BootloaderInit();
-//    startSampleTask();
-//    startGprsTask();
+    EZBL_BootloaderInit();
+    startSampleTask();
+    
     startCLITask();    
-//    startSwapPartitionTask();
+    startSwapPartitionTask();
+    
+    startGprsTask();
     
 //    startTestTask();
     //    vTaskTestClone();
@@ -234,6 +239,8 @@ void startSwapPartitionTask()
                         NULL,
                         MAX_PRIORITY-2,
                         &xTaskSwapPartition);
+        
+        debug("startSwapPartitionTask()");
 }
 
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )

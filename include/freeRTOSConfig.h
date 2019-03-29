@@ -36,7 +36,7 @@
 #define MAX_PRIORITY                    configMAX_PRIORITIES-2
 
 #define configMINIMAL_STACK_SIZE		( 200 )
-#define configTOTAL_HEAP_SIZE			( ( size_t ) 10240 )
+#define configTOTAL_HEAP_SIZE			( ( size_t ) 15*1024 )
 #define configMAX_TASK_NAME_LEN			( 4 )
 
 #define configUSE_16_BIT_TICKS			1

@@ -71,9 +71,9 @@ void debug(const char* s){
 
 void printMemoryPointers()
 {
-    EZBL_printf("\n fifoSize: %d", EZBL_STDOUT->fifoSize);
-    EZBL_printf("%-8s%-8s%-8s\n", "Total", "Read", "Write"); 
-    EZBL_printf("%-8d%-8d%-8d\n", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
+//    EZBL_printf("\n fifoSize: %d", EZBL_STDOUT->fifoSize);
+    EZBL_printf("\n%-8s%-8s%-8s", "Total", "Read", "Write"); 
+    EZBL_printf("\n%-8d%-8d%-8d", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
     //    UART1_TX_FIFO_WaitUntilFlushed();
 }
 
