@@ -122,7 +122,7 @@ extern rtcc_t tiempo;
 
 extern volatile int timeForPartitionSwap __attribute__((persistent));    // Global variable signaling when we complete a successful firmware update on the Inactive Partition
 
-int main( void )
+int __attribute__((address(0x3000))) main( void ) 
 {
 //    #if defined (__DEBUG)
 //    __builtin_software_breakpoint();
