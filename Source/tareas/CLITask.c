@@ -44,10 +44,8 @@ void vTaskCLI( void *pvParameters ){
                 EZBL_printf(respuesta);
             }
             //Si se envia la respuesta, se suspende la tarea hasta que llegue el proximo comando.
-            flushComando(comando); 
-//            TMR2_Start(); 
-//            vTaskSuspend( NULL );
-            
+//            flushComando(comando); 
+            flushBuffer(comando, MAX_COMMAND_LENGHT);
     }
 }
 

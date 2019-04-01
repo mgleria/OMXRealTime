@@ -19,7 +19,12 @@
 #include "freeRtos/queue.h"
 #include "freeRTOS/croutine.h"
 
-/*Trace Recorder*/
+/*Tareas*/
+#include "tareas/testTask.h"
+#include "tareas/sampleTask.h"
+#include "tareas/gprsTask.h"
+#include "tareas/swapPartitionTask.h"
+#include "tareas/CLITask.h"
 
 /*EZBL Include*/
 #include "ezbl.h"
@@ -73,11 +78,6 @@ string version[] = "2.00";
 //***********************Prototipo de tareas************************************
 
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
-
-#include "tareas/testTask.h"
-#include "tareas/sampleTask.h"
-#include "tareas/gprsTask.h"
-#include "tareas/swapPartitionTask.h"
 
 //***********************Prototipo de funciones externas************************
 //The vTaskDelay() API function prototype
