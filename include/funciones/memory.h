@@ -4,6 +4,7 @@
 
 //#include	"HardwareProfile.h"
 //#include	"funciones/24LCxxx.h"
+#include "typedef.h"
 
 /**********************************************************************************************/
 /*	Definicion de direcciones de memoria eeprom externa	*/

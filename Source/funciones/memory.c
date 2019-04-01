@@ -149,9 +149,9 @@ uint8 putSample( muestra_t* muestra )
     uint8_t memNumber = 0;
 
 	//	Lee los valores de punteros desde la RAM del RTCC
-	read_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
-	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (char*)&samplesWrite, sizeof(samplesWrite) );
-	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
+	read_rtcc_array( SAMPLES_READ_ADDRESS, (uint8_t*)&samplesRead, sizeof(samplesRead) );
+	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (uint8_t*)&samplesWrite, sizeof(samplesWrite) );
+	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (uint8_t*)&samplesTotal, sizeof(samplesTotal) );
     
     // Calcula el nùmero de memoria donde debe escribir
     memNumber = (uint8_t)(samplesWrite / SAMPLES_BLOCK_SIZE);
@@ -208,9 +208,9 @@ uint8 putSample( muestra_t* muestra )
 		}
 
 	//	actualiza los valores de los punteros en la RAM del RTCC
-	write_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
-	write_rtcc_array( SAMPLES_WRITE_ADDRESS, (char*)&samplesWrite, sizeof(samplesWrite) );
-	write_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
+	write_rtcc_array( SAMPLES_READ_ADDRESS, (uint8_t*)&samplesRead, sizeof(samplesRead) );
+	write_rtcc_array( SAMPLES_WRITE_ADDRESS, (uint8_t*)&samplesWrite, sizeof(samplesWrite) );
+	write_rtcc_array( SAMPLES_TOTAL_ADDRESS, (uint8_t*)&samplesTotal, sizeof(samplesTotal) );
 	
 	return	true;
 }
@@ -223,7 +223,7 @@ uint8 putSample( muestra_t* muestra )
  */
 uint16	getSamplesWrite( void )
 {
-	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (char*)&samplesWrite, sizeof(samplesWrite) );
+	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (uint8_t*)&samplesWrite, sizeof(samplesWrite) );
 	return	samplesWrite;
 }
 
@@ -235,7 +235,7 @@ uint16	getSamplesWrite( void )
 void	setSamplesWrite( uint16 value )
 {
 	samplesWrite = value;
-	write_rtcc_array( SAMPLES_WRITE_ADDRESS, (char*)&samplesWrite, sizeof(samplesWrite) );
+	write_rtcc_array( SAMPLES_WRITE_ADDRESS, (uint8_t*)&samplesWrite, sizeof(samplesWrite) );
 }
 
 /**********************************************************************************************/
@@ -246,7 +246,7 @@ void	setSamplesWrite( uint16 value )
  */
 uint16	getSamplesRead( void)
 {
-	read_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
+	read_rtcc_array( SAMPLES_READ_ADDRESS, (uint8_t*)&samplesRead, sizeof(samplesRead) );
 	return	samplesRead;
 }
 
@@ -258,7 +258,7 @@ uint16	getSamplesRead( void)
 void	setSamplesRead( uint16 value )
 {
 	samplesRead = value;
-	write_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
+	write_rtcc_array( SAMPLES_READ_ADDRESS, (uint8_t*)&samplesRead, sizeof(samplesRead) );
 }
 
 /**********************************************************************************************/
@@ -269,7 +269,7 @@ void	setSamplesRead( uint16 value )
  */
 uint16	getSamplesTotal( void )
 {
-	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
+	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (uint8_t*)&samplesTotal, sizeof(samplesTotal) );
 	return	samplesTotal;
 }
 
@@ -281,7 +281,7 @@ uint16	getSamplesTotal( void )
 void	setSamplesTotal( uint16 value )
 {
 	samplesTotal = value;
-	write_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
+	write_rtcc_array( SAMPLES_TOTAL_ADDRESS, (uint8_t*)&samplesTotal, sizeof(samplesTotal) );
 }
 
 /**********************************************************************************************/
@@ -292,7 +292,7 @@ void	setSamplesTotal( uint16 value )
  */
 uint16	getConnAttempts( void )
 {
-	read_rtcc_array( CONNECTION_ATTEMPTS, (char*)&connAttempts, sizeof(connAttempts) );
+	read_rtcc_array( CONNECTION_ATTEMPTS, (uint8_t*)&connAttempts, sizeof(connAttempts) );
 	return	connAttempts;
 }
 
@@ -309,7 +309,7 @@ void	setConnAttempts( uint8 n )
 		connAttempts ++;
 	else
 		connAttempts = 0;
-	write_rtcc_array( CONNECTION_ATTEMPTS, (char*)&connAttempts, sizeof(connAttempts) );
+	write_rtcc_array( CONNECTION_ATTEMPTS, (uint8_t*)&connAttempts, sizeof(connAttempts) );
 }
 
 /**********************************************************************************************/
@@ -398,8 +398,8 @@ void updateMemoryReadPointer()
 		samplesTotal = (samplesWrite + MAX_SAMPLES) - samplesRead;
     
     //	actualiza los valores en la RAM del RTCC
-	write_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
-	write_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
+	write_rtcc_array( SAMPLES_READ_ADDRESS, (uint8_t*)&samplesRead, sizeof(samplesRead) );
+	write_rtcc_array( SAMPLES_TOTAL_ADDRESS, (uint8_t*)&samplesTotal, sizeof(samplesTotal) );
     
 //    printMemoryPointers();
 }

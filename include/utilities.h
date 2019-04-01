@@ -6,7 +6,14 @@
  */
 
 #include "freeRTOS/FreeRTOS.h"
+#include "freeRTOSConfig.h"
 #include "portmacro.h"
+
+#include "ezbl.h"
+#include "uart1.h"
+#include "funciones/memory.h"
+
+#include <string.h>
 
 #ifndef UTILITIES_H
 #define	UTILITIES_H

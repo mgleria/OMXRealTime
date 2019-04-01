@@ -1,8 +1,5 @@
 #include "utilities.h"
-#include "freeRTOSConfig.h"
-#include "ezbl.h"
-#include <string.h>
-#include "uart1.h"
+
 
 //#define pdMS_TO_TICKS( xTimeInMs ) ( ( TickType_t ) ( ( ( TickType_t ) ( xTimeInMs ) * ( TickType_t ) configTICK_RATE_HZ ) / ( TickType_t ) 1000 ) )
 TickType_t xMsToTicks( TickType_t xTimeInMs){
@@ -71,10 +68,8 @@ void debug(const char* s){
 
 void printMemoryPointers()
 {
-//    EZBL_printf("\n fifoSize: %d", EZBL_STDOUT->fifoSize);
     EZBL_printf("\n%-8s%-8s%-8s", "Total", "Read", "Write"); 
     EZBL_printf("\n%-8d%-8d%-8d", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
-    //    UART1_TX_FIFO_WaitUntilFlushed();
 }
 
 char *findNthCharacterOcurrence(const char *src,const char ch, uint8_t n)

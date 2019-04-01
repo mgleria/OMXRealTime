@@ -16,5 +16,7 @@
 
 #include "funciones/shell.h"
 
+void startCLITask();
+
 #endif	/* CLITASK_H */
 

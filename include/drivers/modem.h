@@ -102,7 +102,9 @@ typedef struct
  * @param d		tiempo de demora (s) en enviar el comando al modem.
  * @param f		numero de respuestas esperadas.
  */
+void    setupModem();
 int16_t	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d, uint8 f );
+uint8_t	receiveATCommand( char* buffer, uint8_t *attempts, TickType_t responseDelay );
 
 #endif	/* MODEM_H */
 

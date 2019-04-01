@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include "tareas/gprsTask.h"
-#include "funciones/rtcc.h"
+//#include "funciones/rtcc.h"
 
 void    vTaskGPRS( void *pvParameters );
 
@@ -163,8 +163,7 @@ uint8_t	FSM_GprsTask( )
                    if(strstr(gprsBuffer,_OK_))
                     {
                         debug("_OK_");
-//                        SetProcessState( &gprsState,disableEcho );
-                        SetProcessState( &gprsState,disableEcho );
+                        SetProcessState( (uint8_t *)&gprsState,disableEcho );
                     }
                     else
                     {
@@ -174,7 +173,7 @@ uint8_t	FSM_GprsTask( )
                         else
                             debug("GPRS buffer vacio");
                         if(attempts>MAX_ATTEMPTS_NUMBER-1){
-                            SetProcessState( &gprsState,gprsReset );
+                            SetProcessState( (uint8_t *)&gprsState,gprsReset );
                             debug("Maximo numero de intentos alcanzado. Reiniciando...");
                         }
                     }
@@ -182,7 +181,7 @@ uint8_t	FSM_GprsTask( )
                 else{
                     //printf("TIMEOUT MDM RESPONSE. State:%s\n ",getStateName(gprsState));
                     debug("TIMEOUT MDM RESPONSE.");
-                    SetProcessState( &gprsState,gprsReset );
+                    SetProcessState( (uint8_t *)&gprsState,gprsReset );
                 }               
 			}
 		break;
@@ -207,18 +206,18 @@ uint8_t	FSM_GprsTask( )
                 if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
                     if(strstr(gprsBuffer,_OK_)){
                         debug("_OK_");
-                        SetProcessState( &gprsState,initModem );
+                        SetProcessState( (uint8_t *)&gprsState,initModem );
                     }
                     else if( strstr( (char*)gprsBuffer, (string*)_ERROR_  )){
                         //TimeOutCounter();
                         debug("_ERROR_");
-                        SetProcessState( &gprsState,  gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState,  gprsReset);
                     }
                     else {
                         //strcat(gprsBuffer,"_ERROR_\n\r");
                         debug("ALGO SALIO MAL: ");
                         debug(gprsBuffer);
-                        SetProcessState( &gprsState,  gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState,  gprsReset);
                     }
                 }
                 else{
@@ -248,18 +247,17 @@ uint8_t	FSM_GprsTask( )
                 if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
                     if(strstr(gprsBuffer,_OK_)){
                         debug("_OK_");
-                        SetProcessState( &gprsState,setContext );
-//                        SetProcessState( &gprsState,gprsReset );
+                        SetProcessState( (uint8_t *)&gprsState,setContext );
                     }
                     else if( strstr( (char*)gprsBuffer, (string*)_ERROR_  )){
                         //TimeOutCounter();
                         debug("_ERROR_");
-                        SetProcessState( &gprsState,  gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState,  gprsReset);
                     }
                     else {
                         debug("ALGO SALIO MAL: ");
                         debug(gprsBuffer);
-                        SetProcessState( &gprsState,  gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState,  gprsReset);
                     }
                 }
                 else{
@@ -292,13 +290,13 @@ uint8_t	FSM_GprsTask( )
                     if(strstr(gprsBuffer,_OK_))
                     {
                         debug("_OK_");
-                        SetProcessState( &gprsState,configSocket );                 
+                        SetProcessState( (uint8_t *)&gprsState,configSocket );                 
                     }
                     else
                     {
                         debug("ALGO SALIO MAL: ");
                         debug(gprsBuffer);
-                        SetProcessState( &gprsState,  gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState,  gprsReset);
                     }
                     
                 }
@@ -332,12 +330,12 @@ uint8_t	FSM_GprsTask( )
                     if(strstr(gprsBuffer,_OK_))
                     {
                         debug("_OK_");
-                        SetProcessState( &gprsState,configExtendSocket );                 
+                        SetProcessState( (uint8_t *)&gprsState,configExtendSocket );                 
                     }
                     else
                     {
                         debug(gprsBuffer);
-                        SetProcessState( &gprsState,  gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState,  gprsReset);
                     }   
                 }
                 else{
@@ -371,12 +369,12 @@ uint8_t	FSM_GprsTask( )
                     if(strstr(gprsBuffer,_OK_))
                     {
                         debug("_OK_");
-                        SetProcessState( &gprsState,activateContext );                 
+                        SetProcessState( (uint8_t *)&gprsState,activateContext );                 
                     }
                     else
                     {
                         debug(gprsBuffer);
-                        SetProcessState( &gprsState,  gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState,  gprsReset);
                     }   
                 }
                 else{
@@ -409,26 +407,26 @@ uint8_t	FSM_GprsTask( )
                     if(strstr(gprsBuffer,_OK_)) {
 //                        saveIPaddress( (char*)gprsBuffer );
                         debug("_OK_");
-                        SetProcessState( &gprsState,socketDial );                 
+                        SetProcessState( (uint8_t *)&gprsState,socketDial );                 
                     }
                     else if( strstr( (char*)gprsBuffer, (string*)_ERROR_ ) ){
                         debug("_ERROR_");
-                        SetProcessState( &gprsState,gprsReset );
+                        SetProcessState( (uint8_t *)&gprsState,gprsReset );
 //                        TimeOutCounter();
                     }
                     else if( strstr( (char*)gprsBuffer, (string*)_NOCARRIER_)) {
                         debug("_NOCARRIER_");
-                        SetProcessState( &gprsState, gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState, gprsReset);
                     }
                     else if( strstr( (char*)gprsBuffer, (string*)_TIMEOUT_ ) ) {
                         debug("_TIMEOUT_");
-                        SetProcessState( &gprsState, gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState, gprsReset);
 //                        TimeOutCounter();
                     }
                     else {
                         debug("ALGO SALIO MAL");
                         debug(gprsBuffer);
-                        SetProcessState( &gprsState, gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState, gprsReset);
                     }
                 }
                 else{
@@ -461,13 +459,13 @@ uint8_t	FSM_GprsTask( )
                     if(strstr(gprsBuffer,_OK_))
                     {
                         debug("_OK_");
-                        SetProcessState( &gprsState,socketSend );                 
+                        SetProcessState( (uint8_t *)&gprsState,socketSend );                 
                     }
                     else
                     {
                         debug("ALGO SALIO MAL");
                         debug(gprsBuffer);
-                        SetProcessState( &gprsState, gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState, gprsReset);
                     }   
                 }
                 else{
@@ -499,13 +497,13 @@ uint8_t	FSM_GprsTask( )
                     if(strstr(gprsBuffer,">"))
                     {
                         debug("> RECIBIDO");
-                        SetProcessState( &gprsState,putData );                 
+                        SetProcessState( (uint8_t *)&gprsState,putData );                 
                     }
                     else
                     {
                         debug("ALGO SALIO MAL");
                         debug(gprsBuffer);
-                        SetProcessState( &gprsState, gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState, gprsReset);
                     }   
                 }
                 else{
@@ -567,11 +565,11 @@ uint8_t	FSM_GprsTask( )
                 //Si waitingSRING es false, significa que ya lo he recibido
                 if(!waitingSRING) {
                     debug("SRING Recibido");
-                    SetProcessState( &gprsState, receiveData);
+                    SetProcessState( (uint8_t *)&gprsState, receiveData);
                 }
                 else {
                     debug("La respuesta del server ha tardado demasiado. Reiniciando comunicacion...");
-                    SetProcessState( &gprsState,gprsReset );
+                    SetProcessState( (uint8_t *)&gprsState,gprsReset );
                 }
                 
                 
@@ -580,19 +578,19 @@ uint8_t	FSM_GprsTask( )
 //                    if(strstr(gprsBuffer,"SRING"))
 //                    {		
 //                        debug("SRING Recibido\n");
-//                        SetProcessState( &gprsState, receiveData);
+//                        SetProcessState( (uint8_t *)&gprsState, receiveData);
 //                    }
 //                    else if( strstr(gprsBuffer, (string*)_NOCARRIER_)) {
 //                        debug("_NOCARRIER_");
-////                        SetProcessState( &gprsState, gprsReset);
-//                        SetProcessState( &gprsState, connectionStatus);
+////                        SetProcessState( (uint8_t *)&gprsState, gprsReset);
+//                        SetProcessState( (uint8_t *)&gprsState, connectionStatus);
 //                    }
 //                    else
 //                    {
 //                        debug("WAITING SRING:  ");
 //                        debug(gprsBuffer);
 //                        if(attempts>MAX_ATTEMPTS_NUMBER-1){
-//                            SetProcessState( &gprsState,gprsReset );
+//                            SetProcessState( (uint8_t *)&gprsState,gprsReset );
 //                            debug("Maximo numero de intentos alcanzado. Reiniciando...");
 //                        }
 //                    }   
@@ -677,17 +675,17 @@ uint8_t	FSM_GprsTask( )
                         default:
 //                            printf("Respuesta del server desconocida.\nReiniciando FSM...");
                             debug("Respuesta del server desconocida.\nReiniciando FSM...");
-                            SetProcessState(&gprsState, gprsReset);
+                            SetProcessState( (uint8_t *)&gprsState, gprsReset);
                     }
                     //Si dataSecuence es diferente de cero, tengo algo por enviar
                     if(dataSecuence){
                         setServerFrame(dataSecuence,lastSample);
 //                        printf("Building a %s frame.\n",getFrameType(dataSecuence));
                         debug("Building a frame.");
-                        SetProcessState(&gprsState, socketSend);
+                        SetProcessState( (uint8_t *)&gprsState, socketSend);
                     }
                     else{
-                        SetProcessState(&gprsState, closeSocket);
+                        SetProcessState( (uint8_t *)&gprsState, closeSocket);
                         debug("No more frames. Closing socket...");
                     }      
                 }
@@ -723,14 +721,14 @@ uint8_t	FSM_GprsTask( )
                     if(strstr(gprsBuffer,_OK_))
                     {			
                         debug("_OK_");
-    //					SetProcessState( &gprsState, configExtendSocket);
-                        SetProcessState( &gprsState, waitForNewRequests);
+    //					SetProcessState( (uint8_t *)&gprsState, configExtendSocket);
+                        SetProcessState( (uint8_t *)&gprsState, waitForNewRequests);
                     }
                     else
                     {
                         debug("ALGO SALIO MAL");
                         debug(gprsBuffer);
-                        SetProcessState( &gprsState, gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState, gprsReset);
                     }   
                 }
                 else{
@@ -749,7 +747,7 @@ uint8_t	FSM_GprsTask( )
             sampleReadyNotification = ulTaskNotifyTake(   pdTRUE, portMAX_DELAY ); 
                 
             if(sampleReadyNotification == NEW_SAMPLE_NOTIFICATION){
-                SetProcessState( &gprsState, connectionStatus);
+                SetProcessState( (uint8_t *)&gprsState, connectionStatus);
             }
             else{
 //                  printf("ERROR: se esperaba %d como notificacion pero se recibio %zu.\n",NEW_SAMPLE_NOTIFICATION,sampleReadyNotification);
@@ -796,12 +794,12 @@ uint8_t	FSM_GprsTask( )
                             debug("Sin IP y nueva muestra por enviar...");
                             dataSecuence = muestras;
                             setServerFrame(dataSecuence,lastSample);
-                            SetProcessState( &gprsState, activateContext);	
+                            SetProcessState( (uint8_t *)&gprsState, activateContext);	
                         }
                         else{
 //                            printf("connectionStatus sin IP y sin muestras pendientes\n");
                             debug("connectionStatus sin IP y sin muestras pendientes.");
-                            SetProcessState( &gprsState, waitForNewRequests);
+                            SetProcessState( (uint8_t *)&gprsState, waitForNewRequests);
                         }
                     }
                     else if(strstr(gprsBuffer,"CGPADDR") && strlen(gprsBuffer)>30){
@@ -812,24 +810,24 @@ uint8_t	FSM_GprsTask( )
                             debug("Con IP y nueva muestra por enviar...");
                             dataSecuence = muestras;
                             setServerFrame(dataSecuence,lastSample);
-                            SetProcessState( &gprsState, socketDial);
+                            SetProcessState( (uint8_t *)&gprsState, socketDial);
                         }
                         else {
                         //NO TENGO MUESTRAS PARA ENVIAR
 //                            printf("connectionStatus con IP sin muestras para enviar \n");
                             debug("connectionStatus con IP sin muestras para enviar.");                            
-                            SetProcessState( &gprsState,waitForNewRequests);
+                            SetProcessState( (uint8_t *)&gprsState,waitForNewRequests);
                         }
                     }   
                     else if( strstr( (char*)gprsBuffer, (string*)_NOCARRIER_ ) ) {
 //                        printf("connectionStatus NOCARRIER \n");
                         debug("connectionStatus NOCARRIER.");
-                        SetProcessState( &gprsState, gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState, gprsReset);
                     }
                     else{
                         debug("Estado de conexion indeterminado");
                         debug(gprsBuffer);
-                        SetProcessState( &gprsState, gprsReset);
+                        SetProcessState( (uint8_t *)&gprsState, gprsReset);
                     }
                 }
                 else{
@@ -1113,7 +1111,7 @@ uint8    getNextDataSecuence()
     if(isThereSamplesToSend() && !registerInProcess()) {
         return muestras;
 //        setServerFrame(dataSecuence,nextSample);
-//        SetProcessState(&gprsState, socketSend);
+//        SetProcessState( (uint8_t *)&gprsState, socketSend);
 //        debug("Setting next data frame to send.");
     }
     else{ 
@@ -1123,7 +1121,7 @@ uint8    getNextDataSecuence()
             return configuracion;
 //            setServerFrame(dataSecuence,nextSample);
 //            debug("Sending config frame.");
-//            SetProcessState(&gprsState, socketSend);
+//            SetProcessState( (uint8_t *)&gprsState, socketSend);
         }
         /*Si estoy registrado y la muestra anterior fue 'registro'*/
         else if(!isRegistered()){
@@ -1139,12 +1137,12 @@ uint8    getNextDataSecuence()
 //            registering = false;
 //            dataSecuence = configuracion;
 //            setServerFrame(dataSecuence,nextSample);
-//            SetProcessState(&gprsState, socketSend);
+//            SetProcessState( (uint8_t *)&gprsState, socketSend);
 //            debug("Frame registro sended. Sending configuration frame.");
         }
         else{
             //No hay muestras pendientes por enviar
-//            SetProcessState(&gprsState, closeSocket);
+//            SetProcessState( (uint8_t *)&gprsState, closeSocket);
 //            debug("No more frames. Closing socket...");
             return 0;
         }

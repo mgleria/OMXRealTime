@@ -8,12 +8,12 @@
 #ifndef GPRSTASK_H
 #define	GPRSTASK_H
 
-#include    "utilities.h"
 #include    "typedef.h"
+#include    "utilities.h"
 #include    "drivers/at_cmds.h"
 #include    "drivers/modem.h"
 //#include    "tmr4.h"
-#include    "funciones/memory.h"
+//#include    "funciones/memory.h"
 #include    "funciones/rtcc.h"
 #include    "funciones/eeprom.h"
 #include    "tareas/sampleTask.h"
