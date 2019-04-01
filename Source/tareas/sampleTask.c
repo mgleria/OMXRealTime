@@ -17,11 +17,13 @@ static void prvDataCallback (TimerHandle_t xTimer);
 static void prvDebouncingRainCallback (TimerHandle_t xTimer);
 
 static void FSM_SampleTask(uint32_t status);
+static void setStatusFSM(uint32_t nextStatus);
+static void resetSyncVariables();
+static void softwareTimers_create();
+
 void  sensorsConfig();
 uint16_t getAccumulatedRain();
 void clearAccumulatedRain();
-static void setStatusFSM(uint32_t nextStatus);
-static void resetSyncVariables();
 uint16_t getTemperature(uint16_t adcValue);
 
 //Handlers software timers

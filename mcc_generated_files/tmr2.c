@@ -74,7 +74,6 @@
 
 extern TaskHandle_t xCLIHandle; 
 static uint8_t prevDataCount = 0xFF;
-static uint8_t count = 0x00;
 
 typedef struct _TMR_OBJ_STRUCT
 {

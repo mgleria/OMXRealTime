@@ -1,7 +1,4 @@
 #include "funciones/rtcc.h"
-#include "sistema/ext_rtcc.h"
-#include "utilities.h"
-#include "uart1.h"
 
 rtcc_t tiempo;					///<	Estructura con la fecha y hora del sistema.
 

@@ -53,6 +53,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+#include "tmr5.h"
 #ifdef __cplusplus  // Provide C++ Compatibility
 
     extern "C" {

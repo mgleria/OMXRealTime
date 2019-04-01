@@ -38,7 +38,7 @@
 /*	application includes */
 #include	"funciones/shell.h"
 #include    "sistema/ext_rtcc.h"
-//#include	"funciones/memory.h"
+#include    "funciones/memory.h"
 //#include	"procesos/cmd_process.h"
 //#include	"funciones/puts.usb.h"
 //

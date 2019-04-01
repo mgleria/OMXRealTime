@@ -9,6 +9,7 @@
 #define	MODEM_H
 
 #include    <stdio.h>
+#include    <string.h>
 
 #include	"sistema/HardwareProfile.h"
 #include    "utilities.h"

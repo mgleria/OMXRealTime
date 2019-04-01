@@ -39,9 +39,9 @@ static uint16	samplesWrite = 0;           	///<	contador de muestras guardadas e
 static uint16	samplesTotal = 0;           	///<	contador de muestras sin enviar al servidor
 static uint16	samplesLoss = 0;            	///<	contador de muestras perdidas
 static uint16	connAttempts = 0;           	///<	contador de intentos de conexion con el servidor
-static uint16	usbSendSamples = 0;             ///<	contador de muestras a enviar por USB por cmd
-static uint16	usbSendSamplesPtr = 0;          ///<	puntero muestra para enviar por USB por cmd
-static uint8    usbSendSamplesDev = _24LC512_0; ///<    memoria desde donde leer las muestras a enviar por USB por cmd
+//static uint16	usbSendSamples = 0;             ///<	contador de muestras a enviar por USB por cmd
+//static uint16	usbSendSamplesPtr = 0;          ///<	puntero muestra para enviar por USB por cmd
+//static uint8    usbSendSamplesDev = _24LC512_0; ///<    memoria desde donde leer las muestras a enviar por USB por cmd
 
 /**********************************************************************************************/
 /**
@@ -381,9 +381,6 @@ uint16 isThereSamplesToSend()
 
 void updateMemoryReadPointer()
 {
-    auto uint8 memDevice = _24LC512_0;
-    auto uint8 memNumber = 0; 
-    
 	//	actualiza los valores desde la RAM del RTCC
 	read_rtcc_array( SAMPLES_READ_ADDRESS, (uint8_t*)&samplesRead, sizeof(samplesRead) );
 	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (uint8_t*)&samplesWrite, sizeof(samplesWrite) );

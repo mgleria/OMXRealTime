@@ -225,7 +225,6 @@ static void prvSetupLCD( void )
 static void vLCDTask( void *pvParameters )
 {
 xLCDMessage xMessage;
-unsigned short usRow = 0;
 
 	/* Remove compiler warnigns. */
 	( void ) pvParameters;
@@ -247,8 +246,6 @@ unsigned short usRow = 0;
 
 //		/* Switch rows each time so we can see that the display is still being
 //		updated. */
-//		prvLCDGotoRow( usRow & 0x01 );
-//		usRow++;
 		prvLCDPutString( xMessage.pcMessage );
 
 		/* Delay the requested amount of time to ensure the text just written 

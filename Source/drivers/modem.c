@@ -7,7 +7,6 @@ TickType_t xTimeModemMutex;
 void    setupModem(){
     xMutexModem  = xSemaphoreCreateMutex();
     if(!xMutexModem){
-//        printf("ERROR en la creación del mutex de Memoria");
         debug("ERROR en la creación del mutex de Memoria");
         //El programa no puede seguir, hay que detenerlo.
     }
@@ -25,14 +24,12 @@ int16_t	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d,
      * esperar xTimeModemMutex y volver a probar, si falla aún pasado  
      * xTimeModemMutex, devuelve -1 */
     if( xSemaphoreTake( xMutexModem, xTimeModemMutex ) == pdTRUE ){
-//        writedBytes = EZBL_printf(text);
         debug(text);
         writedBytes = UART3_WriteBuffer(text,strlen(text));
         xSemaphoreGive(xMutexModem);
         return writedBytes;
     }
     else{
-//        printf("ERROR no se pudo tomar el mutex del modem.\r\n");
         debug("ERROR no se pudo tomar el mutex del modem");
         return -1;
     }
@@ -58,7 +55,6 @@ uint8_t	receiveATCommand( char* buffer, uint8_t *attempts, TickType_t responseDe
     
     if(modemResponseNotification == MDM_RESP_READY_NOTIFICATION){
         TMR5_Stop();       
-//        readedBytes = EZBL_FIFORead(buffer,EZBL_COMBootIF,MODEM_BUFFER_SIZE);
         readedBytes = UART3_ReadBuffer(buffer, MODEM_BUFFER_SIZE);
         
         if(readedBytes) {

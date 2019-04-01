@@ -10,8 +10,12 @@
 
 #include "i2c1.h"
 #include "mcc.h"
-//Para función delay
-#include <libpic30.h>
+#include "sistema/ext_rtcc.h"
+#include "utilities.h"
+#include "uart1.h"
+
+#include <libpic30.h> //Para función delay
+#include <stdio.h>
 
 /**********************************************************************************************/
 /*	Variables y estructuras para el RTCC	*/
