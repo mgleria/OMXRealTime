@@ -13,13 +13,12 @@
 #include <stdio.h>
 #include <string.h>
 
-/* Scheduler includes. */
+/* FreeRTOS Includes */
 #include "freeRtos/FreeRTOS.h"
 #include "freeRtos/task.h"
 #include "freeRtos/queue.h"
 
-///*FreeRTOS Include*/
-//#include "semphr.h" 
+/*Trace Recorder*/
 
 /*EZBL Include*/
 #include "ezbl.h"
@@ -122,7 +121,7 @@ extern rtcc_t tiempo;
 
 extern volatile int timeForPartitionSwap __attribute__((persistent));    // Global variable signaling when we complete a successful firmware update on the Inactive Partition
 
-int __attribute__((address(0x3000))) main( void ) 
+int main( void ) 
 {
 //    #if defined (__DEBUG)
 //    __builtin_software_breakpoint();
@@ -134,26 +133,23 @@ int __attribute__((address(0x3000))) main( void )
     else EZBL_printf("\nThis is a normal reset.");
     
 //            ClrWdt();
-
     rtc_init();
 //    vLedInitialise();
     setEstacionConfig();
-    
-    if(RESET_MEMORY) resetSamplesPtr();
-//    
+    if(RESET_MEMORY) resetSamplesPtr();  
     printMemoryPointers();
+    
+    vTraceEnable(TRC_START);
     
     EZBL_BootloaderInit();
     startSampleTask();
-    
     startCLITask();    
     startSwapPartitionTask();
-    
     startGprsTask();
     
 //    startTestTask();
     //    vTaskTestClone();
-    //    vTraceEnable(TRC_START);
+    
      
 //    /* Start the task that will control the LCD.  This returns the handle
 //	to the queue used to write text out to the task. */

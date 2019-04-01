@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v3.3.0
+ * Trace Recorder Library for Tracealyzer v4.2.12
  * Percepio AB, www.percepio.com
  *
  * trcSnapshotConfig.h
@@ -39,7 +39,7 @@
  *
  * Tabs are used for indent in this file (1 tab = 4 spaces)
  *
- * Copyright Percepio AB, 2017.
+ * Copyright Percepio AB, 2018.
  * www.percepio.com
  ******************************************************************************/
 
@@ -48,6 +48,8 @@
 
 #define TRC_SNAPSHOT_MODE_RING_BUFFER		(0x01)
 #define TRC_SNAPSHOT_MODE_STOP_WHEN_FULL	(0x02)
+
+typedef     int16_t 	intptr_t;
 
 /******************************************************************************
  * TRC_CFG_SNAPSHOT_MODE
