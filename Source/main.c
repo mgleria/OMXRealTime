@@ -105,13 +105,14 @@ extern rtcc_t tiempo;
 /*Macro para resetear los punteros de memoria en cada inicio de la app*/
 #define     RESET_MEMORY     1
 
-int main( void ) 
+int __attribute__((address(0x3000))) main( void ) 
 {
 //    #if defined (__DEBUG)
 //    __builtin_software_breakpoint();
 //    #endif
     
     SYSTEM_Initialize();
+    
     
     if(_SFTSWP) EZBL_printf("\nCongratulations! A new application is running now after a successful firmware update.");
     else EZBL_printf("\nThis is a normal reset.");

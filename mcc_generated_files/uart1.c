@@ -71,8 +71,10 @@ void UART1_Initialize(void)
 //    U1MODEbits.UARTEN = 1;  // enabling UARTEN bit
 //    U1STAbits.UTXEN = 1; 
     
-    UART_Reset(1, FCY, 115200, 1);  // Initialize UART1 @ 500000 baud for STDIO and printing debug messages
+    UART_Reset(1, FCY, 115200, 1); 
+    
     EZBL_ConsoleReset();
+    
     EZBL_printf("\n\nHello World!"
                  "\n  RCON  = 0x%04X"
                  "\n  U1BRG = 0x%04X"

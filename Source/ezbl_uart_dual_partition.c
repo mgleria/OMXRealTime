@@ -208,22 +208,14 @@ int EZBL_BootloaderTask(void)
     if(EZBL_Install2IP(&EZBL_bootCtx))
     {   // Non-zero return code means a Bootload "event" has completed.
         // bootCode and appVer available right now (only now)
-//        EZBL_printf("\n After EZBL_Install2IP");
-//        EZBL_printf(EZBL_bootCtx.bootCode);
         timeForPartitionSwap = (EZBL_bootCtx.bootCode == EZBL_ERROR_SUCCESS);
         if(timeForPartitionSwap){
             EZBL_FIFOFlush(EZBL_COM_TX, NOW_ms*32u);    // Wait for final status code to go out; I2C could be slow because it depends on the host polling us.
-//            vTaskSuspend(xCLIHandle);
-//            vTaskSuspend(xSampleHandle);
-//            vTaskSuspend(xGprsHandle);
-//            vTaskResume(xTaskSwapPartition);
-//            startSwapPartitionTask();
-        }
-            
+        }     
     }
     else
     {
-        LEDToggle(0x08);
+        LEDToggle(0x18);
     }
 
 #if defined(XPRJ_uart) || defined(XPRJ_default) || defined(EZBL_INIT_UART)   // Defined by MPLAB X on command line when compiling "uart" or "default" Build Configurations or a EZBL_INIT_UART macro exists someplace
