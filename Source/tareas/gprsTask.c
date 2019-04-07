@@ -93,9 +93,8 @@ void vTaskGPRS( void *pvParameters )
     for(;;)
     {   
 //        printf("////////////////////GPRS Task\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");     
-        
+        LEDToggle(0x2);
         FSM_GprsTask();
-        
         vTaskDelay(taskDelay);  
     }
 }

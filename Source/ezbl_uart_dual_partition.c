@@ -215,7 +215,7 @@ int EZBL_BootloaderTask(void)
     }
     else
     {
-        LEDToggle(0x18);
+        LEDToggle(0x10);
     }
 
 #if defined(XPRJ_uart) || defined(XPRJ_default) || defined(EZBL_INIT_UART)   // Defined by MPLAB X on command line when compiling "uart" or "default" Build Configurations or a EZBL_INIT_UART macro exists someplace

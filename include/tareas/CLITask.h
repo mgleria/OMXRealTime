@@ -16,6 +16,8 @@
 
 #include "funciones/shell.h"
 
+#include "ezbl.h"
+
 #include <string.h>
 
 void startCLITask();

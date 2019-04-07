@@ -23,11 +23,12 @@ void vTaskSwapPartition( void *pvParameters )
     {
         ClrWdt();
         // Every half second toggle an LED (1 Hz blink rate) to indicate we are alive
-        if(NOW_32() - ledBlinkTimer > NOW_sec/2u)
-        {
-            LEDToggle(0x07);
-            ledBlinkTimer += NOW_sec/2u;
-        }
+//        if(NOW_32() - ledBlinkTimer > NOW_sec/2u)
+//        {
+//            LEDToggle(0x07);
+//            ledBlinkTimer += NOW_sec/2u;
+//        }
+        LEDToggle(0x08);
 
 
         if(timeForPartitionSwap)

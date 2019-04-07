@@ -21,6 +21,8 @@
 #include "freeRTOS/timers.h"
 #include "freeRTOSConfig.h"
 
+#include    "ezbl.h"
+
 #ifndef SAMPLETASK_H
 #define	SAMPLETASK_H
 

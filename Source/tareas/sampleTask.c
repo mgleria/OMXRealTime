@@ -87,6 +87,7 @@ void vTaskSample( void *pvParameters ){
     // Cuerpo de la tarea
     for( ;; ){
         debug("--------------------Sample Task--------------------");
+        LEDToggle(0x1);
         
         if(waitForNotify){
             debug("waitForNotify true");

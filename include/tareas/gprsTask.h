@@ -22,6 +22,8 @@
 #include    "freeRTOS/task.h"
 #include    "freeRTOSConfig.h"
 
+#include    "ezbl.h"
+
 #define     GPRS_BUFFER_SIZE            120 //Duplicado ojo!
 #define     NEW_SAMPLE_NOTIFICATION     3030
 #define     MAX_ATTEMPTS_NUMBER         10

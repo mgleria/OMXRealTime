@@ -1,5 +1,5 @@
 #include "tareas/CLITask.h"
-#include "ezbl.h"
+
 
 //Handle referenciado en tmr5.c para uso de xTaskNotify()
 TaskHandle_t xCLIHandle;
@@ -20,7 +20,7 @@ void vTaskCLI( void *pvParameters ){
     for( ;; ){   
             uxHighWaterMarkShell = uxTaskGetStackHighWaterMark( NULL );
 
-            //Leemos el comando recibido por la UART
+            LEDToggle(0x4);
             
             /* La siguiente línea va a bloquear la tarea CLI hasta que llegue 
              * una notificacion. En este caso no filtramos cuál porque solo
