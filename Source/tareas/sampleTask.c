@@ -52,7 +52,7 @@ SemaphoreHandle_t xMutexMemory = NULL;
 void startSampleTask(){
     
     xTaskCreate(    vTaskSample,
-                    "vTaskSample",
+                    "SAMPLE",
                     1000,
                     NULL,
                     MAX_PRIORITY,

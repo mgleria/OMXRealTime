@@ -31,8 +31,7 @@ void vTaskCLI( void *pvParameters ){
 //            TMR2_Stop();
             
             bytesRecibidos = EZBL_FIFORead(comando, EZBL_STDIN, EZBL_STDIN->dataCount);
-            EZBL_printf("\nbytesRecibidos vTaskCLI:%d",bytesRecibidos);
-            LEDToggle(0x01);            
+            EZBL_printf("\nbytesRecibidos vTaskCLI:%d",bytesRecibidos);      
             
             //Si se recibio algo, procesamos el comando para obtener una respuesta
             if(bytesRecibidos>0) {
@@ -52,7 +51,7 @@ void vTaskCLI( void *pvParameters ){
 void startCLITask(){
     
     xTaskCreate(    vTaskCLI,
-                    "vTaskCLI",
+                    "CLI",
                     1000,
                     NULL,
                     MAX_PRIORITY-2,

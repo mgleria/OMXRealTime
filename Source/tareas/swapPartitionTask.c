@@ -68,7 +68,7 @@ void vTaskSwapPartition( void *pvParameters )
 void startSwapPartitionTask()
 {
         xTaskCreate(    vTaskSwapPartition,
-                        "vTaskSwapPartition",
+                        "SWAP",
                         1000,
                         NULL,
                         MAX_PRIORITY-2,

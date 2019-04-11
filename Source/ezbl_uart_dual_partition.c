@@ -187,7 +187,7 @@ void EZBL_BootloaderInit(void)
 //    NOW_CreateRepeatingTask(&EZBL_bootTask, EZBL_BootloaderTask, 32u*NOW_ms);
     
     xTaskCreate(    vTaskBootloader,
-                    "vTaskBootloader",
+                    "BTLDR",
                     2000,
                     NULL,
                     MAX_PRIORITY+1,
