@@ -735,10 +735,8 @@ string	*processCmdLine( char * cmdLine )
 //						i2cbus_write( _24LC512_0, INT_EE_DEVICE_CONFIG, (char*)&configDevice, sizeof(configDevice) );
 
 					case( __reset__):
-//                      strcat(response, (string*)"Reset in progress");
-//						putsLog("Reset device");
-//						//__delay_ms(10);
-//						//asm("reset");
+                        sprintf( response, "\nReinicio en progreso...");
+						asm("reset");
 						break;
 
 					case( __help__ ):

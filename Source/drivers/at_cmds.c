@@ -103,7 +103,7 @@ string	atcmd_configSocketHARDCODED[]       = "AT#SCFG=1,1,300,0,600,0\r\n";
 
 string	atcmd_configExtendSocketHARDCODED[]	= "AT#SCFGEXT=1,1,1,0,0,0\r";
 
-string	atcmd_socketDialHARDCODED_1[]		= "AT#SD=1,0,4545,www.omixom.com,0,0,1\r";
+string	atcmd_socketDialHARDCODED_1[]		= "AT#SD=1,0,4545,new.omixom.com,0,0,1\r";
 
 //EPEC Server
 string	atcmd_socketDialHARDCODED_2[]		= "AT#SD=1,0,44380,\"190.96.112.114\",0,0,1\r";
