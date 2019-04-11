@@ -50,6 +50,7 @@
 #define TRC_SNAPSHOT_MODE_STOP_WHEN_FULL	(0x02)
 
 typedef     int16_t 	intptr_t;
+//typedef     int32_t 	intptr_t;
 
 /******************************************************************************
  * TRC_CFG_SNAPSHOT_MODE
@@ -84,7 +85,7 @@ typedef     int16_t 	intptr_t;
  * Default value is 1000, which means that 4000 bytes is allocated for the
  * event buffer.
  ******************************************************************************/
-#define TRC_CFG_EVENT_BUFFER_SIZE 1000
+#define TRC_CFG_EVENT_BUFFER_SIZE 1500
 
 /*******************************************************************************
  * TRC_CFG_NTASK, TRC_CFG_NISR, TRC_CFG_NQUEUE, TRC_CFG_NSEMAPHORE...
@@ -323,7 +324,7 @@ typedef     int16_t 	intptr_t;
  *  vTracePrintF(chn2, "%Z: %d", value2);
 
  ******************************************************************************/
-#define TRC_CFG_USE_SEPARATE_USER_EVENT_BUFFER 0
+#define TRC_CFG_USE_SEPARATE_USER_EVENT_BUFFER 1
 
 /*******************************************************************************
  * TRC_CFG_SEPARATE_USER_EVENT_BUFFER_SIZE

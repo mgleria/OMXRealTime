@@ -81,7 +81,7 @@ extern "C" {
  * See trcHardwarePort.h for available ports and information on how to
  * define your own port, if not already present.
  ******************************************************************************/
-#define TRC_CFG_HARDWARE_PORT TRC_HARDWARE_PORT_MICROCHIP_PIC24_PIC32
+#define TRC_CFG_HARDWARE_PORT TRC_HARDWARE_PORT_MICROCHIP_PIC24_PIC32 
 
 /*******************************************************************************
  * Configuration Macro: TRC_CFG_RECORDER_MODE
@@ -206,7 +206,7 @@ extern "C" {
  *
  * Default value is 1.
  *****************************************************************************/
-#define TRC_CFG_INCLUDE_OSTICK_EVENTS 1
+#define TRC_CFG_INCLUDE_OSTICK_EVENTS 0
 
  /*****************************************************************************
  * TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS

@@ -77,8 +77,10 @@ to exclude the API function. */
 #define configKERNEL_INTERRUPT_PRIORITY	0x01
 
 /* Integrates the Tracealyzer recorder with FreeRTOS */
-#if ( configUSE_TRACE_FACILITY )
+#ifndef __LANGUAGE_ASSEMBLY
+#if ( configUSE_TRACE_FACILITY == 1 )
 #include "trcRecorder.h"
+#endif
 #endif
 
 #endif /* FREERTOS_CONFIG_H */

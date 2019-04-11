@@ -14,6 +14,7 @@
 #include <string.h>
 
 /* FreeRTOS Includes */
+#include "freeRTOSConfig.h"
 #include "freeRtos/FreeRTOS.h"
 #include "freeRtos/task.h"
 #include "freeRtos/queue.h"
@@ -106,35 +107,29 @@ extern rtcc_t tiempo;
 #define     RESET_MEMORY     1
 
 int __attribute__((address(0x3000))) main( void ) 
-{
-//    #if defined (__DEBUG)
-//    __builtin_software_breakpoint();
-//    #endif
-    
+{    
     SYSTEM_Initialize();
-    
-    
     if(_SFTSWP) EZBL_printf("\nCongratulations! A new application is running now after a successful firmware update.");
     else EZBL_printf("\nThis is a normal reset.");
 
     rtc_init();
 //    vLedInitialise();
     setEstacionConfig();
+    
     if(RESET_MEMORY) resetSamplesPtr();  
     printMemoryPointers();
+
+    vTraceEnable(TRC_START);    
     
-    vTraceEnable(TRC_START);
     
     EZBL_BootloaderInit();
     startSampleTask();
     startCLITask();    
     startSwapPartitionTask();
-    startGprsTask();
-    
-//    startTestTask();    
-     
-//    /* Start the task that will control the LCD.  This returns the handle
-//	to the queue used to write text out to the task. */
+    startGprsTask();    
+//    startTestTask();         
+    /* Start the task that will control the LCD.  This returns the handle
+	to the queue used to write text out to the task. */
 //	xLCDQueue = xStartLCDTask();
     
 	/* Finally start the scheduler. */
