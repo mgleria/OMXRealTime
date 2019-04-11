@@ -150,7 +150,7 @@ uint16_t prvTraceGetTaskNumberLow16(void* handle)
 
 uint16_t prvTraceGetTaskNumberHigh16(void* handle)
 {
-	return TRACE_GET_HIGH16(uxTaskGetTaskNumber(handle));
+    return 1;//	return TRACE_GET_HIGH16(uxTaskGetTaskNumber(handle));
 }
 
 void prvTraceSetTaskNumberLow16(void* handle, uint16_t value)
