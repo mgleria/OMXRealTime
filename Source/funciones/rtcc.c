@@ -212,8 +212,9 @@ uint8_t	read_rtcc_array( uint8_t address, uint8_t* array, uint8_t size ){
 /**
  * \brief
  * Lee un byte en el dispositivo RTCC
- * @param address
- * @param array
+ * @param address de donde lee
+ * @param puntero a la variable que almacenara el dato
+ * @return Devuelve 1 si la lactura fue exitosa o 0 si hubo algún error
  */
 uint8_t	read_rtcc_byte( uint8_t address, uint8_t* data)
 {

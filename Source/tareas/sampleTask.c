@@ -215,6 +215,9 @@ static void FSM_SampleTask(uint32_t status){
             sample.clima.lluvia = getAccumulatedRain();
             //Limpio el contador por soft del TMR3
             clearAccumulatedRain();
+/////////////////////////////////Señal GPRS/////////////////////////////////////
+            read_rtcc_byte(GPRS_SIGNAL_ADDRESS, &sample.senial);
+            EZBL_printf("sample.senial: %d", sample.senial);
             
 /////////////////////////////////TIMESTAMP//////////////////////////////////////            
                   

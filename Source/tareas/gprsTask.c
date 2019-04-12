@@ -28,6 +28,7 @@ const char* getFrameType(uint8 frameType);
 void    removePaddingBytes(char *tramaGPRS,uint8 paddingPosition, uint8 frameSize);
 void    cleanBufferTail(uint8 frameSize);
 headerOptions_t getHeaderIndex(const char* header);
+uint8_t	saveSignalLevel( char* text );
 
 //Buffer de comunicaciï¿½n entrante y saliente con el modem
 static char gprsBuffer[MODEM_BUFFER_SIZE]={0};
@@ -59,7 +60,7 @@ extern estacion_t estacion;
 void startGprsTask(){
     
     xTaskCreate(    vTaskGPRS,
-                    "vTaskGprs",
+                    "GPRS",
                     1000,
                     NULL,
                     MAX_PRIORITY-1, //to-do: ACOMODAR prioridades
@@ -86,13 +87,8 @@ void vTaskGPRS( void *pvParameters )
    
     debug("Initial section GPRS Task");
     
-    ////////////////////////////////////////////////////////////////////////////
-//    muestra_t sample;
-//    trama_muestra_t sampleFrame;
-    
     for(;;)
     {   
-//        printf("////////////////////GPRS Task\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");     
         LEDToggle(0x2);
         FSM_GprsTask();
         vTaskDelay(taskDelay);  
@@ -101,7 +97,6 @@ void vTaskGPRS( void *pvParameters )
 
 void SetProcessState( uint8_t * reg, uint8_t state )
 {
-//    printf("%s -> %s \n",getStateName(*reg),getStateName(state));
 	*reg = state;
 	sendCmd = true;
     attempts = 0;
@@ -110,14 +105,26 @@ void SetProcessState( uint8_t * reg, uint8_t state )
 
 uint8_t	FSM_GprsTask( )
 {
+    traceString chn1 = xTraceRegisterString("Ch GPRS");
+    traceString fmt1 = xTraceRegisterString("Modem habilitado");
+    traceString fmt2 = xTraceRegisterString("Trama enviada al server");
+    traceString fmt3 = xTraceRegisterString("Respuesta del server recibida");
+    traceString fmt4 = xTraceRegisterString("Cerrando socket");
+    traceString fmt5 = xTraceRegisterString("Nueva trama para enviar");
+    traceUBChannel UBCh1 = xTraceRegisterUBChannel(chn1, fmt1);
+    traceUBChannel UBCh2 = xTraceRegisterUBChannel(chn1, fmt2);
+    traceUBChannel UBCh3 = xTraceRegisterUBChannel(chn1, fmt3);
+    traceUBChannel UBCh4 = xTraceRegisterUBChannel(chn1, fmt4);
+    traceUBChannel UBCh5 = xTraceRegisterUBChannel(chn1, fmt5);
+    
     uint8_t modemResponseFlag;
     bool waitingSRING = true;
 	/*	estados del proceso	*/
+    
 	switch ( gprsState )
 	{
 	/*	GprsReset: reset + deshabilitacion ECHO	*/
 		case( gprsReset ):		
-//            printf("----------State: %s----------\n",getStateName(gprsState));
             debug("----------State: gprsReset");
 			if( sendCmd )
 			{
@@ -141,6 +148,7 @@ uint8_t	FSM_GprsTask( )
                 debug("Modem ON. Waiting for complete boot...");
                 vTaskDelay(modemResetTime*2);
                 debug("Modem initialization complete");
+                vTraceUBEvent(UBCh1);
                 
                 /*Armo el frame para la primera vez que llega al estado putData*/
                 setServerFrame(dataSecuence,lastSample);
@@ -384,7 +392,6 @@ uint8_t	FSM_GprsTask( )
 		break;
         
         case( activateContext ):
-//			printf("----------State: %s----------\n",getStateName(gprsState));
             debug("----------State: activateContext");
             if( sendCmd )
 			{
@@ -406,7 +413,7 @@ uint8_t	FSM_GprsTask( )
                     if(strstr(gprsBuffer,_OK_)) {
 //                        saveIPaddress( (char*)gprsBuffer );
                         debug("_OK_");
-                        SetProcessState( (uint8_t *)&gprsState,socketDial );                 
+                        SetProcessState( (uint8_t *)&gprsState,getSignal );                 
                     }
                     else if( strstr( (char*)gprsBuffer, (string*)_ERROR_ ) ){
                         debug("_ERROR_");
@@ -434,6 +441,45 @@ uint8_t	FSM_GprsTask( )
                 }
 			}
 			break;
+            
+        /*	Obtención del nivel de señal GPRS	*/
+		case( getSignal ):
+            debug("----------State: getSignal");
+			if( sendCmd )
+			{	
+                if(SendATCommand((string*)atcmd_getSignal,gprsBuffer,gprsBuffer,10,0,2)>0){
+                    /*	modo recepcion para espera de la respuesta	*/
+                    sendCmd = false;
+                }
+                else{ 
+                    debug("ERROR no se pudo enviar el comando al modem.");
+                }        
+			}
+			else
+			{
+               /* Aguarda por respuesta completa del modem */
+                if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
+                    if(strstr(gprsBuffer,_OK_))
+                    {
+                        debug("_OK_");
+                        if(saveSignalLevel(gprsBuffer))
+                            debug("Nivel de señal guardada en RAM RTCC");
+                        else
+                            debug("ERROR al guardar Nivel de señal en RAM RTCC");
+                        SetProcessState( (uint8_t *)&gprsState,socketDial );                 
+                    }
+                    else
+                    {
+                        debug("_FAIL_");
+                        debug(gprsBuffer);
+                        SetProcessState( (uint8_t *)&gprsState,  socketDial);
+                    }   
+                }
+                else{
+                    debug("TIMEOUT MDM RESPONSE.");
+                }
+			}
+		break;    
         
         case( socketDial ):
 //            printf("----------State: %s----------\n",getStateName(gprsState));
@@ -564,40 +610,13 @@ uint8_t	FSM_GprsTask( )
                 //Si waitingSRING es false, significa que ya lo he recibido
                 if(!waitingSRING) {
                     debug("SRING Recibido");
+                    vTraceUBEvent(UBCh2); //Trama enviada al server
                     SetProcessState( (uint8_t *)&gprsState, receiveData);
                 }
                 else {
                     debug("La respuesta del server ha tardado demasiado. Reiniciando comunicacion...");
                     SetProcessState( (uint8_t *)&gprsState,gprsReset );
                 }
-                
-                
-//                if(modemResponseFlag) {                 
-//                    printCurrentRTCCTime(); //Timestamp para evaluar delay comando-respuesta
-//                    if(strstr(gprsBuffer,"SRING"))
-//                    {		
-//                        debug("SRING Recibido\n");
-//                        SetProcessState( (uint8_t *)&gprsState, receiveData);
-//                    }
-//                    else if( strstr(gprsBuffer, (string*)_NOCARRIER_)) {
-//                        debug("_NOCARRIER_");
-////                        SetProcessState( (uint8_t *)&gprsState, gprsReset);
-//                        SetProcessState( (uint8_t *)&gprsState, connectionStatus);
-//                    }
-//                    else
-//                    {
-//                        debug("WAITING SRING:  ");
-//                        debug(gprsBuffer);
-//                        if(attempts>MAX_ATTEMPTS_NUMBER-1){
-//                            SetProcessState( (uint8_t *)&gprsState,gprsReset );
-//                            debug("Maximo numero de intentos alcanzado. Reiniciando...");
-//                        }
-//                    }   
-//                }
-//                else{
-//                    //printf("TIMEOUT MDM RESPONSE. State:%s\n ",getStateName(gprsState));
-//                    debug("TIMEOUT MDM RESPONSE.");
-//                }
 			}
 		break;		
 		
@@ -620,6 +639,7 @@ uint8_t	FSM_GprsTask( )
 			else
 			{       
                /* Aguarda por respuesta completa del modem */
+                vTraceUBEvent(UBCh3); //Respuesta del server recibida
                 if(receiveATCommand(gprsBuffer, &attempts, responseDelay)) {
                     /*Esto es para comparar solo con el encabezado de la trama
                      asi se evitan falsos positivos*/
@@ -742,10 +762,12 @@ uint8_t	FSM_GprsTask( )
             debug("----------State: waitForNewRequests");
             /*Colocar mecanismo sleep para esperar notificaciones desde la tarea 
              sample y disponerse a enviar una trama*/
+            vTraceUBEvent(UBCh4); //Socket cerrado. Esperando nuevas muestras para enviar.
             
             sampleReadyNotification = ulTaskNotifyTake(   pdTRUE, portMAX_DELAY ); 
                 
             if(sampleReadyNotification == NEW_SAMPLE_NOTIFICATION){
+                vTraceUBEvent(UBCh5); //Procesando una nueva solicitud de envio de muestras
                 SetProcessState( (uint8_t *)&gprsState, connectionStatus);
             }
             else{
@@ -789,14 +811,12 @@ uint8_t	FSM_GprsTask( )
                     //NO TIENE IP, ES DECIR NO ESTOY CONECTADO			
                         if( isThereSamplesToSend() ){
                             //NO ESTOY CONECTADO Y TENGO QUE MANDAR MUESTRAS, ACTIVO CONTEXTO
-//                            printf("Sin IP y nueva muestra por enviar...\n");
                             debug("Sin IP y nueva muestra por enviar...");
                             dataSecuence = muestras;
                             setServerFrame(dataSecuence,lastSample);
                             SetProcessState( (uint8_t *)&gprsState, activateContext);	
                         }
                         else{
-//                            printf("connectionStatus sin IP y sin muestras pendientes\n");
                             debug("connectionStatus sin IP y sin muestras pendientes.");
                             SetProcessState( (uint8_t *)&gprsState, waitForNewRequests);
                         }
@@ -805,15 +825,13 @@ uint8_t	FSM_GprsTask( )
                     //TENGO IP, ESTOY CONECTADO
                         if( isThereSamplesToSend() ) {	
                         //TENGO MUESTRAS PARA ENVIAR
-//                            printf("Con IP y nueva muestra por enviar...\n");
                             debug("Con IP y nueva muestra por enviar...");
                             dataSecuence = muestras;
                             setServerFrame(dataSecuence,lastSample);
-                            SetProcessState( (uint8_t *)&gprsState, socketDial);
+                            SetProcessState( (uint8_t *)&gprsState, getSignal);
                         }
                         else {
                         //NO TENGO MUESTRAS PARA ENVIAR
-//                            printf("connectionStatus con IP sin muestras para enviar \n");
                             debug("connectionStatus con IP sin muestras para enviar.");                            
                             SetProcessState( (uint8_t *)&gprsState,waitForNewRequests);
                         }
@@ -1212,4 +1230,35 @@ headerOptions_t getHeaderIndex(const char* header)
     {
         return 0;
     }   
+}
+
+/**********************************************************************************************/
+/**
+ * \brief
+ * Guarda el nivel de se?al en la variable estacion.signal.
+ *
+ * @param text	puntero a la respuesta del modem al comando +CSQ.
+ * 
+ * @return		TRUE si la se?al esta dentro del rango.
+ */
+
+uint8_t	saveSignalLevel( char* text )
+{
+	text = strchr( text, ':' ) + 1;
+	estacion.signal = (uint8_t)atoi( text );
+    return write_rtcc_byte(GPRS_SIGNAL_ADDRESS, &estacion.signal);
+    
+    
+//    if( (estacion.signal == 99) || (estacion.signal <= 4))
+//        SetSignalState(no_signal);
+//    if( (estacion.signal > 4) && (estacion.signal <= 13))
+//        SetSignalState(signal_low);
+//    if( (estacion.signal > 13) && (estacion.signal <= 22))
+//        SetSignalState(signal_ok);
+//    if( (estacion.signal > 22) && (estacion.signal < 32))
+//        SetSignalState(signal_ok);
+//	
+//	if( (4 < estacion.signal) && (estacion.signal < 32) )
+//		return TRUE;
+//	return FALSE;
 }

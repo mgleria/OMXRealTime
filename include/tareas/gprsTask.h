@@ -43,6 +43,7 @@
         setContext,					//!	configura el contexto
 		configSocket,               //!	Configurar el socket
         configExtendSocket,         //!	Configuracion extendida el socket
+        getSignal,
         activateContext,			//!	Activa el contexto previamente configurado   
         socketDial,                 //!	Apertura del socket
         socketSend,                 //! Prepara el socket para en el env�o de datos

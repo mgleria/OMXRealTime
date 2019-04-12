@@ -49,6 +49,7 @@ typedef struct {
 #define	SAMPLES_TOTAL_ADDRESS	0x14
 #define	CONNECTION_ATTEMPTS		0x16
 #define	RAIN_SAVED_ADDRESS		0x20
+#define	GPRS_SIGNAL_ADDRESS		0x22
 
 /*	mascaras para pedir los valores de la variable tiempo */
 #define	_SEC_					0x00
