@@ -353,7 +353,7 @@ void printRTCCTime( rtcc_t* rtcc )
     
 //    UART1_WriteBuffer(auxBuffer,AUX_BUFFER_SIZE);
     debug(auxBuffer);
-    
+    #undef AUX_BUFFER_SIZE
 }
 
 void printCurrentRTCCTime()

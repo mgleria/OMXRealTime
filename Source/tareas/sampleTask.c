@@ -25,6 +25,7 @@ void  sensorsConfig();
 uint16_t getAccumulatedRain();
 void clearAccumulatedRain();
 uint16_t getTemperature(uint16_t adcValue);
+const char* getFSMStateName(uint32 status);
 
 //Handlers software timers
 TimerHandle_t xPassiveSamplingTime;
@@ -72,21 +73,16 @@ void vTaskSample( void *pvParameters ){
 // Seccion de inicializacion
     waitForNotify = false;
     
-    
     xMutexMemory = xSemaphoreCreateMutex();
     debug("xMutexMemory created");
     if(!xMutexMemory){
         debug("ERROR en la creacion del mutex de Memoria");
         //El programa no puede seguir, hay que detenerlo.
     }
-    
     setStatusFSM(SYNC_SERVER_TIME); 
-    debug("Initial section Sample Task");
-    
         
     // Cuerpo de la tarea
     for( ;; ){
-        debug("--------------------Sample Task--------------------");
         LEDToggle(0x1);
         
         if(waitForNotify){
@@ -101,12 +97,9 @@ void vTaskSample( void *pvParameters ){
             
         }
         else{
-            debug("FSM_SampleTask()");
             FSM_SampleTask(status);
         }
-        
-        
-        
+
         uxHighWaterMarkSample = uxTaskGetStackHighWaterMark( NULL );
     }
 }
@@ -124,8 +117,6 @@ static void FSM_SampleTask(uint32_t status){
          * el cual asegurará que el equipo tenga la hora correcta antes de 
          * comenzar a tomar muestras. */
         case SYNC_SERVER_TIME:
-            debug("SYNC_SERVER_TIME");
-
             //Chequeo si la estacion ya se registro
 //            SyncServerTime = isRegistered();
             SyncServerTime = true;
@@ -153,7 +144,7 @@ static void FSM_SampleTask(uint32_t status){
         /*to-do: Revisar si este estado es o no necesario. Quizá sea necesario 
          cuando se requiera pos procesamiento de los datos capturados asincronicamente*/
         case ASYNC_SAMPLING:
-            debug("ASYNC_SAMPLING");
+//            debug("ASYNC_SAMPLING");
             
             //Wait for async events
             asyncEvents = ulTaskNotifyTake( 
@@ -176,14 +167,14 @@ static void FSM_SampleTask(uint32_t status){
             }
             break;
         case SYNC_SAMPLING:
-            debug("SYNC_SAMPLING");
+//            debug("SYNC_SAMPLING");
+            EZBL_printf(".");
             syncEvents = ulTaskNotifyTake( 
                 pdTRUE,  /* Clear the notification value before exiting. */
                 xSegToTicks(T_MUESTREO_DATO_S) ); /* Max Blocking time. */
             
             switch(syncEvents){
                 case SYNCHRONOUS:
-//                    printf("case SYNCHRONOUS:");
                     syncCounter++;
                     //Para cada mediciï¿½n sincrï¿½nica debe definirse un acumulador
                     //acum_sensor_n += functionToGetSampleSensorN();
@@ -197,7 +188,7 @@ static void FSM_SampleTask(uint32_t status){
             }
             break;
         case SAVE_AND_PACKAGE:
-            debug("SAVE_AND_PACKAGE");
+//            debug("SAVE_AND_PACKAGE");
             //Preparar la muestra
 /////////////////////MUESTRAS TOMADAS SINCRONICAMENTE///////////////////////////
             if(syncCounter>0){
@@ -216,6 +207,7 @@ static void FSM_SampleTask(uint32_t status){
             //Limpio el contador por soft del TMR3
             clearAccumulatedRain();
 /////////////////////////////////Señal GPRS/////////////////////////////////////
+            //Se lee el último registro de señal guardado
             read_rtcc_byte(GPRS_SIGNAL_ADDRESS, &sample.senial);
             EZBL_printf("sample.senial: %d", sample.senial);
             
@@ -265,7 +257,12 @@ static void FSM_SampleTask(uint32_t status){
 }
 
 static void setStatusFSM(uint32_t nextStatus){
+    #define AUX_BUFFER_SIZE 30
+    char auxBuffer[AUX_BUFFER_SIZE];
     status = nextStatus;
+    sprintf(auxBuffer,"SAMPLE: %s",getFSMStateName(status)); 
+    debug(auxBuffer);
+    #undef AUX_BUFFER_SIZE
 }
 
 static void softwareTimers_create(){
@@ -407,4 +404,15 @@ uint16_t getAccumulatedRain(){
 
 void clearAccumulatedRain(){
     TMR3_SoftwareCounterClear();
+}
+
+const char* getFSMStateName(uint32 status)
+{
+    switch(status){
+        case SYNC_SERVER_TIME:  return "SYNC_SERVER_TIME";
+        case ASYNC_SAMPLING:    return "ASYNC_SAMPLING";
+        case SYNC_SAMPLING:     return "SYNC_SAMPLING";
+        case SAVE_AND_PACKAGE:  return "SAVE_AND_PACKAGE";
+        default:                return "WRONG_SAMPLE_FSM_STATE";
+    }
 }

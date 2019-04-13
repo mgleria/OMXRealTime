@@ -98,7 +98,7 @@ void printInitialMessage();
 //The queue used to send messages to the LCD task.
 //static QueueHandle_t xLCDQueue;
 
-/*	Estructura con informacin del equipo	*/
+/*	Estructura con informacion del equipo	*/
 estacion_t estacion;
 configDevice_t configDevice;
 
@@ -130,7 +130,7 @@ int __attribute__((address(0x3000))) main( void )
     startCLITask();    
     startSwapPartitionTask();
     startGprsTask();    
-    startTestTask();         
+//    startTestTask();         
     /* Start the task that will control the LCD.  This returns the handle
 	to the queue used to write text out to the task. */
 //	xLCDQueue = xStartLCDTask();
