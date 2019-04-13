@@ -65,12 +65,13 @@ string model[] = "OMX-N";
 #endif
 
 /**	Definicion de la version de firmware */
-#define	FW_DEVICE_VERSION	(2.00)	///<	version y revision del firmware (entero.fraccional)
+#define	FW_DEVICE_VERSION	(1.00)	///<	version y revision del firmware (entero.fraccional)
 
 /**	Macro para la version y revision de firmware	*/
 #define	deviceVersion(ver)	(ver*100)
 
-string version[] = "2.00";
+//string version[] = "1.00\0";
+string version[5] = { '1', '.', '0', '0', '\0' };
 
 #define mainMAX_STRING_LENGTH				( 20 )
 #define bufLen                              ( 15 )
@@ -90,6 +91,7 @@ void setDeviceConfig();
 void printConfigRegisters();
 void printConfigRealRegistersPartition1();
 void printConfigRealRegistersPartition2();
+void printInitialMessage();
 
 //******************************Globales****************************************
 
@@ -109,6 +111,7 @@ extern rtcc_t tiempo;
 int __attribute__((address(0x3000))) main( void ) 
 {    
     SYSTEM_Initialize();
+    printInitialMessage();
     if(_SFTSWP) EZBL_printf("\nCongratulations! A new application is running now after a successful firmware update.");
     else EZBL_printf("\nThis is a normal reset.");
 
@@ -127,7 +130,7 @@ int __attribute__((address(0x3000))) main( void )
     startCLITask();    
     startSwapPartitionTask();
     startGprsTask();    
-//    startTestTask();         
+    startTestTask();         
     /* Start the task that will control the LCD.  This returns the handle
 	to the queue used to write text out to the task. */
 //	xLCDQueue = xStartLCDTask();
@@ -234,5 +237,15 @@ void printConfigRealRegistersPartition2(){
     EZBL_printf("\n  _FICD real config = 0x%04X", EZBL_ReadFlash(_FICD+0x400000));
     EZBL_printf("\n  _FDEVOPT1 real config = 0x%04X", EZBL_ReadFlash(_FDEVOPT1+0x400000));
     EZBL_printf("\n  _FBOOT real config = 0x%04X", EZBL_ReadFlash(_FBOOT+0x400000));
+}
+
+void printInitialMessage()
+{
+    EZBL_printf("\n-------OMXRealTime-------");
+    EZBL_printf("\nVersion de Firmware: %s",version);
+    EZBL_printf("\n\nInterfaz de debug iniciada");
+    EZBL_printf( "\n  RCON  = 0x%04X"
+                 "\n  U1BRG = 0x%04X"
+                 "\n  U2BRG = 0x%04X", RCON, U1BRG, U2BRG);
 }
 

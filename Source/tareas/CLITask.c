@@ -27,11 +27,8 @@ void vTaskCLI( void *pvParameters ){
              * estamos enviando una sola notificacion desde una sola fuente: 
              * TMR2_CallBack()*/
             ulNotifiedValue = ulTaskNotifyTake( pdTRUE, portMAX_DELAY );
-            EZBL_printf("\nulNotifiedValue vTaskCLI:%lu",ulNotifiedValue);
-//            TMR2_Stop();
             
-            bytesRecibidos = EZBL_FIFORead(comando, EZBL_STDIN, EZBL_STDIN->dataCount);
-            EZBL_printf("\nbytesRecibidos vTaskCLI:%d",bytesRecibidos);      
+            bytesRecibidos = EZBL_FIFORead(comando, EZBL_STDIN, EZBL_STDIN->dataCount);     
             
             //Si se recibio algo, procesamos el comando para obtener una respuesta
             if(bytesRecibidos>0) {

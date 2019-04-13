@@ -68,6 +68,7 @@ void debug(const char* s){
 
 void printMemoryPointers()
 {
+    EZBL_printf("\nPunteros de memoria:");
     EZBL_printf("\n%-8s%-8s%-8s", "Total", "Read", "Write"); 
     EZBL_printf("\n%-8d%-8d%-8d", getSamplesTotal(), getSamplesRead(), getSamplesWrite());
 }

@@ -73,13 +73,9 @@ void UART1_Initialize(void)
     
     UART_Reset(1, FCY, 115200, 1); 
     
-    EZBL_ConsoleReset();
-    
-    EZBL_printf("\n\nHello World!"
-                 "\n  RCON  = 0x%04X"
-                 "\n  U1BRG = 0x%04X"
-                 "\n  U2BRG = 0x%04X", RCON, U1BRG, U2BRG);
-   
+    /* Se comento debido a que imprimia caracteres extraños al comienzo y no se 
+     percibe diferencia respecto no usarla*/
+//    EZBL_ConsoleReset(); 
 }
 
 
