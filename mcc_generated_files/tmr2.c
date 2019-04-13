@@ -168,8 +168,6 @@ void __attribute__ ((weak)) TMR2_CallBack(void)
     en EZBL_STDIN. Notifico a xCLIHandle para que lo procese. */
     else {
         prevDataCount = 0xFF;
-//        EZBL_printf("\nEZBL_STDIN->dataCount: %d", EZBL_STDIN->dataCount);
-        LEDToggle(0xF0);
         xTaskNotifyFromISR(xCLIHandle,NEW_COMMAND_RECEIVED_FLAG,eSetValueWithOverwrite,NULL);
     }
 }

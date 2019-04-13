@@ -46,35 +46,6 @@ static uint16	connAttempts = 0;           	///<	contador de intentos de conexion
 /**********************************************************************************************/
 /**
  * \brief
- * Escribe una cadena de bytes en la memoria eeprom interma
- * @param address	direccion de almacenamiento del 1er byte
- * @param array		puntero a la cadena
- * @param size		cantidad de bytes a escribir
- */
-//void	write_int_eeprom_array( uint16 address, char* array, uint8 size )
-//{
-//	while( size-- )
-//		write_int_eeprom_byte( address++, *array++ );
-//}
-
-/**********************************************************************************************/
-/**
- * 
- * @param address	direccion de almacenamiento del 1er byte a leer
- * @param array		puntero donde se almacenan los bytes leidos
- * @param size		cantidad de bytes a leer
- * @return
- */
-//char	*read_int_eeprom_array( uint16 address, char* array, uint8 size )
-//{
-//	while( size-- )
-//		(*array++) = read_int_eeprom_byte( address++ );
-//	return (array);
-//}
-
-/**********************************************************************************************/
-/**
- * \brief
  * Se obtiene una muestra almacenada en memoria.\n
  * @param muestra	puntero a estructura del tipo muestra_t
  * @param sample	0: ultima muestra almacenada, si no suma el valor al puntero
@@ -93,43 +64,20 @@ char	getSample( muestra_t *muestra, char sample )
 	read_rtcc_array( SAMPLES_WRITE_ADDRESS, (uint8_t*)&samplesWrite, sizeof(samplesWrite) );
 	read_rtcc_array( SAMPLES_TOTAL_ADDRESS, (uint8_t*)&samplesTotal, sizeof(samplesTotal) );
 
-    // actualiza el nÃ¹mero de memoria donde debe leer
+    // actualiza el numero de memoria donde debe leer
     memNumber = (uint8)(samplesRead / SAMPLES_BLOCK_SIZE);
     memDevice += memNumber * 2;
     
 	if( !samplesTotal )
 		return false;
-	
-//	samplesRead += (sint16)sample;			//	proxima muestra
-//	if( samplesRead >= MAX_SAMPLES )
-//		samplesRead = 0;
-//
-//	/*	si pE >= pL y no hay overfloat	*/
-//	if( (samplesWrite >= samplesRead) && (samplesTotal != MAX_SAMPLES) )
-//		samplesTotal = samplesWrite - samplesRead;
-//	/*	si pE < pL o hay overfloat	*/
-//	else
-//		samplesTotal = (samplesWrite + MAX_SAMPLES) - samplesRead;
-	
+		
 	/*	carga la direccion desde donde se va a leer	*/
 	auto uint16 read_address = (samplesRead - (SAMPLES_BLOCK_SIZE * memNumber)) * SAMPLES_SIZE;
 	read_address += SAMPLES_START_ADD;
 
     returnValue = MCHP_24LCxxx_Read_array(memDevice,read_address,(uint8_t*)muestra,SAMPLES_SIZE);
 
-//	//	actualiza los valores en la RAM del RTCC
-//	write_rtcc_array( SAMPLES_READ_ADDRESS, (char*)&samplesRead, sizeof(samplesRead) );
-//	write_rtcc_array( SAMPLES_WRITE_ADDRESS, (char*)&samplesWrite, sizeof(samplesWrite) );
-//	write_rtcc_array( SAMPLES_TOTAL_ADDRESS, (char*)&samplesTotal, sizeof(samplesTotal) );
-//
-//	if( !samplesTotal )
-//	{
-//		samplesLoss = 0;
-//		return false;
-//	}
-
 	return	true;
-//    return returnValue;
 }
 /******************************************************************************/
 /**
@@ -165,20 +113,16 @@ uint8 putSample( muestra_t* muestra )
 	/*	guarda la muestra y en caso de no coincidir lo guardado con la muestra,
 	 *	intenta 5 veces como maximo
 	 */
-	/**	Definir aqui el maximo de intentos de conexion con el servidor antes de reiniciar el equipo.	*/
+	/**	Definir aqui el maximo de intentos de comprobación de escritura en memoria	*/
 	#define	MAX_ATTEMPS		5
 	do
 	{
 		/*	guarda la muestra	*/
         r1 = MCHP_24LCxxx_Write_array(memDevice,write_address,(uint8_t*)muestra,SAMPLES_SIZE);
-//		i2cbus_write( memDevice, write_address, (char*)muestra, SAMPLES_SIZE );
 		/*	lee lo que acaba de guardar	*/
         __delay_ms(2);
 		r2 = MCHP_24LCxxx_Read_array(memDevice, write_address,readed,sizeof(readed));
 
-        
-        
-//        s = i2cbus_read( memDevice, write_address, readed, sizeof(readed) );
 	}while( strncmp( (char*)muestra,(char*)readed, SAMPLES_SIZE ) && ((intentos++) < MAX_ATTEMPS) );
 
 	/*	si se superan los intentos retorna un false	*/
@@ -340,38 +284,30 @@ void	setDeviceSensorEnables( uint8* p )
 	auto char sensor[3] = {0,0,0};
 	sensor[0] = *(p + 0);	//	digito 1
 	sensor[1] = *(p + 1);	//	digito 2
-//	auto uint8 data = xtoi( sensor );
     uint8 data = (uint8)strtol(sensor,&end,16); //No existe xtoi() en XC16
 
 	MCHP_24LCxxx_Read_byte(_24LC512_0,INT_ENABLE_SENSOR_1, &aux);
-//    i2cbus_read( _24LC512_0, INT_ENABLE_SENSOR_1, &aux, sizeof (aux) );
+
 	if( data != aux )
         MCHP_24LCxxx_Write_byte( _24LC512_0, INT_ENABLE_SENSOR_1, &data);
-//        i2cbus_write( _24LC512_0, INT_ENABLE_SENSOR_1, &data, sizeof (data) );
 
 	sensor[0] = *(p + 2);	//	digito 3
 	sensor[1] = *(p + 3);	//	digito 4
-//	data = xtoi( sensor );
     data = (uint8)strtol(sensor,&end,16); //No existe xtoi() en XC16
     
     MCHP_24LCxxx_Read_byte(_24LC512_0, INT_ENABLE_SENSOR_2, &aux);
-//	i2cbus_read( _24LC512_0, INT_ENABLE_SENSOR_2, &aux, sizeof (aux) );
 	
 	if( data != aux )
         MCHP_24LCxxx_Write_byte( _24LC512_0, INT_ENABLE_SENSOR_2, &data);
-//    	i2cbus_write( _24LC512_0, INT_ENABLE_SENSOR_2, &data, sizeof (data) );
 		
 	sensor[0] = *(p + 4);	//	digito 5
 	sensor[1] = *(p + 5);	//	digito 6
-//	data = xtoi( sensor );
+
     data = (uint8)strtol(sensor,&end,16); //No existe xtoi() en XC16
     MCHP_24LCxxx_Read_byte(_24LC512_0, INT_ENABLE_SENSOR_3, &aux);
-//	i2cbus_read( _24LC512_0, INT_ENABLE_SENSOR_3, &aux, sizeof (aux) );
 
 	if( data != aux )
         MCHP_24LCxxx_Write_byte( _24LC512_0, INT_ENABLE_SENSOR_3, &data);
-//		i2cbus_write( _24LC512_0, INT_ENABLE_SENSOR_3, &data, sizeof (data) );
-		
 }
 
 uint16 isThereSamplesToSend()
