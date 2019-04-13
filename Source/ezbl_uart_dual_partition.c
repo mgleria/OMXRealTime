@@ -50,12 +50,10 @@
 #include "ezbl.h"
 #include "utilities.h"
 #include "task.h"
-
+#include "tareas/ezbl_uart_dual_partition.h"
 #include "freeRTOS/FreeRTOS.h"
+#include "freeRTOS/task.h"
 
-extern TaskHandle_t xCLIHandle;
-extern TaskHandle_t xSampleHandle;
-extern TaskHandle_t xGprsHandle;
 extern TaskHandle_t xTaskSwapPartition;
 TaskHandle_t xBootloaderHandle;
 void vTaskBootloader (void *pvParameters);
@@ -211,11 +209,13 @@ int EZBL_BootloaderTask(void)
         timeForPartitionSwap = (EZBL_bootCtx.bootCode == EZBL_ERROR_SUCCESS);
         if(timeForPartitionSwap){
             EZBL_FIFOFlush(EZBL_COM_TX, NOW_ms*32u);    // Wait for final status code to go out; I2C could be slow because it depends on the host polling us.
+            xTaskNotify(xTaskSwapPartition,WAKEUP_SWAP_PARTITION_TASK,eSetValueWithOverwrite);
         }     
     }
     else
     {
         LEDToggle(0x10);
+//        LEDToggle(0x30);
     }
 
 #if defined(XPRJ_uart) || defined(XPRJ_default) || defined(EZBL_INIT_UART)   // Defined by MPLAB X on command line when compiling "uart" or "default" Build Configurations or a EZBL_INIT_UART macro exists someplace

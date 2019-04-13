@@ -2,42 +2,45 @@
 #include "ezbl.h"
 #include "FreeRTOS.h"
 #include "freeRTOS/task.h"
+#include "tareas/ezbl_uart_dual_partition.h"
 
 TaskHandle_t xTaskSwapPartition;
 extern volatile int timeForPartitionSwap __attribute__((persistent));    // Global variable signaling when we complete a successful firmware update on the Inactive Partition
 
 void vTaskSwapPartition( void *pvParameters )
 {
-    unsigned long ledBlinkTimer;
     int i;
-
+    uint32_t ulNotifiedValue;
     
     if(!_SFTSWP)
     {
         EZBL_ConsoleClear();    // Writes "Shift In", "Clear Screen" and "Reset Attributes" ANSI control codes to EZBL_STDOUT
     }
     
-    ledBlinkTimer = NOW_32();
-    
     for(;;)
     {
         ClrWdt();
-        // Every half second toggle an LED (1 Hz blink rate) to indicate we are alive
-//        if(NOW_32() - ledBlinkTimer > NOW_sec/2u)
-//        {
-//            LEDToggle(0x07);
-//            ledBlinkTimer += NOW_sec/2u;
-//        }
+
         LEDToggle(0x08);
-
-
-        if(timeForPartitionSwap)
+        
+        /* Aquí se queda bloqueada la tarea hasta que recibe una notificación 
+         desde el Bootloader indicando que tiene que hacer el swap*/
+        ulNotifiedValue = ulTaskNotifyTake( pdTRUE, portMAX_DELAY );
+        
+        if(timeForPartitionSwap && ulNotifiedValue == WAKEUP_SWAP_PARTITION_TASK)
         {
             //Introduzco esta demora para que la tarea vTaskBootloader pueda terminar de enviar todas sus tramas al host
             EZBL_printf("\n\nNew firmware detected. Changing partitions in 500ms.");
             vTaskDelay(xMsToTicks(500));
             EZBL_FIFOFlush(EZBL_STDOUT, NOW_sec);       // Flush all TX status messages from printf() statements
             EZBL_PartitionSwap();                       // Perform the partition swap and branch to 0x000000 on the (presently) Inactive Partition
+        }
+        else
+        {
+            if(timeForPartitionSwap)
+                EZBL_printf("\nLa notificación desde Bootloader no era la esperada");
+            else
+                EZBL_printf("\nEl flag timeForPartitionSwap no era el esperado");
         }
 
         ButtonRead();
