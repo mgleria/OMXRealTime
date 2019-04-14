@@ -62,17 +62,17 @@ typedef enum
     CLOSE_SAMPLE        
 } EVENT_ID;
 
-void vTaskSample( void *pvParameters );
-void startSampleTask();
+void        vTaskSample( void *pvParameters );
+void        startSampleTask();
 
-uint16_t getData_Sensor_1();
-uint16_t getData_Sensor_2();
+uint16_t    getData_Sensor_1();
+uint16_t    getData_Sensor_2();
 
 uint8_t     bcd2dec( uint8_t bcd );
 uint16_t	swapBytes( uint16_t var );
 
-void init_sample(muestra_t *muestra);
-void assembleSample(muestra_t *muestra);
+void        init_sample(muestra_t *muestra);
+void        assembleSample(muestra_t *muestra);
 
 static void softwareTimers_create();
 

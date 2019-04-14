@@ -1,3 +1,19 @@
+/* 
+ * File:   gprsTask.h
+ * Author: Tincho
+ *
+ * Created on 7 de junio de 2018, 10:19
+ * 
+ * Informacion importante sobre los software timers utilizados en la FSM:
+ * 
+ * Timer callback functions execute in the context of the timer service task. 
+ * It is therefore essential that timer callback functions never attempt to 
+ * block. For example, a timer callback function must not call vTaskDelay(), 
+ * vTaskDelayUntil(), or specify a non zero block time when accessing a queue 
+ * or a semaphore.
+ * 
+ * https://www.freertos.org/RTOS-software-timer.html
+ */
 #include <stdio.h>
 
 #include    "tareas/sampleTask.h"
@@ -282,7 +298,7 @@ static void softwareTimers_create(){
 }
 
 void  sensorsConfig(){
-    //Potenci�metro - ADC
+    //Potenciometro - ADC
     ADC_SetConfiguration ( ADC_CONFIGURATION_DEFAULT );
     
     ADC_ChannelEnable ( ADC_CHANNEL_POTENTIOMETER );
@@ -291,19 +307,15 @@ void  sensorsConfig(){
 }
 
 static void prvPasiveCallback (TimerHandle_t xTimer){
-    
-//    vLedToggleLED(0);
     xTimerStop(xPassiveSamplingTime,0);
     xTimerStart(xActiveSamplingTime,0);
     xTimerStart(xSampleData,0);
-//    xTaskNotify(xSampleHandle,SENSOR_1,eSetValueWithOverwrite);
     
     setStatusFSM(SYNC_SAMPLING);
     resetSyncVariables();
 }
 
 static void prvActiveCallback (TimerHandle_t xTimer){
-//    vLedToggleLED(1);
     
     xTimerStop(xSampleData,0);
     xTimerStop(xActiveSamplingTime,0);
@@ -311,13 +323,10 @@ static void prvActiveCallback (TimerHandle_t xTimer){
     
     setStatusFSM(SAVE_AND_PACKAGE);
     
-//    xTaskNotify(xSampleHandle,SENSOR_2,eSetValueWithOverwrite);
 }
 
 static void prvDataCallback (TimerHandle_t xTimer){
-//    vLedToggleLED(2);
     xTaskNotify(xSampleHandle,SYNCHRONOUS,eSetValueWithOverwrite);
-    
 }
 
 static void prvDebouncingRainCallback (TimerHandle_t xTimer){
