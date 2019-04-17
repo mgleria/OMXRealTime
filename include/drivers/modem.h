@@ -20,7 +20,6 @@
 #include    "freeRTOS/FreeRTOS.h"
 #include    "freeRTOS/semphr.h"
 #include    "task.h"
-//#include "freeRTOSConfig.h"
 
 extern EZBL_FIFO *EZBL_COMBootIF;
 
@@ -84,13 +83,8 @@ typedef struct
     uint8       expextedEndOfFrame; ///<    Final de trama que se espera recibir del modem
 }cmdQueue_t;
 
-
-
-
 #define     DATA_READY      1
 #define     DATA_ERROR      2
-
-
 
 void    setupModem();
 /**********************************************************************************************/
@@ -98,13 +92,16 @@ void    setupModem();
  * \brief
  * Envia un comando al modem si es que este no está ocupado atendiendo otro proceso.
  * @param cmd	cadena de texto que contiene el comando.
- * @param tx	puntero al buffer donde queda el comando almacenado hasta ser enviado.
- * @param rx	puntero al buffer donde se almacena/n la/s respuesta/s al comando.
- * @param t		tiempo de espera (s) maximo de espera de la/s respuesta/s. 
  * @param d		tiempo de demora (s) en enviar el comando al modem.
- * @param f		numero de respuestas esperadas.
  */
-int16_t	SendATCommand( const char* cmd, char* tx, char* rx, uint16 t, uint16 d, uint8 f );
+int16_t	SendATCommand( const char* cmd, uint16 d);
+/**
+ * \brief
+ * Recibe la respuesta del modem a un comando AT
+ * @param buffer	buffer donde se almacenará la respuesta del modem
+ * @param attempts	puntero a la cantidad de intentos restantes
+ * @param responseDelay	espera tolerable para el comando
+ */
 uint8_t	receiveATCommand( char* buffer, uint8_t *attempts, TickType_t responseDelay );
 
 #endif	/* MODEM_H */

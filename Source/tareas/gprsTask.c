@@ -152,7 +152,7 @@ uint8_t	FSM_GprsTask( )
                 /*Armo el frame para la primera vez que llega al estado putData*/
                 setServerFrame(dataSecuence,lastSample);
                 //Envio el comando hacia el modem.
-                if(SendATCommand((string*)atcmd_initialConfig,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)atcmd_initialConfig,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -186,7 +186,7 @@ uint8_t	FSM_GprsTask( )
         case( disableEcho ):
 			if( sendCmd )
 			{
-                if(SendATCommand((string*)atcmd_disableEcho,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)atcmd_disableEcho,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -218,7 +218,7 @@ uint8_t	FSM_GprsTask( )
         case( initModem ):
 			if( sendCmd )
 			{           
-                if(SendATCommand((string*)atcmd_STN_OFF,gprsBuffer,gprsBuffer,10,0,1)>0){
+                if(SendATCommand((string*)atcmd_STN_OFF,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -251,7 +251,7 @@ uint8_t	FSM_GprsTask( )
             if( sendCmd )
 			{
 				/*	modo recepcion para espera de la respuesta	*/
-                if(SendATCommand((string*)atcmd_setContextPersonal,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)atcmd_setContextPersonal,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -275,7 +275,6 @@ uint8_t	FSM_GprsTask( )
                     
                 }
                 else{
-                    //printf("TIMEOUT MDM RESPONSE. State:%s\n ",getStateName(gprsState));
                     debug("  TIMEOUT MDM RESPONSE.");
                 }
 			}
@@ -285,7 +284,7 @@ uint8_t	FSM_GprsTask( )
 		case( configSocket ):
 			if( sendCmd )
 			{		
-				if(SendATCommand((string*)atcmd_configSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
+				if(SendATCommand((string*)atcmd_configSocketHARDCODED,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -317,7 +316,7 @@ uint8_t	FSM_GprsTask( )
 		case( configExtendSocket ):
 			if( sendCmd )
 			{	
-                if(SendATCommand((string*)atcmd_configExtendSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)atcmd_configExtendSocketHARDCODED,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -349,7 +348,7 @@ uint8_t	FSM_GprsTask( )
         case( activateContext ):
             if( sendCmd )
 			{
-                if(SendATCommand((string*)atcmd_activateContextHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)atcmd_activateContextHARDCODED,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -395,7 +394,7 @@ uint8_t	FSM_GprsTask( )
 		case( getSignal ):
 			if( sendCmd )
 			{	
-                if(SendATCommand((string*)atcmd_getSignal,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)atcmd_getSignal,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -430,7 +429,7 @@ uint8_t	FSM_GprsTask( )
         case( socketDial ):
 			if( sendCmd )
 			{	
-                if(SendATCommand((string*)atcmd_socketDialHARDCODED_1,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)atcmd_socketDialHARDCODED_1,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
 //                    TMR5_Start();
@@ -463,7 +462,7 @@ uint8_t	FSM_GprsTask( )
         case( socketSend ):
 			if( sendCmd )
 			{	
-                if(SendATCommand((string*)atcmd_socketSend,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)atcmd_socketSend,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -497,9 +496,9 @@ uint8_t	FSM_GprsTask( )
 			{
                 /*A continuacion de la trama, envio el caracter especial 
                 * EndOfFile (EOF)*/
-                if(SendATCommand((string*)tramaGPRS,gprsBuffer,gprsBuffer,10,0,2)>0){        
-//                if(SendATCommand((string*)atcmd_FRAME2,gprsBuffer,gprsBuffer,10,0,2)>0){
-                    if(SendATCommand((string*)atcmd_EOF,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)tramaGPRS,0)>0){        
+//                if(SendATCommand((string*)atcmd_FRAME2,0)>0){
+                    if(SendATCommand((string*)atcmd_EOF,0)>0){
                         /*	modo recepcion para espera de la respuesta	*/
                         sendCmd = false;
                     }
@@ -549,7 +548,7 @@ uint8_t	FSM_GprsTask( )
 //            debug("  ----------State: receiveData");
 			if( sendCmd )
 			{
-                if(SendATCommand((string*)atcmd_sListenHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)atcmd_sListenHARDCODED,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -629,7 +628,7 @@ uint8_t	FSM_GprsTask( )
 		case( closeSocket ):
             if( sendCmd )
 			{	
-                if(SendATCommand((string*)atcmd_closeSocketHARDCODED,gprsBuffer,gprsBuffer,10,0,2)>0){
+                if(SendATCommand((string*)atcmd_closeSocketHARDCODED,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -680,7 +679,7 @@ uint8_t	FSM_GprsTask( )
             if( sendCmd )
 			{
                 //Chequeo si tengo IP
-                 if(SendATCommand((string*)atcmd_checkIP,gprsBuffer,gprsBuffer,10,0,2)>0){
+                 if(SendATCommand((string*)atcmd_checkIP,0)>0){
                     /*	modo recepcion para espera de la respuesta	*/
                     sendCmd = false;
                 }
@@ -850,7 +849,6 @@ char	setServerFrame( uint8_t frameType, uint8_t whichSample )
 			return	false;
 		}
 	}
-//    printf("tramaGPRS:\n%s(%s)\n",tramaGPRS,getFrameType(frameType));
 	return	true;
 }
 
@@ -945,10 +943,10 @@ uint8_t buildHexFrame(char *trama, char *tramaHex, uint8 frameSize)
     while( n < frameSize-1 ){ 
         sprintf( (char*)t + (2*n), (const char*)"%02X", *(p+n));
         n++;
-//        printf("n:%d | (char*)t+(2*n):%s\n",n,(char*)t + (2*n));
+//        EZBL_printf("n:%d | (char*)t+(2*n):%s\n",n,(char*)t + (2*n));
     }
     strcat( (char*)tramaHex, (char*)&string_cierre );
-//    printf("n*2:%d | (char*)t+(2*(n-1)):%s\n",n*2,(char*)t+(2*(n-1)));
+//    EZBL_printf("n*2:%d | (char*)t+(2*(n-1)):%s\n",n*2,(char*)t+(2*(n-1)));
 
     return true;        
 }
@@ -1057,7 +1055,6 @@ const char* getFrameType(uint8 frameType)
         case registro: return "REGISTRO";
         case configuracion: return "CONFIGURACION";
         default: 
-//            printf("Unexpected frameType:%d",frameType);
             return "WRONG_FRAME_TYPE";
     }
 }

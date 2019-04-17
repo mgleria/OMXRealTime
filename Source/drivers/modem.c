@@ -13,7 +13,7 @@ void    setupModem(){
     xTimeModemMutex = xMsToTicks(T_ESPERA_MUTEX_MODEM_MS);
 }
 
-int16_t	SendATCommand( const char* cmd, char* tx, char* rx, uint16 t, uint16 d, uint8 f ){
+int16_t	SendATCommand( const char* cmd, uint16 d ){
     
     int16_t writedBytes = 0;
     
