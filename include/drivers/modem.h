@@ -91,19 +91,20 @@ typedef struct
 #define     DATA_ERROR      2
 
 
+
+void    setupModem();
 /**********************************************************************************************/
 /**
  * \brief
  * Envia un comando al modem si es que este no está ocupado atendiendo otro proceso.
- * @param text	cadena de texto que contiene el comando.
+ * @param cmd	cadena de texto que contiene el comando.
  * @param tx	puntero al buffer donde queda el comando almacenado hasta ser enviado.
  * @param rx	puntero al buffer donde se almacena/n la/s respuesta/s al comando.
  * @param t		tiempo de espera (s) maximo de espera de la/s respuesta/s. 
  * @param d		tiempo de demora (s) en enviar el comando al modem.
  * @param f		numero de respuestas esperadas.
  */
-void    setupModem();
-int16_t	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d, uint8 f );
+int16_t	SendATCommand( const char* cmd, char* tx, char* rx, uint16 t, uint16 d, uint8 f );
 uint8_t	receiveATCommand( char* buffer, uint8_t *attempts, TickType_t responseDelay );
 
 #endif	/* MODEM_H */

@@ -13,7 +13,7 @@ void    setupModem(){
     xTimeModemMutex = xMsToTicks(T_ESPERA_MUTEX_MODEM_MS);
 }
 
-int16_t	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d, uint8 f ){
+int16_t	SendATCommand( const char* cmd, char* tx, char* rx, uint16 t, uint16 d, uint8 f ){
     
     int16_t writedBytes = 0;
     
@@ -24,9 +24,12 @@ int16_t	SendATCommand( const char* text, char* tx, char* rx, uint16 t, uint16 d,
      * esperar xTimeModemMutex y volver a probar, si falla aún pasado  
      * xTimeModemMutex, devuelve -1 */
     if( xSemaphoreTake( xMutexModem, xTimeModemMutex ) == pdTRUE ){
-        debug(text);
-        writedBytes = UART3_WriteBuffer(text,strlen(text));
+//        debug(cmd);
+        writedBytes = UART3_WriteBuffer(cmd,strlen(cmd));
         xSemaphoreGive(xMutexModem);
+        /*WARNING: La siguiente línea esta comentada porque rompe la ejecucion.
+         Estimo que es porque 'cmd' no termina en '\0'. Requiere evaluación.*/
+//        EZBL_printf("\nCMD MDM: %s",cmd);
         return writedBytes;
     }
     else{
@@ -58,8 +61,9 @@ uint8_t	receiveATCommand( char* buffer, uint8_t *attempts, TickType_t responseDe
         readedBytes = UART3_ReadBuffer(buffer, MODEM_BUFFER_SIZE);
         
         if(readedBytes) {
-            debug("MDM Response:");
-            debug(buffer);
+        /*WARNING: La siguiente línea esta comentada porque rompe la ejecucion.
+         Estimo que es porque 'cmd' no termina en '\0'. Requiere evaluación.*/
+//            EZBL_printf("\nMDM Response: %s",buffer);
         }
         else
             debug("Respuesta de modem vacía");    
@@ -70,11 +74,8 @@ uint8_t	receiveATCommand( char* buffer, uint8_t *attempts, TickType_t responseDe
 
 uint8_t	getServerResponse( char* buffer, TickType_t responseDelay )
 {
-//    uint32_t modemResponseNotification = 0;
     uint16_t readedBytes = 0;
-   
      
-//    readedBytes = EZBL_FIFORead(buffer,EZBL_COMBootIF,MODEM_BUFFER_SIZE);
     readedBytes = UART3_ReadBuffer(buffer, MODEM_BUFFER_SIZE);
     
     if(readedBytes)
