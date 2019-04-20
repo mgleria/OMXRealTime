@@ -72,7 +72,7 @@ void startSampleTask(){
                     "SAMPLE",
                     1000,
                     NULL,
-                    MAX_PRIORITY,
+                    MAX_PRIORITY-1,
                     &xSampleHandle);
     
     xTimeMemoryMutex = xMsToTicks(T_ESPERA_MUTEX_MEM_MS);

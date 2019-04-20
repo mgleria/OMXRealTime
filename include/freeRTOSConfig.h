@@ -32,8 +32,8 @@
 #define configTICK_RATE_HZ				( ( TickType_t ) 1000 )
 #define configCPU_CLOCK_HZ				( FCY )  /* Fosc/2 defined in mcc.h*/
 
-#define configMAX_PRIORITIES			( 6 )
-#define MAX_PRIORITY                    configMAX_PRIORITIES-2
+#define configMAX_PRIORITIES			( 5 ) //Cantidad de Prioridades
+#define MAX_PRIORITY                    configMAX_PRIORITIES-1 //Numero de prioridad, arranca en 0
 
 #define configMINIMAL_STACK_SIZE		( 200 )
 #define configTOTAL_HEAP_SIZE			( ( size_t ) 15*1024 )

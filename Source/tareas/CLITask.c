@@ -51,7 +51,7 @@ void startCLITask(){
                     "CLI",
                     1000,
                     NULL,
-                    MAX_PRIORITY-2,
+                    MAX_PRIORITY-3,
                     &xCLIHandle);
     
     debug("startCLITask()");

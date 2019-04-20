@@ -188,7 +188,7 @@ void EZBL_BootloaderInit(void)
                     "BTLDR",
                     2000,
                     NULL,
-                    MAX_PRIORITY+1,
+                    MAX_PRIORITY,
                     &xBootloaderHandle);
     
     debug("startBootloaderTask()");
