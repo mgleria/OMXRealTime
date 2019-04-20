@@ -48,6 +48,7 @@ static uint8_t sampleToSend = lastSample;
 static uint32_t sampleReadyNotification;
 //Handle referenciado en tmr4.c para uso de xTaskNotify()
 TaskHandle_t xGprsHandle;
+extern TaskHandle_t xSampleHandle;
 
 TickType_t responseDelay, modemResetTime;
 
@@ -584,6 +585,7 @@ uint8_t	FSM_GprsTask( )
                                 registering = true;
                                 registered = false;
                             }
+                            
                         //El siguiente codigo se ejecutara para 024F y 004F
                         case h004F:
                             if(dataSecuence == muestras) 
@@ -595,6 +597,7 @@ uint8_t	FSM_GprsTask( )
                                 }                         
                             }
                             dataSecuence = getNextDataSecuence(); 
+                            xTaskNotify(xSampleHandle, SYNC_SERVER_TIME_NOTIFICATION, eSetValueWithOverwrite);
                             break;
                         case h004E:
                         case h024E:

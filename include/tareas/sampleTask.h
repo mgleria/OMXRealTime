@@ -34,8 +34,6 @@
 
 #define T_ESPERA_MUTEX_MEM_MS               200
 
-#define SYNC_SERVER_TIME_NOTIFICATION       4040
-
 
 /* El siguiente ENUM representa los diferentes estados de la FSM de la tarea */
 typedef enum

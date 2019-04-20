@@ -96,6 +96,8 @@ void vTaskSample( void *pvParameters ){
         //El programa no puede seguir, hay que detenerlo.
     }
     setStatusFSM(SYNC_SERVER_TIME); 
+    
+    SyncServerTime = false;
         
     // Cuerpo de la tarea
     for( ;; ){
@@ -135,12 +137,12 @@ static void FSM_SampleTask(uint32_t status){
         case SYNC_SERVER_TIME:
             //Chequeo si la estacion ya se registro
 //            SyncServerTime = isRegistered();
-            SyncServerTime = true;
+            
             //Si no esta registrado el equipo, aguardo
             if( !SyncServerTime ){
                 status = ulTaskNotifyTake(  pdTRUE,  portMAX_DELAY ); 
-                
                 if(status == SYNC_SERVER_TIME_NOTIFICATION){
+                    SyncServerTime = true;
                     setStatusFSM(ASYNC_SAMPLING);
                     /*Cuando este softTimer expire, se cambia de estado a
                     * SYNC_SAMPLING*/
@@ -159,9 +161,7 @@ static void FSM_SampleTask(uint32_t status){
                 
         /*to-do: Revisar si este estado es o no necesario. Quizá sea necesario 
          cuando se requiera pos procesamiento de los datos capturados asincronicamente*/
-        case ASYNC_SAMPLING:
-//            debug("ASYNC_SAMPLING");
-            
+        case ASYNC_SAMPLING:        
             //Wait for async events
             asyncEvents = ulTaskNotifyTake( 
                 pdTRUE,  /* Clear the notification value before exiting. */
@@ -183,7 +183,6 @@ static void FSM_SampleTask(uint32_t status){
             }
             break;
         case SYNC_SAMPLING:
-//            debug("SYNC_SAMPLING");
             EZBL_printf(".");
             syncEvents = ulTaskNotifyTake( 
                 pdTRUE,  /* Clear the notification value before exiting. */
