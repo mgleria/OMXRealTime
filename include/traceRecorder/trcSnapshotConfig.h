@@ -50,7 +50,6 @@
 #define TRC_SNAPSHOT_MODE_STOP_WHEN_FULL	(0x02)
 
 typedef     int16_t 	intptr_t;
-//typedef     int32_t 	intptr_t;
 
 /******************************************************************************
  * TRC_CFG_SNAPSHOT_MODE
